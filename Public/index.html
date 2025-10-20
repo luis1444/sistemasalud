@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VITAL+ | Sistema de Salud Interconectado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8f4f8 100%);
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 80px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 119, 182, 0.08);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: translateY(-2px);
+        }
+
+        .logo img {
+            width: 45px;
+            height: 45px;
+            object-fit: contain;
+            filter: drop-shadow(0 2px 4px rgba(0, 119, 182, 0.2));
+        }
+
+        .logo h1 {
+            font-size: 1.8em;
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        nav {
+            display: flex;
+            gap: 35px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #34495e;
+            font-weight: 500;
+            font-size: 1em;
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #0077b6, #00b4d8);
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover {
+            color: #0077b6;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .actions button {
+            border: none;
+            padding: 12px 28px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0077b6 0%, #0096c7 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 119, 182, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0077b6;
+            border: 2px solid #0077b6;
+        }
+
+        .btn-secondary:hover {
+            background: #0077b6;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* HERO SECTION */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 100px 80px;
+            flex: 1;
+            gap: 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .hero-text {
+            flex: 1;
+            max-width: 600px;
+            animation: fadeInLeft 0.8s ease;
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-text h2 {
+            font-size: 3.2em;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: #1a202c;
+            font-weight: 800;
+            letter-spacing: -1px;
+        }
+
+        .hero-text h2 span {
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-text p {
+            color: #5a6c7d;
+            margin-bottom: 35px;
+            font-size: 1.2em;
+            line-height: 1.6;
+        }
+
+        .hero-text .btn-primary {
+            padding: 16px 40px;
+            font-size: 1.1em;
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.25);
+            border-radius: 50px;
+        }
+
+        .hero-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            animation: fadeInRight 0.8s ease;
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .hero-image img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 30px;
+            box-shadow: 0 20px 60px rgba(0, 119, 182, 0.2);
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .hero-image img:hover {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 25px 70px rgba(0, 119, 182, 0.25);
+        }
+
+        /* FOOTER */
+        footer {
+            text-align: center;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            font-size: 0.95em;
+            color: #7f8c8d;
+            border-top: 1px solid rgba(0, 119, 182, 0.1);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 20px 40px;
+            }
+
+            .hero {
+                padding: 80px 40px;
+                gap: 40px;
+            }
+
+            .hero-text h2 {
+                font-size: 2.5em;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 15px 20px;
+                flex-wrap: wrap;
+            }
+
+            nav {
+                display: none;
+            }
+
+            .hero {
+                flex-direction: column;
+                padding: 60px 20px;
+                text-align: center;
+            }
+
+            .hero-text h2 {
+                font-size: 2em;
+            }
+
+            .hero-text p {
+                font-size: 1em;
+            }
+
+            .hero-image img {
+                max-width: 100%;
+            }
+
+            .actions {
+                width: 100%;
+                justify-content: center;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Barra superior -->
+<header class="navbar">
+    <div class="logo">
+        <img src="images/logo.png" alt="VITAL+ Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <nav>
+        <a href="#nosotros">Nosotros</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#doctores">Doctores</a>
+        <a href="#blog">Blog</a>
+    </nav>
+    <div class="actions">
+        <button class="btn-secondary">Registrarse</button>
+        <button class="btn-primary">Inicia Sesión</button>
+    </div>
+</header>
+
+<!-- Sección principal -->
+<main class="hero">
+    <div class="hero-text">
+        <h2>Toda tu información médica, <span>en un solo lugar</span></h2>
+        <p>Información médica y administrativa, segura y en tiempo real. Accede a tu historial, citas y resultados desde cualquier lugar.</p>
+        <button class="btn-primary">Regístrate Ahora</button>
+    </div>
+    <div class="hero-image">
+        <img src="https://images.pexels.com/photos/8460152/pexels-photo-8460152.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Profesional médico">
+    </div>
+</main>
+
+<footer>
+    <p>© 2025 VITAL+ | Sistema de Salud Interconectado - Todos los derechos reservados</p>
+</footer>
+
+</body>
+</html>
