@@ -1,15 +1,11 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VITAL+ | Sistema de Salud Interconectado</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -43,9 +39,7 @@
             transition: transform 0.3s ease;
         }
 
-        .logo:hover {
-            transform: translateY(-2px);
-        }
+        .logo:hover { transform: translateY(-2px); }
 
         .logo img {
             width: 45px;
@@ -89,13 +83,8 @@
             transition: width 0.3s ease;
         }
 
-        nav a:hover {
-            color: #0077b6;
-        }
-
-        nav a:hover::after {
-            width: 100%;
-        }
+        nav a:hover { color: #0077b6; }
+        nav a:hover::after { width: 100%; }
 
         .actions {
             display: flex;
@@ -135,7 +124,7 @@
             transform: translateY(-2px);
         }
 
-        /* HERO SECTION */
+        /* HERO */
         .hero {
             display: flex;
             align-items: center;
@@ -155,14 +144,8 @@
         }
 
         @keyframes fadeInLeft {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .hero-text h2 {
@@ -203,14 +186,8 @@
         }
 
         @keyframes fadeInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .hero-image img {
@@ -240,62 +217,33 @@
 
         /* RESPONSIVE */
         @media (max-width: 1024px) {
-            .navbar {
-                padding: 20px 40px;
-            }
-
-            .hero {
-                padding: 80px 40px;
-                gap: 40px;
-            }
-
-            .hero-text h2 {
-                font-size: 2.5em;
-            }
+            .navbar { padding: 20px 40px; }
+            .hero { padding: 80px 40px; gap: 40px; }
+            .hero-text h2 { font-size: 2.5em; }
         }
 
         @media (max-width: 768px) {
-            .navbar {
-                padding: 15px 20px;
-                flex-wrap: wrap;
-            }
-
-            nav {
-                display: none;
-            }
-
+            .navbar { padding: 15px 20px; flex-wrap: wrap; }
+            nav { display: none; }
             .hero {
                 flex-direction: column;
                 padding: 60px 20px;
                 text-align: center;
             }
-
-            .hero-text h2 {
-                font-size: 2em;
-            }
-
-            .hero-text p {
-                font-size: 1em;
-            }
-
-            .hero-image img {
-                max-width: 100%;
-            }
-
-            .actions {
-                width: 100%;
-                justify-content: center;
-                margin-top: 15px;
-            }
+            .hero-text h2 { font-size: 2em; }
+            .hero-text p { font-size: 1em; }
+            .hero-image img { max-width: 100%; }
+            .actions { width: 100%; justify-content: center; margin-top: 15px; }
         }
     </style>
 </head>
-<body>
 
-<!-- Barra superior -->
+<body>
+<!-- NAVBAR -->
 <header class="navbar">
-    <div class="logo">
-        <img src="images/logo.png" alt="VITAL+ Logo" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+    <div class="logo" onclick="window.location.href='index.html'">
+        <img src="images/logo.png" alt="VITAL+ Logo"
+             onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
         <h1>VITAL+</h1>
     </div>
     <nav>
@@ -305,26 +253,29 @@
         <a href="#blog">Blog</a>
     </nav>
     <div class="actions">
-        <button class="btn-secondary">Registrarse</button>
-        <button class="btn-primary">Inicia Sesión</button>
+        <!-- 👇 Redirecciones -->
+        <button class="btn-secondary" onclick="window.location.href='/registro.html'">Registrarse</button>
+        <button class="btn-primary" onclick="window.location.href='/login.html'">Iniciar Sesión</button>
     </div>
 </header>
 
-<!-- Sección principal -->
+<!-- HERO -->
 <main class="hero">
     <div class="hero-text">
         <h2>Toda tu información médica, <span>en un solo lugar</span></h2>
-        <p>Información médica y administrativa, segura y en tiempo real. Accede a tu historial, citas y resultados desde cualquier lugar.</p>
-        <button class="btn-primary">Regístrate Ahora</button>
+        <p>Información médica y administrativa, segura y en tiempo real. Accede a tu historial, citas y resultados desde
+            cualquier lugar.</p>
+        <button class="btn-primary" onclick="window.location.href='Vistas/registro.html'">Regístrate Ahora</button>
     </div>
+
     <div class="hero-image">
-        <img src="https://images.pexels.com/photos/8460152/pexels-photo-8460152.jpeg?auto=compress&cs=tinysrgb&w=600" alt="Profesional médico">
+        <img src="https://images.pexels.com/photos/8460152/pexels-photo-8460152.jpeg?auto=compress&cs=tinysrgb&w=600"
+             alt="Profesional médico">
     </div>
 </main>
 
 <footer>
     <p>© 2025 VITAL+ | Sistema de Salud Interconectado - Todos los derechos reservados</p>
 </footer>
-
 </body>
 </html>

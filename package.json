@@ -5,9 +5,16 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
+    "db:create": "node scripts/createDatabase.js",
+    "db:sync": "node scripts/syncDatabase.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["health", "medical", "soa", "vital-plus"],
+  "keywords": [
+    "health",
+    "medical",
+    "soa",
+    "vital-plus"
+  ],
   "author": "",
   "license": "ISC",
   "description": "Sistema de Salud Interconectado - VITAL+",
@@ -17,7 +24,9 @@
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
-    "pg": "^8.16.3"
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.35.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
