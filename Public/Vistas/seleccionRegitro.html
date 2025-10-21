@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Tipo de Registro | VITAL+</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: #ffffff;
+            padding: 40px 50px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.15);
+            text-align: center;
+            max-width: 420px;
+            width: 100%;
+        }
+
+        h2 {
+            margin-bottom: 25px;
+            color: #0077b6;
+            font-weight: 700;
+        }
+
+        .opciones {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        button {
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cliente {
+            background: white;
+            border: 2px solid #00b4d8;
+            color: #0077b6;
+        }
+
+        .btn-cliente:hover {
+            background: #0077b6;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+        }
+
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .volver {
+            margin-top: 20px;
+        }
+
+        .volver a {
+            text-decoration: none;
+            color: #0077b6;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .volver a:hover {
+            color: #023e8a;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>¿Deseas registrarte como...?</h2>
+
+    <div class="opciones">
+        <button class="btn-cliente" onclick="alert('El registro de cliente aún no está disponible.')">
+            🩺 Cliente
+        </button>
+
+        <button class="btn-admin" onclick="window.location.href='registro.html'">
+            ⚙️ Administrador
+        </button>
+    </div>
+
+    <div class="volver">
+        <a href="../index.html">← Volver al inicio</a>
+    </div>
+</div>
+
+</body>
+</html>
