@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro | VITAL+</title>
+    <title>Iniciar Sesión | VITAL+</title>
     <style>
         * {
             margin: 0;
@@ -117,7 +117,7 @@
 
         /* Panel derecho - Formulario */
         .panel-derecho {
-            flex: 1.5;
+            flex: 1;
             background: #f8f9fa;
             display: flex;
             align-items: center;
@@ -126,32 +126,14 @@
             overflow-y: auto;
         }
 
-        .panel-derecho::-webkit-scrollbar {
-            width: 10px;
-        }
-
-        .panel-derecho::-webkit-scrollbar-track {
-            background: #e0e0e0;
-        }
-
-        .panel-derecho::-webkit-scrollbar-thumb {
-            background: #00b4d8;
-            border-radius: 5px;
-        }
-
-        .panel-derecho::-webkit-scrollbar-thumb:hover {
-            background: #0077b6;
-        }
-
-        .registro-container {
+        .login-container {
             background: #ffffff;
-            padding: 40px 45px;
+            padding: 50px 45px;
             border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0, 119, 182, 0.12);
             width: 100%;
-            max-width: 650px;
+            max-width: 450px;
             border-left: 5px solid #00b4d8;
-            margin: 20px 0;
         }
 
         h2 {
@@ -165,23 +147,19 @@
         .subtitulo {
             text-align: center;
             color: #52796f;
-            margin-bottom: 35px;
+            margin-bottom: 40px;
             font-size: 0.95em;
         }
 
         form {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
-        }
-
-        .form-group.full-width {
-            grid-column: 1 / -1;
         }
 
         label {
@@ -191,7 +169,7 @@
             font-size: 0.95em;
         }
 
-        input, select {
+        input {
             padding: 14px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
@@ -200,19 +178,46 @@
             background: #fafafa;
         }
 
-        input:focus, select:focus {
+        input:focus {
             border-color: #00b4d8;
             outline: none;
             background: #ffffff;
             box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
         }
 
-        select {
+        .opciones {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .recordar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #52796f;
+        }
+
+        .recordar input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
             cursor: pointer;
         }
 
+        .olvidar-password {
+            color: #0077b6;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .olvidar-password:hover {
+            color: #023e8a;
+            text-decoration: underline;
+        }
+
         button {
-            grid-column: 1 / -1;
             margin-top: 10px;
             padding: 15px;
             border: none;
@@ -233,6 +238,50 @@
 
         button:active {
             transform: translateY(-1px);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 25px 0;
+            color: #95a5a6;
+            font-size: 0.9em;
+            position: relative;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider::before {
+            left: 0;
+        }
+
+        .divider::after {
+            right: 0;
+        }
+
+        .registro-link {
+            text-align: center;
+            color: #52796f;
+            font-size: 0.95em;
+        }
+
+        .registro-link a {
+            color: #0077b6;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s ease;
+        }
+
+        .registro-link a:hover {
+            color: #023e8a;
+            text-decoration: underline;
         }
 
         .volver {
@@ -279,20 +328,14 @@
                 padding: 30px 20px;
             }
 
-            .registro-container {
+            .login-container {
                 padding: 35px 30px;
             }
 
-            form {
-                grid-template-columns: 1fr;
-            }
-
-            .form-group.full-width {
-                grid-column: 1;
-            }
-
-            button {
-                grid-column: 1;
+            .opciones {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
             }
         }
     </style>
@@ -313,59 +356,39 @@
     </div>
 </div>
 
-<!-- Panel Derecho - Formulario -->
+<!-- Panel Derecho - Formulario de Login -->
 <div class="panel-derecho">
-    <div class="registro-container">
-        <h2>Registro</h2>
-        <p class="subtitulo">Crea tu cuenta en VITAL+</p>
+    <div class="login-container">
+        <h2>Bienvenido</h2>
+        <p class="subtitulo">Inicia sesión en tu cuenta</p>
 
-        <form id="formRegistro">
+        <form id="formLogin">
             <div class="form-group">
-                <label for="nombre">Nombre completo</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu nombre completo" required>
-            </div>
-
-            <div class="form-group">
-                <label for="identificacion">Identificación</label>
-                <input type="text" id="identificacion" name="identificacion" placeholder="Número de documento" required>
-            </div>
-
-            <div class="form-group">
-                <label for="fechaNacimiento">Fecha de nacimiento</label>
-                <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
-            </div>
-
-            <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <input type="tel" id="telefono" name="telefono" placeholder="(+57) 300 123 4567" required>
-            </div>
-
-            <div class="form-group full-width">
-                <label for="direccion">Dirección</label>
-                <input type="text" id="direccion" name="direccion" placeholder="Dirección de residencia" required>
-            </div>
-
-            <div class="form-group full-width">
                 <label for="correo">Correo electrónico</label>
                 <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
             </div>
 
             <div class="form-group">
-                <label for="rol">Rol</label>
-                <select id="rol" name="rol" required>
-                    <option value="">Selecciona un rol</option>
-                    <option value="paciente">Paciente</option>
-                    <option value="administrador">Administrador</option>
-                </select>
-            </div>
-
-            <div class="form-group">
                 <label for="contrasena">Contraseña</label>
-                <input type="password" id="contrasena" name="contrasena" placeholder="Mínimo 8 caracteres" required>
+                <input type="password" id="contrasena" name="contrasena" placeholder="Ingresa tu contraseña" required>
             </div>
 
-            <button type="submit">Registrarse</button>
+            <div class="opciones">
+                <label class="recordar">
+                    <input type="checkbox" id="recordar" name="recordar">
+                    <span>Recordarme</span>
+                </label>
+                <a href="#" class="olvidar-password">¿Olvidaste tu contraseña?</a>
+            </div>
+
+            <button type="submit">Iniciar Sesión</button>
         </form>
+
+        <div class="divider">o</div>
+
+        <div class="registro-link">
+            ¿No tienes una cuenta? <a href="registro.html">Regístrate aquí</a>
+        </div>
 
         <div class="volver">
             <a href="index.html">← Volver al inicio</a>
@@ -375,7 +398,7 @@
 
 <!-- Librería SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../js/registro.js"></script>
+<script src="../js/login.js"></script>
 
 </body>
 </html>

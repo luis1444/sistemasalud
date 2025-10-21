@@ -1,6 +1,6 @@
 // Servicios/AdministradorServicios.js
 
-const Administrador = require("../Entidades/Administrador");
+const Administrador = require("../entidades/Administrador");
 const adminRepo = require("../Repositorios/AdministradorRepositorio");
 
 class AdministradorServicios {

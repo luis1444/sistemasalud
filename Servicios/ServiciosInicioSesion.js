@@ -1,6 +1,6 @@
 // Servicios/ServiciosInicioSesion.js
 
-const InicioSesion = require('../Entidades/InicioSesion');
+const InicioSesion = require('../entidades/InicioSesion');
 
 class ServicioInicioSesion {
     constructor(repositorio) {

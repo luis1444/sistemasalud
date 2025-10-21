@@ -37,13 +37,27 @@ app.get('/', (req, res) => {
 
 // Página de inicio de sesión
 app.get('/inicio-sesion', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'Vistas', 'InicioSesion.html'));
+    res.sendFile(path.join(__dirname, 'public', 'Vistas', 'login.html'));
 });
 
 // ============================================
-// 🚀 Iniciar servidor
+// 🚀 Iniciar servidor y sincronizar base de datos
 // ============================================
 app.listen(PORT, async () => {
     console.log(`✅ Servidor VITAL+ corriendo en: http://localhost:${PORT}`);
-    await testConnection(); // probar conexión con la BD
+
+    // 1️⃣ Verificar conexión
+    await testConnection();
+
+    try {
+        console.log('🔄 Sincronizando base de datos...');
+        // 2️⃣ Cargar modelo Usuario (para registrar su estructura)
+        require('./entidades/Usuarios');
+
+        // 3️⃣ Crear o actualizar tablas automáticamente
+        await sequelize.sync({ alter: true });
+        console.log('✅ Tablas sincronizadas correctamente.');
+    } catch (error) {
+        console.error('❌ Error al sincronizar la base de datos:', error);
+    }
 });
