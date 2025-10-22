@@ -1,6 +1,4 @@
-// ============================================
-// 📄 entidades/Usuarios.js — Modelo Sequelize
-// ============================================
+// entidades/Usuarios.js — Modelo Sequelize
 const { DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { sequelize } = require('../Config/database');
@@ -22,8 +20,29 @@ Usuario.init({
         autoIncrement: true,
         primaryKey: true
     },
+    nombre: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+    },
+    identificacion: {
+        type: DataTypes.STRING(50),
+        allowNull: true,
+        unique: true
+    },
+    fecha_nacimiento: {
+        type: DataTypes.DATEONLY,
+        allowNull: true
+    },
+    direccion: {
+        type: DataTypes.STRING(500),
+        allowNull: true
+    },
+    telefono: {
+        type: DataTypes.STRING(20),
+        allowNull: true
+    },
     correo: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false,
         unique: true,
         validate: {
@@ -31,12 +50,13 @@ Usuario.init({
         }
     },
     contrasena: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(255),
         allowNull: false
     },
     rol: {
         type: DataTypes.ENUM('paciente', 'doctor', 'admin', 'laboratorio', 'farmacia'),
-        allowNull: false
+        allowNull: false,
+        defaultValue: 'paciente'
     },
     activo: {
         type: DataTypes.BOOLEAN,
@@ -59,7 +79,9 @@ Usuario.init({
 
 // 🔐 Encriptar contraseña antes de guardar
 Usuario.beforeCreate(async (usuario) => {
-    usuario.contrasena = await bcrypt.hash(usuario.contrasena, 10);
+    if (usuario.contrasena) {
+        usuario.contrasena = await bcrypt.hash(usuario.contrasena, 10);
+    }
 });
 
 // 🔐 Encriptar contraseña al actualizar

@@ -4,21 +4,39 @@ const jwt = require('jsonwebtoken');
 class UsuarioServicio {
 
     async registrar(datos) {
-        const { correo, contrasena, rol } = datos;
+        const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = datos;
 
-        if (rol && !['paciente', 'admin'].includes(rol))
+        // Mapear "administrador" a "admin" para compatibilidad
+        let rolFinal = rol || 'paciente';
+        if (rolFinal === 'administrador') {
+            rolFinal = 'admin';
+        }
+
+        // Validar roles permitidos en registro público
+        if (!['paciente', 'admin'].includes(rolFinal)) {
             throw new Error('Solo se pueden registrar pacientes o administradores');
+        }
 
-        if (await usuarioRepositorio.existeCorreo(correo))
+        // Validar que el correo no esté registrado
+        if (await usuarioRepositorio.existeCorreo(correo)) {
             throw new Error('El correo ya está registrado');
+        }
 
-        if (contrasena.length < 6)
+        // Validar longitud de contraseña
+        if (contrasena.length < 6) {
             throw new Error('La contraseña debe tener al menos 6 caracteres');
+        }
 
+        // Crear el nuevo usuario con todos los datos
         const nuevoUsuario = await usuarioRepositorio.crear({
             correo,
             contrasena,
-            rol: rol || 'paciente',
+            rol: rolFinal,
+            nombre: nombre || null,
+            identificacion: identificacion || null,
+            fecha_nacimiento: fechaNacimiento || null,
+            direccion: direccion || null,
+            telefono: telefono || null,
             activo: true
         });
 
@@ -102,7 +120,12 @@ class UsuarioServicio {
     }
 
     generarToken(usuario) {
-        const payload = { id: usuario.id, correo: usuario.correo, rol: usuario.rol };
+        const payload = {
+            id: usuario.id,
+            correo: usuario.correo,
+            rol: usuario.rol,
+            nombre: usuario.nombre
+        };
         return jwt.sign(payload, process.env.JWT_SECRET || 'vital_plus_secret', { expiresIn: '24h' });
     }
 
