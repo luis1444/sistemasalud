@@ -100,7 +100,7 @@ app.listen(PORT, async () => {
 // Manejar errores 404 (filtrar errores de Chrome DevTools)
 app.use((req, res) => {
     // Ignorar peticiones de Chrome DevTools
-    if (req.url.includes('.well-known/appspecific')) {
+    if (req.url.includes('.well-known/appspecifigc')) {
         return res.status(404).end();
     }
 
