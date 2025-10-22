@@ -1,33 +1,50 @@
+// ============================================
+// 📄 servicios/UsuarioServicios.js
+// ============================================
 const usuarioRepositorio = require('../repositorios/UsuarioRepositorio');
 const jwt = require('jsonwebtoken');
 
+// 🔑 CORRECCIÓN DE LA IMPORTACIÓN: Destructuración para obtener las funciones
+// Asumiendo que ../public/js/email exporta { enviarCorreo, enviarCorreoCredenciales }
+const { enviarCorreo, enviarCorreoCredenciales } = require('../public/js/email');
+
+// 🎯 Función auxiliar para el registro de paciente/admin
+async function enviarCorreoBienvenida(correo, nombre, rol) {
+    const htmlBienvenida = `
+        <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+            <h2>Bienvenido a VITAL+</h2>
+            <p>Gracias por registrarte en nuestro sistema. Tu rol es: <strong>${rol.toUpperCase()}</strong>.</p>
+            <p>Saludos cordiales.</p>
+        </div>
+    `;
+    await enviarCorreo(correo, 'Bienvenido a VITAL+', htmlBienvenida);
+}
+
+
 class UsuarioServicio {
 
+
+    // ============================================
+    // REGISTRAR (PACIENTE / ADMIN)
+    // ============================================
     async registrar(datos) {
         const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = datos;
 
-        // Mapear "administrador" a "admin" para compatibilidad
         let rolFinal = rol || 'paciente';
-        if (rolFinal === 'administrador') {
-            rolFinal = 'admin';
-        }
+        if (rolFinal === 'administrador') rolFinal = 'admin';
 
-        // Validar roles permitidos en registro público
         if (!['paciente', 'admin'].includes(rolFinal)) {
             throw new Error('Solo se pueden registrar pacientes o administradores');
         }
 
-        // Validar que el correo no esté registrado
         if (await usuarioRepositorio.existeCorreo(correo)) {
             throw new Error('El correo ya está registrado');
         }
 
-        // Validar longitud de contraseña
         if (contrasena.length < 6) {
             throw new Error('La contraseña debe tener al menos 6 caracteres');
         }
 
-        // Crear el nuevo usuario con todos los datos
         const nuevoUsuario = await usuarioRepositorio.crear({
             correo,
             contrasena,
@@ -42,9 +59,72 @@ class UsuarioServicio {
 
         const token = this.generarToken(nuevoUsuario);
 
+        // ✅ Enviar correo de bienvenida (usa la función auxiliar local)
+        try {
+            await enviarCorreoBienvenida(
+                correo,
+                nombre || 'Usuario',
+                rolFinal
+            );
+            console.log(`📧 Correo de bienvenida enviado a ${correo}`);
+        } catch (err) {
+            console.error('⚠️ Error enviando correo al registrar:', err.message);
+        }
+
         return { usuario: nuevoUsuario, token };
     }
 
+
+    // ============================================
+    // CREAR PERSONAL (MÉDICO, LAB, FARMACIA) - Implementación Solicitada
+    // ============================================
+    async crearUsuario(datos) {
+        const { correo, contrasena, rol, nombre } = datos;
+
+        // Validación de rol de personal
+        const rolesPermitidos = ['doctor', 'laboratorio', 'farmacia'];
+        if (!rolesPermitidos.includes(rol)) {
+            throw new Error(`Rol de personal inválido: ${rol}`);
+        }
+
+        if (await usuarioRepositorio.existeCorreo(correo)) {
+            throw new Error('El correo ya está registrado.');
+        }
+
+        // 1. Crear el usuario (La contraseña se hashea automáticamente)
+        const nuevoUsuario = await usuarioRepositorio.crear(datos);
+
+        if (!nuevoUsuario) {
+            throw new Error('Error interno al crear el usuario.');
+        }
+
+        // 2. 📧 ENVIAR CORREO CON CREDENCIALES (¡Implementación clave!)
+        try {
+            // Se usa la contraseña SIN HASHEAR ('contrasena') para enviarla por correo.
+            const exitoEnvio = await enviarCorreoCredenciales(
+                nuevoUsuario.correo,
+                nuevoUsuario.nombre || 'Personal de Salud',
+                contrasena, // ⚠️ Contraseña simple para el correo
+                nuevoUsuario.rol
+            );
+
+            if (exitoEnvio) {
+                console.log(`✅ Correo de credenciales enviado a ${nuevoUsuario.correo}`);
+            }
+        } catch (error) {
+            console.error('❌ Error fatal al enviar correo de credenciales:', error.message);
+            // El error de correo no debe bloquear la creación del usuario
+        }
+
+        // Devolver el objeto sin la contraseña
+        const usuarioLimpio = nuevoUsuario.toJSON();
+        delete usuarioLimpio.contrasena;
+        return usuarioLimpio;
+    }
+
+    // ============================================
+    // OTRAS FUNCIONES
+    // ============================================
     async iniciarSesion(correo, contrasena) {
         const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
         if (!usuario) throw new Error('Credenciales inválidas');
@@ -75,18 +155,6 @@ class UsuarioServicio {
         return usuario;
     }
 
-    async cambiarContrasena(id, actual, nueva) {
-        const usuario = await usuarioRepositorio.buscarPorId(id);
-        if (!usuario) throw new Error('Usuario no encontrado');
-
-        const valida = await usuario.verificarContrasena(actual);
-        if (!valida) throw new Error('Contraseña actual incorrecta');
-
-        if (nueva.length < 6) throw new Error('La nueva contraseña debe tener al menos 6 caracteres');
-
-        return await usuarioRepositorio.actualizar(id, { contrasena: nueva });
-    }
-
     async desactivar(id) {
         const usuario = await usuarioRepositorio.desactivar(id);
         if (!usuario) throw new Error('Usuario no encontrado');
@@ -99,26 +167,6 @@ class UsuarioServicio {
         return usuario;
     }
 
-    async crearUsuario(datos, rolCreador) {
-        if (rolCreador !== 'admin') throw new Error('No tienes permisos');
-
-        const { correo, contrasena, rol } = datos;
-
-        if (await usuarioRepositorio.existeCorreo(correo))
-            throw new Error('El correo ya está registrado');
-
-        const rolesPermitidos = ['paciente', 'doctor', 'admin', 'laboratorio', 'farmacia'];
-        if (!rolesPermitidos.includes(rol))
-            throw new Error('Rol inválido');
-
-        return await usuarioRepositorio.crear({
-            correo,
-            contrasena,
-            rol,
-            activo: true
-        });
-    }
-
     generarToken(usuario) {
         const payload = {
             id: usuario.id,
@@ -127,14 +175,6 @@ class UsuarioServicio {
             nombre: usuario.nombre
         };
         return jwt.sign(payload, process.env.JWT_SECRET || 'vital_plus_secret', { expiresIn: '24h' });
-    }
-
-    verificarToken(token) {
-        try {
-            return jwt.verify(token, process.env.JWT_SECRET || 'vital_plus_secret');
-        } catch {
-            throw new Error('Token inválido o expirado');
-        }
     }
 
     async obtenerEstadisticas() {

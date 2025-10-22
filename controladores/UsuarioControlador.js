@@ -33,6 +33,7 @@ class UsuarioControlador {
                 datos: resultado
             });
         } catch (error) {
+            console.error('❌ Error en registro:', error);
             res.status(400).json({ exito: false, mensaje: error.message });
         }
     }
@@ -47,12 +48,14 @@ class UsuarioControlador {
                 datos: resultado
             });
         } catch (error) {
+            console.error('❌ Error en inicio de sesión:', error);
             res.status(401).json({ exito: false, mensaje: error.message });
         }
     }
 
     async obtenerPerfil(req, res) {
         try {
+            // El ID del usuario se obtiene del token (req.usuario.id)
             const usuario = await usuarioServicio.obtenerPerfil(req.usuario.id);
             res.json({ exito: true, datos: usuario });
         } catch (error) {
@@ -60,9 +63,42 @@ class UsuarioControlador {
         }
     }
 
+    // 🔑 FUNCIÓN CORREGIDA: Actualiza el perfil del usuario autenticado (Ruta: /perfil)
+    async actualizarPerfil(req, res) {
+        try {
+            // Utiliza el ID del usuario extraído del token, no de los parámetros
+            const idUsuario = req.usuario.id;
+            const usuario = await usuarioServicio.actualizar(idUsuario, req.body);
+
+            res.json({
+                exito: true,
+                mensaje: 'Perfil actualizado',
+                datos: usuario
+            });
+        } catch (error) {
+            console.error('❌ Error al actualizar perfil:', error);
+            res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    // 🔑 FUNCIÓN PARA ADMIN: Actualiza un usuario por ID (Ruta: /:id)
+    async actualizarUsuario(req, res) {
+        try {
+            const { id } = req.params; // Usa el ID de la URL
+            const usuario = await usuarioServicio.actualizar(id, req.body);
+            res.json({
+                exito: true,
+                mensaje: 'Usuario actualizado',
+                datos: usuario
+            });
+        } catch (error) {
+            console.error('❌ Error al actualizar usuario por ID:', error);
+            res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
     async obtenerTodos(req, res) {
         try {
-            // Verificar que sea administrador
             if (req.usuario.rol !== 'admin') {
                 return res.status(403).json({
                     exito: false,
@@ -82,23 +118,8 @@ class UsuarioControlador {
         }
     }
 
-    async actualizar(req, res) {
-        try {
-            const { id } = req.params;
-            const usuario = await usuarioServicio.actualizar(id, req.body);
-            res.json({
-                exito: true,
-                mensaje: 'Usuario actualizado',
-                datos: usuario
-            });
-        } catch (error) {
-            res.status(400).json({ exito: false, mensaje: error.message });
-        }
-    }
-
     async crearPersonal(req, res) {
         try {
-            // Verificar que sea administrador
             if (req.usuario.rol !== 'admin') {
                 return res.status(403).json({
                     exito: false,
@@ -118,7 +139,6 @@ class UsuarioControlador {
                 area
             } = req.body;
 
-            // Validaciones
             if (!correo || !contrasena || !rol || !nombre || !identificacion) {
                 return res.status(400).json({
                     exito: false,
@@ -126,7 +146,7 @@ class UsuarioControlador {
                 });
             }
 
-            // Crear usuario con datos completos
+            // Llama a la función de servicio que también envía el correo
             const nuevoUsuario = await usuarioServicio.crearUsuario({
                 correo,
                 contrasena,
@@ -160,7 +180,6 @@ class UsuarioControlador {
 
     async obtenerEstadisticas(req, res) {
         try {
-            // Verificar que sea administrador
             if (req.usuario.rol !== 'admin') {
                 return res.status(403).json({
                     exito: false,
@@ -175,28 +194,6 @@ class UsuarioControlador {
             });
         } catch (error) {
             res.status(500).json({ exito: false, mensaje: error.message });
-        }
-    }
-
-    async actualizarUsuario(req, res) {
-        try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
-                    exito: false,
-                    mensaje: 'No tienes permisos para actualizar usuarios'
-                });
-            }
-
-            const { id } = req.params;
-            const usuario = await usuarioServicio.actualizar(id, req.body);
-
-            res.json({
-                exito: true,
-                mensaje: 'Usuario actualizado correctamente',
-                datos: usuario
-            });
-        } catch (error) {
-            res.status(400).json({ exito: false, mensaje: error.message });
         }
     }
 

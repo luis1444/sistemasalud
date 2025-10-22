@@ -40,13 +40,6 @@ class UsuarioRepositorio {
         return await usuario.update({ activo: false });
     }
 
-    async eliminarPermanente(id) {
-        const usuario = await this.buscarPorId(id);
-        if (!usuario) return null;
-        await usuario.destroy();
-        return true;
-    }
-
     async contarPorRol(rol) {
         return await Usuario.count({
             where: { rol, activo: true }
