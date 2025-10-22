@@ -1,19 +1,36 @@
-
+// ============================================
+// 📄 controladores/UsuarioControlador.js
+// ============================================
 const usuarioServicio = require('../servicios/UsuarioServicios');
 
 class UsuarioControlador {
 
     async registrar(req, res) {
         try {
-            const { correo, contrasena, rol } = req.body;
-            if (!correo || !contrasena)
-                return res.status(400).json({ exito: false, mensaje: 'Correo y contraseña son obligatorios' });
+            const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = req.body;
 
-            const usuario = await usuarioServicio.registrar({ correo, contrasena, rol });
+            if (!correo || !contrasena) {
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'Correo y contraseña son obligatorios'
+                });
+            }
+
+            const resultado = await usuarioServicio.registrar({
+                correo,
+                contrasena,
+                rol,
+                nombre,
+                identificacion,
+                fechaNacimiento,
+                direccion,
+                telefono
+            });
+
             res.status(201).json({
                 exito: true,
                 mensaje: 'Usuario registrado correctamente',
-                datos: { usuario }  // <-- esto es lo que tu frontend espera
+                datos: resultado
             });
         } catch (error) {
             res.status(400).json({ exito: false, mensaje: error.message });
@@ -24,7 +41,11 @@ class UsuarioControlador {
         try {
             const { correo, contrasena } = req.body;
             const resultado = await usuarioServicio.iniciarSesion(correo, contrasena);
-            res.json({ exito: true, mensaje: 'Inicio de sesión exitoso', datos: resultado });
+            res.json({
+                exito: true,
+                mensaje: 'Inicio de sesión exitoso',
+                datos: resultado
+            });
         } catch (error) {
             res.status(401).json({ exito: false, mensaje: error.message });
         }
@@ -41,9 +62,21 @@ class UsuarioControlador {
 
     async obtenerTodos(req, res) {
         try {
+            // Verificar que sea administrador
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para realizar esta acción'
+                });
+            }
+
             const filtros = req.query;
             const usuarios = await usuarioServicio.obtenerTodos(filtros);
-            res.json({ exito: true, total: usuarios.length, datos: usuarios });
+            res.json({
+                exito: true,
+                total: usuarios.length,
+                datos: usuarios
+            });
         } catch (error) {
             res.status(500).json({ exito: false, mensaje: error.message });
         }
@@ -53,7 +86,159 @@ class UsuarioControlador {
         try {
             const { id } = req.params;
             const usuario = await usuarioServicio.actualizar(id, req.body);
-            res.json({ exito: true, mensaje: 'Usuario actualizado', datos: usuario });
+            res.json({
+                exito: true,
+                mensaje: 'Usuario actualizado',
+                datos: usuario
+            });
+        } catch (error) {
+            res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    async crearPersonal(req, res) {
+        try {
+            // Verificar que sea administrador
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para crear personal'
+                });
+            }
+
+            const {
+                correo,
+                contrasena,
+                rol,
+                nombre,
+                identificacion,
+                telefono,
+                direccion,
+                especialidad,
+                area
+            } = req.body;
+
+            // Validaciones
+            if (!correo || !contrasena || !rol || !nombre || !identificacion) {
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'Todos los campos obligatorios deben ser completados'
+                });
+            }
+
+            // Crear usuario con datos completos
+            const nuevoUsuario = await usuarioServicio.crearUsuario({
+                correo,
+                contrasena,
+                rol,
+                nombre,
+                identificacion,
+                telefono,
+                direccion,
+                especialidad,
+                area
+            }, req.usuario.rol);
+
+            res.status(201).json({
+                exito: true,
+                mensaje: `${rol === 'doctor' ? 'Médico' : rol.charAt(0).toUpperCase() + rol.slice(1)} registrado correctamente`,
+                datos: {
+                    id: nuevoUsuario.id,
+                    nombre: nuevoUsuario.nombre,
+                    correo: nuevoUsuario.correo,
+                    rol: nuevoUsuario.rol,
+                    identificacion: nuevoUsuario.identificacion
+                }
+            });
+        } catch (error) {
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    async obtenerEstadisticas(req, res) {
+        try {
+            // Verificar que sea administrador
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para ver estadísticas'
+                });
+            }
+
+            const estadisticas = await usuarioServicio.obtenerEstadisticas();
+            res.json({
+                exito: true,
+                datos: estadisticas
+            });
+        } catch (error) {
+            res.status(500).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    async actualizarUsuario(req, res) {
+        try {
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para actualizar usuarios'
+                });
+            }
+
+            const { id } = req.params;
+            const usuario = await usuarioServicio.actualizar(id, req.body);
+
+            res.json({
+                exito: true,
+                mensaje: 'Usuario actualizado correctamente',
+                datos: usuario
+            });
+        } catch (error) {
+            res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    async desactivarUsuario(req, res) {
+        try {
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para desactivar usuarios'
+                });
+            }
+
+            const { id } = req.params;
+            const usuario = await usuarioServicio.desactivar(id);
+
+            res.json({
+                exito: true,
+                mensaje: 'Usuario desactivado correctamente',
+                datos: usuario
+            });
+        } catch (error) {
+            res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    async activarUsuario(req, res) {
+        try {
+            if (req.usuario.rol !== 'admin') {
+                return res.status(403).json({
+                    exito: false,
+                    mensaje: 'No tienes permisos para activar usuarios'
+                });
+            }
+
+            const { id } = req.params;
+            const usuario = await usuarioServicio.activar(id);
+
+            res.json({
+                exito: true,
+                mensaje: 'Usuario activado correctamente',
+                datos: usuario
+            });
         } catch (error) {
             res.status(400).json({ exito: false, mensaje: error.message });
         }

@@ -1,4 +1,6 @@
-// entidades/Usuarios.js — Modelo Sequelize
+// ============================================
+// 📄 entidades/Usuarios.js — Modelo Sequelize
+// ============================================
 const { DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcrypt');
 const { sequelize } = require('../Config/database');
@@ -57,6 +59,16 @@ Usuario.init({
         type: DataTypes.ENUM('paciente', 'doctor', 'admin', 'laboratorio', 'farmacia'),
         allowNull: false,
         defaultValue: 'paciente'
+    },
+    especialidad: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: 'Para médicos: especialidad médica'
+    },
+    area: {
+        type: DataTypes.STRING(100),
+        allowNull: true,
+        comment: 'Para laboratorio/farmacia: área de trabajo'
     },
     activo: {
         type: DataTypes.BOOLEAN,

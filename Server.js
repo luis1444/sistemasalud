@@ -69,6 +69,11 @@ app.get('/dashboard-admin.html', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'Vistas', 'dashboard-admin.html'));
 });
 
+// Gestión de personal (Administrador)
+app.get('/Vistas/gestion-personal.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'Vistas', 'gestion-personal.html'));
+});
+
 // ============================================
 // 🚀 Iniciar servidor y sincronizar base de datos
 // ============================================
