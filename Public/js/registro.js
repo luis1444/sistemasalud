@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 // Redirigir al inicio de sesión después de 2.5 segundos
                 setTimeout(() => {
-                    window.location.href = "/login";
+                    window.location.href = "/login.html";
                 }, 2500);
             } else {
                 Swal.fire({
