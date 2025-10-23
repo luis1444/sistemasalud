@@ -4,9 +4,11 @@
 const usuarioRepositorio = require('../repositorios/UsuarioRepositorio');
 const jwt = require('jsonwebtoken');
 
-// 🔑 CORRECCIÓN DE LA IMPORTACIÓN: Destructuración para obtener las funciones
-// Asumiendo que ../public/js/email exporta { enviarCorreo, enviarCorreoCredenciales }
 const { enviarCorreo, enviarCorreoCredenciales } = require('../public/js/email');
+const emailServicio = require('./emailServicio'); // ✅ usado para enviar el código
+
+// 🧠 Mapa temporal de recuperación
+const codigosRecuperacion = new Map();
 
 // 🎯 Función auxiliar para el registro de paciente/admin
 async function enviarCorreoBienvenida(correo, nombre, rol) {
@@ -20,9 +22,83 @@ async function enviarCorreoBienvenida(correo, nombre, rol) {
     await enviarCorreo(correo, 'Bienvenido a VITAL+', htmlBienvenida);
 }
 
-
 class UsuarioServicio {
 
+    // ============================================
+    // RECUPERAR CONTRASEÑA
+    // ============================================
+
+    async solicitarRecuperacionContrasena(correo) {
+        const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
+        if (!usuario) {
+            throw new Error('No existe una cuenta con ese correo electrónico');
+        }
+
+        // Generar código de 6 dígitos
+        const codigo = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Guardar código con expiración de 15 minutos
+        codigosRecuperacion.set(correo, {
+            codigo: codigo,
+            expira: Date.now() + 15 * 60 * 1000
+        });
+
+        // Enviar código por correo
+        const enviado = await emailServicio.enviarCodigoRecuperacion(
+            correo,
+            usuario.nombre,
+            codigo
+        );
+
+        if (!enviado) {
+            throw new Error('No se pudo enviar el correo de recuperación');
+        }
+
+        // Limpiar código después de 15 minutos
+        setTimeout(() => {
+            codigosRecuperacion.delete(correo);
+        }, 15 * 60 * 1000);
+
+        return { codigo }; // ⚠️ En producción NO devolver el código
+    }
+
+    async verificarCodigoRecuperacion(correo, codigo) {
+        const datosRecuperacion = codigosRecuperacion.get(correo);
+
+        if (!datosRecuperacion) {
+            throw new Error('Código no encontrado o expirado');
+        }
+
+        if (Date.now() > datosRecuperacion.expira) {
+            codigosRecuperacion.delete(correo);
+            throw new Error('El código ha expirado');
+        }
+
+        if (datosRecuperacion.codigo !== codigo) {
+            throw new Error('Código incorrecto');
+        }
+
+        return true;
+    }
+
+    async cambiarContrasenaRecuperacion(correo, nuevaContrasena) {
+        const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
+        if (!usuario) {
+            throw new Error('Usuario no encontrado');
+        }
+
+        if (nuevaContrasena.length < 6) {
+            throw new Error('La contraseña debe tener al menos 6 caracteres');
+        }
+
+        // Actualizar contraseña
+        await usuarioRepositorio.actualizar(usuario.id, { contrasena: nuevaContrasena });
+
+        // Eliminar código usado
+        codigosRecuperacion.delete(correo);
+
+        return true;
+    }
 
     // ============================================
     // REGISTRAR (PACIENTE / ADMIN)
@@ -59,7 +135,7 @@ class UsuarioServicio {
 
         const token = this.generarToken(nuevoUsuario);
 
-        // ✅ Enviar correo de bienvenida (usa la función auxiliar local)
+        // ✅ Enviar correo de bienvenida
         try {
             await enviarCorreoBienvenida(
                 correo,
@@ -74,14 +150,12 @@ class UsuarioServicio {
         return { usuario: nuevoUsuario, token };
     }
 
-
     // ============================================
-    // CREAR PERSONAL (MÉDICO, LAB, FARMACIA) - Implementación Solicitada
+    // CREAR PERSONAL (MÉDICO, LAB, FARMACIA)
     // ============================================
     async crearUsuario(datos) {
         const { correo, contrasena, rol, nombre } = datos;
 
-        // Validación de rol de personal
         const rolesPermitidos = ['doctor', 'laboratorio', 'farmacia'];
         if (!rolesPermitidos.includes(rol)) {
             throw new Error(`Rol de personal inválido: ${rol}`);
@@ -91,20 +165,17 @@ class UsuarioServicio {
             throw new Error('El correo ya está registrado.');
         }
 
-        // 1. Crear el usuario (La contraseña se hashea automáticamente)
         const nuevoUsuario = await usuarioRepositorio.crear(datos);
-
         if (!nuevoUsuario) {
             throw new Error('Error interno al crear el usuario.');
         }
 
-        // 2. 📧 ENVIAR CORREO CON CREDENCIALES (¡Implementación clave!)
+        // 📧 Enviar correo con credenciales
         try {
-            // Se usa la contraseña SIN HASHEAR ('contrasena') para enviarla por correo.
             const exitoEnvio = await enviarCorreoCredenciales(
                 nuevoUsuario.correo,
                 nuevoUsuario.nombre || 'Personal de Salud',
-                contrasena, // ⚠️ Contraseña simple para el correo
+                contrasena,
                 nuevoUsuario.rol
             );
 
@@ -113,17 +184,15 @@ class UsuarioServicio {
             }
         } catch (error) {
             console.error('❌ Error fatal al enviar correo de credenciales:', error.message);
-            // El error de correo no debe bloquear la creación del usuario
         }
 
-        // Devolver el objeto sin la contraseña
         const usuarioLimpio = nuevoUsuario.toJSON();
         delete usuarioLimpio.contrasena;
         return usuarioLimpio;
     }
 
     // ============================================
-    // OTRAS FUNCIONES
+    // AUTENTICACIÓN Y GESTIÓN
     // ============================================
     async iniciarSesion(correo, contrasena) {
         const usuario = await usuarioRepositorio.buscarPorCorreo(correo);

@@ -5,6 +5,9 @@ const usuarioServicio = require('../servicios/UsuarioServicios');
 
 class UsuarioControlador {
 
+    // ============================================
+    // REGISTRO
+    // ============================================
     async registrar(req, res) {
         try {
             const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = req.body;
@@ -38,6 +41,9 @@ class UsuarioControlador {
         }
     }
 
+    // ============================================
+    // INICIO DE SESIÓN
+    // ============================================
     async iniciarSesion(req, res) {
         try {
             const { correo, contrasena } = req.body;
@@ -53,9 +59,11 @@ class UsuarioControlador {
         }
     }
 
+    // ============================================
+    // PERFIL
+    // ============================================
     async obtenerPerfil(req, res) {
         try {
-            // El ID del usuario se obtiene del token (req.usuario.id)
             const usuario = await usuarioServicio.obtenerPerfil(req.usuario.id);
             res.json({ exito: true, datos: usuario });
         } catch (error) {
@@ -63,10 +71,8 @@ class UsuarioControlador {
         }
     }
 
-    // 🔑 FUNCIÓN CORREGIDA: Actualiza el perfil del usuario autenticado (Ruta: /perfil)
     async actualizarPerfil(req, res) {
         try {
-            // Utiliza el ID del usuario extraído del token, no de los parámetros
             const idUsuario = req.usuario.id;
             const usuario = await usuarioServicio.actualizar(idUsuario, req.body);
 
@@ -81,10 +87,12 @@ class UsuarioControlador {
         }
     }
 
-    // 🔑 FUNCIÓN PARA ADMIN: Actualiza un usuario por ID (Ruta: /:id)
+    // ============================================
+    // ADMINISTRACIÓN DE USUARIOS
+    // ============================================
     async actualizarUsuario(req, res) {
         try {
-            const { id } = req.params; // Usa el ID de la URL
+            const { id } = req.params;
             const usuario = await usuarioServicio.actualizar(id, req.body);
             res.json({
                 exito: true,
@@ -92,7 +100,7 @@ class UsuarioControlador {
                 datos: usuario
             });
         } catch (error) {
-            console.error('❌ Error al actualizar usuario por ID:', error);
+            console.error('❌ Error al actualizar usuario:', error);
             res.status(400).json({ exito: false, mensaje: error.message });
         }
     }
@@ -146,7 +154,6 @@ class UsuarioControlador {
                 });
             }
 
-            // Llama a la función de servicio que también envía el correo
             const nuevoUsuario = await usuarioServicio.crearUsuario({
                 correo,
                 contrasena,
@@ -238,6 +245,84 @@ class UsuarioControlador {
             });
         } catch (error) {
             res.status(400).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    // ============================================
+    // 🔐 RECUPERACIÓN DE CONTRASEÑA
+    // ============================================
+    async solicitarRecuperacion(req, res) {
+        try {
+            const { correo } = req.body;
+            if (!correo) {
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'El correo es obligatorio'
+                });
+            }
+
+            const resultado = await usuarioServicio.solicitarRecuperacionContrasena(correo);
+
+            res.json({
+                exito: true,
+                mensaje: 'Código de recuperación enviado al correo',
+                codigo: resultado.codigo // ⚠️ Solo para desarrollo, eliminar en producción
+            });
+        } catch (error) {
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    async verificarCodigo(req, res) {
+        try {
+            const { correo, codigo } = req.body;
+
+            if (!correo || !codigo) {
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'Correo y código son obligatorios'
+                });
+            }
+
+            await usuarioServicio.verificarCodigoRecuperacion(correo, codigo);
+
+            res.json({
+                exito: true,
+                mensaje: 'Código verificado correctamente'
+            });
+        } catch (error) {
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    async cambiarContrasenaRecuperacion(req, res) {
+        try {
+            const { correo, nuevaContrasena } = req.body;
+
+            if (!correo || !nuevaContrasena) {
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'Correo y nueva contraseña son obligatorios'
+                });
+            }
+
+            await usuarioServicio.cambiarContrasenaRecuperacion(correo, nuevaContrasena);
+
+            res.json({
+                exito: true,
+                mensaje: 'Contraseña cambiada exitosamente'
+            });
+        } catch (error) {
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
         }
     }
 }

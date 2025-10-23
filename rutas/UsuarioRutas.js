@@ -24,4 +24,9 @@ router.put('/:id', authMiddleware.verificarToken, authMiddleware.esAdmin, usuari
 router.delete('/:id', authMiddleware.verificarToken, authMiddleware.esAdmin, usuarioControlador.desactivarUsuario);
 router.post('/:id/activar', authMiddleware.verificarToken, authMiddleware.esAdmin, usuarioControlador.activarUsuario);
 
+router.post('/recuperar-contrasena', usuarioControlador.solicitarRecuperacion);
+router.post('/verificar-codigo', usuarioControlador.verificarCodigo);
+router.post('/cambiar-contrasena', usuarioControlador.cambiarContrasenaRecuperacion);
+
+
 module.exports = router;

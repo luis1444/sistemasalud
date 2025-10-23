@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Panel izquierdo */
+        .panel-izquierdo {
+            flex: 1;
+            background: linear-gradient(135deg, #0077b6 0%, #00b4d8 50%, #48cae4 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel-izquierdo::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            left: -100px;
+        }
+
+        .panel-izquierdo::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+            bottom: -80px;
+            right: -80px;
+        }
+
+        .logo-section {
+            text-align: center;
+            z-index: 1;
+        }
+
+        .logo-section img {
+            width: 150px;
+            height: 150px;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.2));
+            margin-bottom: 30px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .logo-section h1 {
+            font-size: 4em;
+            color: #ffffff;
+            font-weight: 700;
+            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .logo-section p {
+            font-size: 1.3em;
+            color: #e0f7fa;
+            font-weight: 300;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Panel derecho */
+        .panel-derecho {
+            flex: 1;
+            background: #f8f9fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        .recuperar-container {
+            background: #ffffff;
+            padding: 50px 45px;
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0, 119, 182, 0.12);
+            width: 100%;
+            max-width: 450px;
+            border-left: 5px solid #00b4d8;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            color: #0077b6;
+            font-weight: 700;
+            font-size: 2em;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #52796f;
+            margin-bottom: 40px;
+            font-size: 0.95em;
+        }
+
+        .icono-principal {
+            text-align: center;
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #2d6a4f;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        input {
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input:focus {
+            border-color: #00b4d8;
+            outline: none;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(0, 180, 216, 0.1);
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 119, 182, 0.4);
+        }
+
+        button:active {
+            transform: translateY(-1px);
+        }
+
+        .volver {
+            margin-top: 25px;
+            text-align: center;
+        }
+
+        .volver a {
+            text-decoration: none;
+            color: #0077b6;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .volver a:hover {
+            color: #023e8a;
+            gap: 8px;
+        }
+
+        .mensaje-info {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            color: #0c5460;
+            margin-bottom: 20px;
+        }
+
+        .oculto {
+            display: none;
+        }
+
+        @media (max-width: 968px) {
+            body {
+                flex-direction: column;
+            }
+
+            .panel-izquierdo {
+                min-height: 40vh;
+                padding: 30px;
+            }
+
+            .logo-section h1 {
+                font-size: 2.5em;
+            }
+
+            .logo-section img {
+                width: 100px;
+                height: 100px;
+            }
+
+            .panel-derecho {
+                padding: 30px 20px;
+            }
+
+            .recuperar-container {
+                padding: 35px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Panel Izquierdo -->
+<div class="panel-izquierdo">
+    <div class="logo-section">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+        <p>Sistema integral de gestión hospitalaria para el cuidado de tu salud</p>
+    </div>
+</div>
+
+<!-- Panel Derecho -->
+<div class="panel-derecho">
+    <div class="recuperar-container">
+        <!-- Paso 1: Solicitar correo -->
+        <div id="paso1">
+            <div class="icono-principal">🔐</div>
+            <h2>Recuperar Contraseña</h2>
+            <p class="subtitulo">Ingresa tu correo electrónico para recibir un código de verificación</p>
+
+            <form id="formSolicitarCodigo">
+                <div class="form-group">
+                    <label for="correo">Correo Electrónico</label>
+                    <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
+                </div>
+
+                <button type="submit">Enviar Código</button>
+            </form>
+
+            <div class="volver">
+                <a href="/login.html">← Volver al inicio de sesión</a>
+            </div>
+        </div>
+
+        <!-- Paso 2: Verificar código -->
+        <div id="paso2" class="oculto">
+            <div class="icono-principal">📧</div>
+            <h2>Verificar Código</h2>
+            <p class="subtitulo">Hemos enviado un código de verificación a tu correo</p>
+
+            <div class="mensaje-info">
+                <strong>📧 Código enviado a:</strong> <span id="correoMostrado"></span>
+            </div>
+
+            <form id="formVerificarCodigo">
+                <div class="form-group">
+                    <label for="codigo">Código de Verificación</label>
+                    <input type="text" id="codigo" name="codigo" placeholder="Ingresa el código de 6 dígitos" maxlength="6" required>
+                </div>
+
+                <button type="submit">Verificar Código</button>
+            </form>
+
+            <div class="volver">
+                <a href="#" onclick="volverPaso1(); return false;">← Usar otro correo</a>
+            </div>
+        </div>
+
+        <!-- Paso 3: Nueva contraseña -->
+        <div id="paso3" class="oculto">
+            <div class="icono-principal">✅</div>
+            <h2>Nueva Contraseña</h2>
+            <p class="subtitulo">Ingresa tu nueva contraseña</p>
+
+            <form id="formNuevaContrasena">
+                <div class="form-group">
+                    <label for="nuevaContrasena">Nueva Contraseña</label>
+                    <input type="password" id="nuevaContrasena" name="nuevaContrasena" placeholder="Mínimo 6 caracteres" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmarContrasena">Confirmar Contraseña</label>
+                    <input type="password" id="confirmarContrasena" name="confirmarContrasena" placeholder="Repite tu contraseña" required>
+                </div>
+
+                <button type="submit">Cambiar Contraseña</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let correoUsuario = '';
+    let codigoGenerado = '';
+
+    // Paso 1: Solicitar código
+    document.getElementById('formSolicitarCodigo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        correoUsuario = document.getElementById('correo').value;
+
+        // Mostrar loading
+        Swal.fire({
+            title: 'Enviando código...',
+            html: 'Por favor espera un momento',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            // Enviar solicitud al backend
+            const response = await fetch('http://localhost:3000/api/usuarios/recuperar-contrasena', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ correo: correoUsuario })
+            });
+
+            const data = await response.json();
+
+            if (data.exito) {
+                Swal.close();
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Código enviado!',
+                    text: 'Revisa tu correo electrónico',
+                    confirmButtonColor: '#0077b6'
+                });
+
+                // Guardar código (en producción viene del backend)
+                codigoGenerado = data.codigo;
+
+                // Mostrar paso 2
+                document.getElementById('paso1').classList.add('oculto');
+                document.getElementById('paso2').classList.remove('oculto');
+                document.getElementById('correoMostrado').textContent = correoUsuario;
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.mensaje || 'No se encontró una cuenta con ese correo',
+                    confirmButtonColor: '#0077b6'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor',
+                confirmButtonColor: '#0077b6'
+            });
+        }
+    });
+
+    // Paso 2: Verificar código
+    document.getElementById('formVerificarCodigo').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const codigoIngresado = document.getElementById('codigo').value;
+
+        // Mostrar loading
+        Swal.fire({
+            title: 'Verificando código...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            // Verificar código en el backend
+            const response = await fetch('http://localhost:3000/api/usuarios/verificar-codigo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    correo: correoUsuario,
+                    codigo: codigoIngresado
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.exito) {
+                Swal.close();
+
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Código verificado!',
+                    text: 'Ahora puedes cambiar tu contraseña',
+                    confirmButtonColor: '#0077b6'
+                });
+
+                // Mostrar paso 3
+                document.getElementById('paso2').classList.add('oculto');
+                document.getElementById('paso3').classList.remove('oculto');
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Código incorrecto',
+                    text: 'El código ingresado no es válido',
+                    confirmButtonColor: '#0077b6'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo verificar el código',
+                confirmButtonColor: '#0077b6'
+            });
+        }
+    });
+
+    // Paso 3: Cambiar contraseña
+    document.getElementById('formNuevaContrasena').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const nuevaContrasena = document.getElementById('nuevaContrasena').value;
+        const confirmarContrasena = document.getElementById('confirmarContrasena').value;
+
+        // Validar contraseñas
+        if (nuevaContrasena.length < 6) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Contraseña muy corta',
+                text: 'La contraseña debe tener al menos 6 caracteres',
+                confirmButtonColor: '#0077b6'
+            });
+            return;
+        }
+
+        if (nuevaContrasena !== confirmarContrasena) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Las contraseñas no coinciden',
+                text: 'Por favor verifica que las contraseñas sean iguales',
+                confirmButtonColor: '#0077b6'
+            });
+            return;
+        }
+
+        // Mostrar loading
+        Swal.fire({
+            title: 'Cambiando contraseña...',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        try {
+            // Cambiar contraseña en el backend
+            const response = await fetch('http://localhost:3000/api/usuarios/cambiar-contrasena', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    correo: correoUsuario,
+                    nuevaContrasena: nuevaContrasena
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.exito) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Contraseña cambiada!',
+                    text: 'Tu contraseña ha sido actualizada exitosamente',
+                    confirmButtonColor: '#0077b6'
+                });
+
+                // Redirigir al login
+                window.location.href = '/login.html';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: data.mensaje || 'No se pudo cambiar la contraseña',
+                    confirmButtonColor: '#0077b6'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo cambiar la contraseña',
+                confirmButtonColor: '#0077b6'
+            });
+        }
+    });
+
+    function volverPaso1() {
+        document.getElementById('paso2').classList.add('oculto');
+        document.getElementById('paso1').classList.remove('oculto');
+        document.getElementById('codigo').value = '';
+    }
+</script>
+
+</body>
+</html>
