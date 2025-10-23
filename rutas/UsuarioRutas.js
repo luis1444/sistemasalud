@@ -5,10 +5,12 @@ const express = require('express');
 const router = express.Router();
 const usuarioControlador = require('../controladores/UsuarioControlador');
 const authMiddleware = require('../middleware/authMiddleware');
+const {route} = require("express/lib/application");
 
 // Rutas públicas
 router.post('/registro', usuarioControlador.registrar);
 router.post('/login', usuarioControlador.iniciarSesion);
+
 
 // Rutas protegidas (requieren autenticación)
 router.get('/perfil', authMiddleware.verificarToken, usuarioControlador.obtenerPerfil);
