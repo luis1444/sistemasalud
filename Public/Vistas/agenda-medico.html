@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Agenda | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .titulo-seccion {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .filtro-grupo {
+            flex: 1;
+        }
+
+        .filtro-grupo label {
+            display: block;
+            margin-bottom: 8px;
+            color: #0077b6;
+            font-weight: 600;
+        }
+
+        .filtro-grupo select, .filtro-grupo input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .citas-lista {
+            display: grid;
+            gap: 20px;
+        }
+
+        .cita-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 25px;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid #00b4d8;
+        }
+
+        .cita-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.15);
+        }
+
+        .cita-hora {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .hora-texto {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .duracion-texto {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .cita-info {
+            flex: 1;
+        }
+
+        .cita-info h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .cita-detalle {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            color: #52796f;
+        }
+
+        .cita-detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cita-acciones {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .btn-accion {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-atender {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-atender:hover {
+            background: #218838;
+        }
+
+        .btn-ver-historial {
+            background: #0077b6;
+            color: white;
+        }
+
+        .btn-ver-historial:hover {
+            background: #005a8d;
+        }
+
+        .estado-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .estado-programada {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .estado-en-curso {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .estado-completada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .cita-card {
+                grid-template-columns: 1fr;
+            }
+
+            .filtros {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-header" onclick="location.href='/Vistas/dashboard-doctor.html'">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <a href="/Vistas/dashboard-doctor.html" class="btn-volver">← Volver al Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="titulo-seccion">
+        <h2>📅 Mi Agenda Médica</h2>
+    </div>
+
+    <div class="filtros">
+        <div class="filtro-grupo">
+            <label>Vista</label>
+            <select id="vistaFiltro" onchange="filtrarCitas()">
+                <option value="hoy">Hoy</option>
+                <option value="semana">Esta Semana</option>
+                <option value="mes">Este Mes</option>
+            </select>
+        </div>
+        <div class="filtro-grupo">
+            <label>Fecha</label>
+            <input type="date" id="fechaFiltro" onchange="filtrarCitas()">
+        </div>
+        <div class="filtro-grupo">
+            <label>Estado</label>
+            <select id="estadoFiltro" onchange="filtrarCitas()">
+                <option value="todas">Todas</option>
+                <option value="programada">Programadas</option>
+                <option value="en-curso">En Curso</option>
+                <option value="completada">Completadas</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="citas-lista" id="citasLista">
+        <!-- Se llenará dinámicamente -->
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let citas = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        verificarAutenticacion();
+        document.getElementById('fechaFiltro').value = new Date().toISOString().split('T')[0];
+        await cargarCitas();
+        filtrarCitas();
+    });
+
+    function verificarAutenticacion() {
+        const token = localStorage.getItem('token');
+        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+        if (!token || usuario.rol !== 'doctor') {
+            window.location.href = '/login.html';
+        }
+    }
+
+    async function cargarCitas() {
+        try {
+            const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`http://localhost:3000/api/citas/doctor/${usuario.id}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener las citas');
+            }
+
+            citas = await response.json();
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar citas',
+                text: 'No se pudieron obtener las citas del servidor.'
+            });
+        }
+    }
+
+    function filtrarCitas() {
+        const vista = document.getElementById('vistaFiltro').value;
+        const fecha = new Date(document.getElementById('fechaFiltro').value);
+        const estado = document.getElementById('estadoFiltro').value;
+
+        let citasFiltradas = [...citas];
+
+        if (vista === 'hoy') {
+            const hoy = new Date().toISOString().split('T')[0];
+            citasFiltradas = citasFiltradas.filter(c => c.fecha === hoy);
+        }
+
+        if (estado !== 'todas') {
+            citasFiltradas = citasFiltradas.filter(c => c.estado === estado);
+        }
+
+        renderizarCitas(citasFiltradas);
+    }
+
+    function renderizarCitas(citasFiltradas) {
+        const container = document.getElementById('citasLista');
+
+        if (citasFiltradas.length === 0) {
+            container.innerHTML = `
+                <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
+                    <div style="font-size: 5em; margin-bottom: 20px;">📅</div>
+                    <h3 style="color: #0077b6; margin-bottom: 10px;">No hay citas programadas</h3>
+                    <p style="color: #52796f;">No tienes citas para los filtros seleccionados</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = citasFiltradas.map(cita => {
+            const estadoClass = `estado-${cita.estado}`;
+            const estadoTexto = cita.estado === 'programada' ? 'Programada' :
+                cita.estado === 'en-curso' ? 'En Curso' : 'Completada';
+
+            return `
+                <div class="cita-card">
+                    <div class="cita-hora">
+                        <div class="hora-texto">${cita.hora}</div>
+                        <div class="duracion-texto">${cita.duracion || 30} min</div>
+                    </div>
+                    <div class="cita-info">
+                        <h3>${cita.paciente || 'Paciente desconocido'}</h3>
+                        <div class="cita-detalle">
+                            <div class="cita-detalle-item">
+                                <span>📋</span> ${cita.tipoConsulta || 'Consulta'}
+                            </div>
+                            <div class="cita-detalle-item">
+                                <span>💬</span> ${cita.motivo || 'Sin motivo especificado'}
+                            </div>
+                            <div class="cita-detalle-item">
+                                <span class="estado-badge ${estadoClass}">${estadoTexto}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="cita-acciones">
+                        ${cita.estado === 'programada' ? `
+                            <button class="btn-accion btn-atender" onclick="atenderPaciente(${cita.id}, ${cita.pacienteId})">
+                                🩺 Atender
+                            </button>
+                        ` : ''}
+                        <button class="btn-accion btn-ver-historial" onclick="verHistorial(${cita.pacienteId})">
+                            📋 Ver Historial
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function atenderPaciente(citaId, pacienteId) {
+        const cita = citas.find(c => c.id === citaId);
+        localStorage.setItem('citaActual', JSON.stringify(cita));
+        window.location.href = '/Vistas/atencion-medica.html';
+    }
+
+    function verHistorial(pacienteId) {
+        localStorage.setItem('pacienteIdSeleccionado', pacienteId);
+        window.location.href = '/Vistas/historiales-medico.html';
+    }
+</script>
+
+</body>
+</html>
