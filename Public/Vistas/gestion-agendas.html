@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Agendas Médicas | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .titulo-seccion {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .btn-auto {
+            background: #00b4d8;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.3s ease;
+        }
+
+        .btn-auto:hover {
+            background: #0077b6;
+        }
+
+        .tabla-agendas {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            overflow: hidden;
+        }
+
+        th, td {
+            padding: 15px 20px;
+            text-align: left;
+        }
+
+        th {
+            background: #00b4d8;
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .acciones button {
+            background: #0077b6;
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            margin-right: 5px;
+        }
+
+        .acciones button:hover {
+            background: #005a8d;
+        }
+
+        .sin-datos {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.1em;
+            color: #52796f;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+            th, td {
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-header" onclick="location.href='/Vistas/dashboard-admin.html'">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <a href="/Vistas/dashboard-admin.html" class="btn-volver">← Volver al Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="titulo-seccion">
+        <h2>📋 Gestión de Agendas Médicas</h2>
+        <button class="btn-auto" onclick="organizarAutomaticamente()">⚙️ Organizar Automáticamente</button>
+    </div>
+
+    <table class="tabla-agendas" id="tablaAgendas">
+        <thead>
+        <tr>
+            <th>Médico</th>
+            <th>Especialidad</th>
+            <th>Días Disponibles</th>
+            <th>Horario</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody id="tablaCuerpo">
+        <tr><td colspan="5" class="sin-datos">Cargando médicos...</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let medicos = [];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        verificarAutenticacion();
+        await cargarMedicos();
+    });
+
+    function verificarAutenticacion() {
+        const token = localStorage.getItem('token');
+        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+        if (!token || usuario.rol !== 'admin') {
+            window.location.href = '/login.html';
+        }
+    }
+
+    async function cargarMedicos() {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/usuarios?rol=doctor', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) throw new Error('Error al obtener médicos');
+
+            medicos = await response.json();
+            renderizarTabla();
+        } catch (error) {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar médicos',
+                text: 'No se pudieron obtener los médicos registrados.'
+            });
+        }
+    }
+
+    function renderizarTabla() {
+        const cuerpo = document.getElementById('tablaCuerpo');
+        if (!medicos.length) {
+            cuerpo.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay médicos registrados.</td></tr>`;
+            return;
+        }
+
+        cuerpo.innerHTML = medicos.map(medico => `
+        <tr>
+          <td>${medico.nombre} ${medico.apellido}</td>
+          <td>${medico.especialidad || 'No especificada'}</td>
+          <td>${medico.diasDisponibles?.join(', ') || 'No asignados'}</td>
+          <td>${medico.horario || 'No definido'}</td>
+          <td class="acciones">
+            <button onclick="editarAgenda('${medico.id}')">🕒 Editar</button>
+            <button onclick="verAgenda('${medico.id}')">👁️ Ver</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function organizarAutomaticamente() {
+        Swal.fire({
+            title: '¿Organizar automáticamente las agendas?',
+            text: 'Esto asignará horarios por defecto a todos los médicos sin agenda.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, organizar',
+            cancelButtonText: 'Cancelar'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const res = await fetch('http://localhost:3000/api/agendas/auto-organizar', {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                    });
+
+                    if (!res.ok) throw new Error('Error en la organización automática');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Agendas organizadas correctamente',
+                        timer: 2000,
+                        showConfirmButton: false
+                    });
+
+                    await cargarMedicos();
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error al organizar agendas',
+                        text: 'Ocurrió un problema en el servidor.'
+                    });
+                }
+            }
+        });
+    }
+
+    function editarAgenda(id) {
+        localStorage.setItem('medicoSeleccionado', id);
+        window.location.href = '/Vistas/editar-agenda.html';
+    }
+
+    function verAgenda(id) {
+        localStorage.setItem('medicoSeleccionado', id);
+        window.location.href = '/Vistas/agenda-medico.html';
+    }
+</script>
+</body>
+</html>

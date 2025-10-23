@@ -1,6 +1,7 @@
 // ============================================
 // 📄 repositorios/UsuarioRepositorio.js
 // ============================================
+const { Op } = require('sequelize');
 const Usuario = require('../entidades/Usuarios');
 
 class UsuarioRepositorio {
@@ -19,8 +20,18 @@ class UsuarioRepositorio {
 
     async buscarTodos(filtros = {}) {
         const where = {};
-        if (filtros.rol) where.rol = filtros.rol;
-        if (filtros.activo !== undefined) where.activo = filtros.activo;
+
+        // ✅ Filtro por rol (compatible con MySQL, PostgreSQL y SQLite)
+        if (filtros.rol) {
+            where.rol = {
+                [Op.like]: `%${filtros.rol}%`
+            };
+        }
+
+        // ✅ Filtro por estado activo/inactivo
+        if (filtros.activo !== undefined) {
+            where.activo = filtros.activo;
+        }
 
         return await Usuario.findAll({
             where,

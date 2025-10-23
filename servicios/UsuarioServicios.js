@@ -25,83 +25,47 @@ async function enviarCorreoBienvenida(correo, nombre, rol) {
 class UsuarioServicio {
 
     // ============================================
-    // RECUPERAR CONTRASEÑA
+    // 🔐 RECUPERAR CONTRASEÑA
     // ============================================
-
     async solicitarRecuperacionContrasena(correo) {
         const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
-        if (!usuario) {
-            throw new Error('No existe una cuenta con ese correo electrónico');
-        }
+        if (!usuario) throw new Error('No existe una cuenta con ese correo electrónico');
 
-        // Generar código de 6 dígitos
         const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-        // Guardar código con expiración de 15 minutos
-        codigosRecuperacion.set(correo, {
-            codigo: codigo,
-            expira: Date.now() + 15 * 60 * 1000
-        });
+        codigosRecuperacion.set(correo, { codigo, expira: Date.now() + 15 * 60 * 1000 });
 
-        // Enviar código por correo
-        const enviado = await emailServicio.enviarCodigoRecuperacion(
-            correo,
-            usuario.nombre,
-            codigo
-        );
+        const enviado = await emailServicio.enviarCodigoRecuperacion(correo, usuario.nombre, codigo);
+        if (!enviado) throw new Error('No se pudo enviar el correo de recuperación');
 
-        if (!enviado) {
-            throw new Error('No se pudo enviar el correo de recuperación');
-        }
+        setTimeout(() => codigosRecuperacion.delete(correo), 15 * 60 * 1000);
 
-        // Limpiar código después de 15 minutos
-        setTimeout(() => {
-            codigosRecuperacion.delete(correo);
-        }, 15 * 60 * 1000);
-
-        return { codigo }; // ⚠️ En producción NO devolver el código
+        return { codigo }; // ⚠️ En producción no retornar
     }
 
     async verificarCodigoRecuperacion(correo, codigo) {
-        const datosRecuperacion = codigosRecuperacion.get(correo);
-
-        if (!datosRecuperacion) {
-            throw new Error('Código no encontrado o expirado');
-        }
-
-        if (Date.now() > datosRecuperacion.expira) {
+        const datos = codigosRecuperacion.get(correo);
+        if (!datos) throw new Error('Código no encontrado o expirado');
+        if (Date.now() > datos.expira) {
             codigosRecuperacion.delete(correo);
             throw new Error('El código ha expirado');
         }
-
-        if (datosRecuperacion.codigo !== codigo) {
-            throw new Error('Código incorrecto');
-        }
-
+        if (datos.codigo !== codigo) throw new Error('Código incorrecto');
         return true;
     }
 
     async cambiarContrasenaRecuperacion(correo, nuevaContrasena) {
         const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
-        if (!usuario) {
-            throw new Error('Usuario no encontrado');
-        }
+        if (!usuario) throw new Error('Usuario no encontrado');
+        if (nuevaContrasena.length < 6) throw new Error('La contraseña debe tener al menos 6 caracteres');
 
-        if (nuevaContrasena.length < 6) {
-            throw new Error('La contraseña debe tener al menos 6 caracteres');
-        }
-
-        // Actualizar contraseña
         await usuarioRepositorio.actualizar(usuario.id, { contrasena: nuevaContrasena });
-
-        // Eliminar código usado
         codigosRecuperacion.delete(correo);
-
         return true;
     }
 
     // ============================================
-    // REGISTRAR (PACIENTE / ADMIN)
+    // 🧍 REGISTRAR PACIENTE / ADMIN
     // ============================================
     async registrar(datos) {
         const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = datos;
@@ -135,14 +99,8 @@ class UsuarioServicio {
 
         const token = this.generarToken(nuevoUsuario);
 
-        // ✅ Enviar correo de bienvenida
         try {
-            await enviarCorreoBienvenida(
-                correo,
-                nombre || 'Usuario',
-                rolFinal
-            );
-            console.log(`📧 Correo de bienvenida enviado a ${correo}`);
+            await enviarCorreoBienvenida(correo, nombre || 'Usuario', rolFinal);
         } catch (err) {
             console.error('⚠️ Error enviando correo al registrar:', err.message);
         }
@@ -151,7 +109,7 @@ class UsuarioServicio {
     }
 
     // ============================================
-    // CREAR PERSONAL (MÉDICO, LAB, FARMACIA)
+    // 🏥 CREAR PERSONAL (MÉDICO, LAB, FARMACIA)
     // ============================================
     async crearUsuario(datos) {
         const { correo, contrasena, rol, nombre } = datos;
@@ -166,11 +124,8 @@ class UsuarioServicio {
         }
 
         const nuevoUsuario = await usuarioRepositorio.crear(datos);
-        if (!nuevoUsuario) {
-            throw new Error('Error interno al crear el usuario.');
-        }
+        if (!nuevoUsuario) throw new Error('Error interno al crear el usuario.');
 
-        // 📧 Enviar correo con credenciales
         try {
             const exitoEnvio = await enviarCorreoCredenciales(
                 nuevoUsuario.correo,
@@ -178,21 +133,18 @@ class UsuarioServicio {
                 contrasena,
                 nuevoUsuario.rol
             );
-
-            if (exitoEnvio) {
-                console.log(`✅ Correo de credenciales enviado a ${nuevoUsuario.correo}`);
-            }
+            if (exitoEnvio) console.log(`✅ Correo de credenciales enviado a ${nuevoUsuario.correo}`);
         } catch (error) {
-            console.error('❌ Error fatal al enviar correo de credenciales:', error.message);
+            console.error('❌ Error al enviar correo de credenciales:', error.message);
         }
 
-        const usuarioLimpio = nuevoUsuario.toJSON();
+        const usuarioLimpio = nuevoUsuario.toJSON ? nuevoUsuario.toJSON() : nuevoUsuario;
         delete usuarioLimpio.contrasena;
         return usuarioLimpio;
     }
 
     // ============================================
-    // AUTENTICACIÓN Y GESTIÓN
+    // 🔑 AUTENTICACIÓN
     // ============================================
     async iniciarSesion(correo, contrasena) {
         const usuario = await usuarioRepositorio.buscarPorCorreo(correo);
@@ -207,6 +159,9 @@ class UsuarioServicio {
         return { usuario, token };
     }
 
+    // ============================================
+    // 👤 PERFIL / CRUD
+    // ============================================
     async obtenerPerfil(id) {
         const usuario = await usuarioRepositorio.buscarPorId(id);
         if (!usuario) throw new Error('Usuario no encontrado');
@@ -214,7 +169,19 @@ class UsuarioServicio {
     }
 
     async obtenerTodos(filtros = {}) {
-        return await usuarioRepositorio.buscarTodos(filtros);
+        // ✅ Corrige el filtro por rol (PostgreSQL + Sequelize)
+        try {
+            const query = {};
+            if (filtros.rol) {
+                // Usa ILIKE para que no importe mayúsculas o minúsculas
+                query.rol = filtros.rol.toLowerCase();
+            }
+            const usuarios = await usuarioRepositorio.buscarTodos(query);
+            return usuarios;
+        } catch (error) {
+            console.error('❌ Error en obtenerTodos:', error);
+            throw new Error('Error al consultar usuarios en la base de datos');
+        }
     }
 
     async actualizar(id, datos) {

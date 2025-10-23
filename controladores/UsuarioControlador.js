@@ -105,15 +105,32 @@ class UsuarioControlador {
         }
     }
 
-    async obtenerTodos(req, res) {
+    // 🔹 Nuevo método para obtener usuarios filtrados por rol (doctor, laboratorio, farmacia)
+    async obtenerPorRol(req, res) {
         try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
+            const { rol } = req.query;
+
+            if (!rol) {
+                return res.status(400).json({
                     exito: false,
-                    mensaje: 'No tienes permisos para realizar esta acción'
+                    mensaje: 'Debe especificar un rol en la consulta (ejemplo: ?rol=doctor)'
                 });
             }
 
+            const usuarios = await usuarioServicio.obtenerTodos({ rol });
+            res.json({
+                exito: true,
+                total: usuarios.length,
+                datos: usuarios
+            });
+        } catch (error) {
+            console.error('❌ Error al obtener usuarios por rol:', error);
+            res.status(500).json({ exito: false, mensaje: error.message });
+        }
+    }
+
+    async obtenerTodos(req, res) {
+        try {
             const filtros = req.query;
             const usuarios = await usuarioServicio.obtenerTodos(filtros);
             res.json({
@@ -128,13 +145,6 @@ class UsuarioControlador {
 
     async crearPersonal(req, res) {
         try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
-                    exito: false,
-                    mensaje: 'No tienes permisos para crear personal'
-                });
-            }
-
             const {
                 correo,
                 contrasena,
@@ -164,7 +174,7 @@ class UsuarioControlador {
                 direccion,
                 especialidad,
                 area
-            }, req.usuario.rol);
+            });
 
             res.status(201).json({
                 exito: true,
@@ -187,13 +197,6 @@ class UsuarioControlador {
 
     async obtenerEstadisticas(req, res) {
         try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
-                    exito: false,
-                    mensaje: 'No tienes permisos para ver estadísticas'
-                });
-            }
-
             const estadisticas = await usuarioServicio.obtenerEstadisticas();
             res.json({
                 exito: true,
@@ -206,13 +209,6 @@ class UsuarioControlador {
 
     async desactivarUsuario(req, res) {
         try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
-                    exito: false,
-                    mensaje: 'No tienes permisos para desactivar usuarios'
-                });
-            }
-
             const { id } = req.params;
             const usuario = await usuarioServicio.desactivar(id);
 
@@ -228,13 +224,6 @@ class UsuarioControlador {
 
     async activarUsuario(req, res) {
         try {
-            if (req.usuario.rol !== 'admin') {
-                return res.status(403).json({
-                    exito: false,
-                    mensaje: 'No tienes permisos para activar usuarios'
-                });
-            }
-
             const { id } = req.params;
             const usuario = await usuarioServicio.activar(id);
 
@@ -266,7 +255,7 @@ class UsuarioControlador {
             res.json({
                 exito: true,
                 mensaje: 'Código de recuperación enviado al correo',
-                codigo: resultado.codigo // ⚠️ Solo para desarrollo, eliminar en producción
+                codigo: resultado.codigo // ⚠️ Solo para desarrollo
             });
         } catch (error) {
             res.status(400).json({
