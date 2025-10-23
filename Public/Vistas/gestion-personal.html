@@ -323,7 +323,7 @@
 
 <div class="header">
     <div class="logo-header">
-        <h1>📋 Gestión de Personal</h1>
+        <h1>Gestión de Personal</h1>
     </div>
     <button class="btn-volver" onclick="volverDashboard()">← Volver al Dashboard</button>
 </div>
@@ -383,12 +383,36 @@
 
                     <div class="form-group" id="especialidadGroup" style="display: none;">
                         <label>Especialidad Médica *</label>
-                        <input type="text" id="especialidadPersonal">
+                        <select id="especialidadPersonal">
+                            <option value="">Seleccione una especialidad...</option>
+                            <option value="Medicina General">Medicina General</option>
+                            <option value="Cardiología">Cardiología</option>
+                            <option value="Dermatología">Dermatología</option>
+                            <option value="Pediatría">Pediatría</option>
+                            <option value="Ginecología">Ginecología</option>
+                            <option value="Traumatología">Traumatología</option>
+                            <option value="Neurología">Neurología</option>
+                            <option value="Oftalmología">Oftalmología</option>
+                            <option value="Otorrinolaringología">Otorrinolaringología</option>
+                            <option value="Psiquiatría">Psiquiatría</option>
+                            <option value="Urología">Urología</option>
+                            <option value="Gastroenterología">Gastroenterología</option>
+                            <option value="Endocrinología">Endocrinología</option>
+                            <option value="Neumología">Neumología</option>
+                            <option value="Oncología">Oncología</option>
+                            <option value="Cirugía General">Cirugía General</option>
+                            <option value="Anestesiología">Anestesiología</option>
+                            <option value="Radiología">Radiología</option>
+                            <option value="Medicina Interna">Medicina Interna</option>
+                            <option value="Infectología">Infectología</option>
+                        </select>
                     </div>
 
                     <div class="form-group" id="areaGroup" style="display: none;">
                         <label>Área de Trabajo *</label>
-                        <input type="text" id="areaPersonal">
+                        <select id="areaPersonal">
+                            <option value="">Seleccione un área...</option>
+                        </select>
                     </div>
 
                     <div class="form-group">
@@ -486,6 +510,24 @@
 <script>
     let personalData = [];
 
+    // Áreas de trabajo para laboratorio y farmacia
+    const areasLaboratorio = [
+        'Hematología',
+        'Microbiología',
+        'Inmunología',
+        'Urianálisis',
+        'Toma de Muestras',
+        'Histopatología',
+        'Citología'
+    ];
+
+    const areasFarmacia = [
+        'Farmacia Hospitalaria',
+        'Dispensación',
+        'Control de Inventarios',
+        'Información de Medicamentos'
+    ];
+
     window.addEventListener('DOMContentLoaded', () => {
         verificarAutenticacion();
         configurarFormulario();
@@ -511,19 +553,41 @@
         const rolSelect = document.getElementById('rolPersonal');
         const especialidadGroup = document.getElementById('especialidadGroup');
         const areaGroup = document.getElementById('areaGroup');
+        const areaSelect = document.getElementById('areaPersonal');
 
         rolSelect.addEventListener('change', function() {
             especialidadGroup.style.display = 'none';
             areaGroup.style.display = 'none';
+            document.getElementById('especialidadPersonal').required = false;
+            document.getElementById('areaPersonal').required = false;
 
             if (this.value === 'doctor') {
                 especialidadGroup.style.display = 'block';
                 document.getElementById('especialidadPersonal').required = true;
-                document.getElementById('areaPersonal').required = false;
-            } else if (this.value === 'laboratorio' || this.value === 'farmacia') {
+            } else if (this.value === 'laboratorio') {
                 areaGroup.style.display = 'block';
                 document.getElementById('areaPersonal').required = true;
-                document.getElementById('especialidadPersonal').required = false;
+
+                // Llenar select con áreas de laboratorio
+                areaSelect.innerHTML = '<option value="">Seleccione un área...</option>';
+                areasLaboratorio.forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area;
+                    option.textContent = area;
+                    areaSelect.appendChild(option);
+                });
+            } else if (this.value === 'farmacia') {
+                areaGroup.style.display = 'block';
+                document.getElementById('areaPersonal').required = true;
+
+                // Llenar select con áreas de farmacia
+                areaSelect.innerHTML = '<option value="">Seleccione un área...</option>';
+                areasFarmacia.forEach(area => {
+                    const option = document.createElement('option');
+                    option.value = area;
+                    option.textContent = area;
+                    areaSelect.appendChild(option);
+                });
             }
         });
 
@@ -564,9 +628,9 @@
 
         // Agregar especialidad o área según el rol
         if (rol === 'doctor') {
-            datos.especialidad = document.getElementById('especialidadPersonal').value.trim();
+            datos.especialidad = document.getElementById('especialidadPersonal').value;
         } else if (rol === 'laboratorio' || rol === 'farmacia') {
-            datos.area = document.getElementById('areaPersonal').value.trim();
+            datos.area = document.getElementById('areaPersonal').value;
         }
 
         try {
