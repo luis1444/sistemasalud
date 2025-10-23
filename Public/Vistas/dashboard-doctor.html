@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Médico | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+            position: relative;
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+            letter-spacing: 1px;
+        }
+
+        .saludo-usuario {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .perfil-menu {
+            position: relative;
+        }
+
+        .perfil-icono {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: #0077b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .perfil-icono:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Sidebar perfil */
+        .sidebar-perfil {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-perfil.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .perfil-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            color: #0077b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-content {
+            padding: 30px;
+        }
+
+        .btn-cerrar-sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cerrar-sidebar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .btn-cerrar-sesion {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .welcome {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            color: #0077b6;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            border-left: 5px solid #00b4d8;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
+        }
+
+        .stat-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h4 {
+            color: #52796f;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .stat-number {
+            color: #0077b6;
+            font-size: 2.5em;
+            font-weight: 700;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #00b4d8;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .card h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+        }
+
+        .card p {
+            color: #52796f;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn-card {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="logo-header">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <div class="saludo-usuario">
+        <span id="saludoUsuario">Hola, Doctor</span>
+    </div>
+    <div class="perfil-menu">
+        <div class="perfil-icono" onclick="toggleSidebar()">
+            <span id="inicialUsuario">D</span>
+        </div>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<!-- Sidebar perfil -->
+<div class="sidebar-perfil" id="sidebarPerfil">
+    <button class="btn-cerrar-sidebar" onclick="toggleSidebar()">✕</button>
+    <div class="sidebar-header">
+        <div class="perfil-avatar">
+            <span id="avatarInicial">D</span>
+        </div>
+        <h2 id="nombreCompleto">Doctor</h2>
+        <p id="especialidadMedico">Médico General</p>
+    </div>
+    <div class="sidebar-content">
+        <button class="btn-cerrar-sesion" onclick="cerrarSesion()">
+            🚪 Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+<!-- Container -->
+<div class="container">
+    <div class="welcome">
+        <h2>Panel Médico</h2>
+        <p>Gestiona tus citas y atiende a tus pacientes</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <h4>Citas de Hoy</h4>
+            <div class="stat-number" id="citasHoy">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">👥</div>
+            <h4>Pacientes Activos</h4>
+            <div class="stat-number" id="pacientesActivos">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">⏰</div>
+            <h4>Próxima Cita</h4>
+            <div class="stat-number" style="font-size: 1.5em;" id="proximaCita">--:--</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">📋</div>
+            <h4>Consultas Pendientes</h4>
+            <div class="stat-number" id="consultasPendientes">0</div>
+        </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📅</div>
+                <h3>Mi Agenda</h3>
+            </div>
+            <p>Consulta y gestiona tus citas programadas por día, semana o mes.</p>
+            <button class="btn-card" onclick="verAgenda()">Ver Agenda</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🩺</div>
+                <h3>Atender Paciente</h3>
+            </div>
+            <p>Inicia la atención médica y registra diagnósticos y tratamientos.</p>
+            <button class="btn-card" onclick="atenderPaciente()">Iniciar Atención</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📋</div>
+                <h3>Historiales Clínicos</h3>
+            </div>
+            <p>Accede al historial clínico consolidado de tus pacientes.</p>
+            <button class="btn-card" onclick="verHistoriales()">Ver Historiales</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">💊</div>
+                <h3>Prescripciones</h3>
+            </div>
+            <p>Consulta y gestiona las recetas médicas que has emitido.</p>
+            <button class="btn-card" onclick="verPrescripciones()">Ver Prescripciones</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🧪</div>
+                <h3>Órdenes de Laboratorio</h3>
+            </div>
+            <p>Revisa las órdenes de exámenes y sus resultados.</p>
+            <button class="btn-card" onclick="verOrdenesLab()">Ver Órdenes</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📊</div>
+                <h3>Mis Estadísticas</h3>
+            </div>
+            <p>Visualiza estadísticas de tus consultas y atenciones.</p>
+            <button class="btn-card" onclick="verEstadisticas()">Ver Estadísticas</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let usuarioData = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        const usuario = localStorage.getItem('usuario');
+
+        if (!token || !usuario) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        usuarioData = JSON.parse(usuario);
+
+        if (usuarioData.rol !== 'doctor') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso denegado',
+                text: 'No tienes permisos para acceder a esta página',
+                confirmButtonColor: '#0077b6'
+            }).then(() => {
+                window.location.href = '/login.html';
+            });
+            return;
+        }
+
+        cargarDatosUsuario();
+        cargarEstadisticas();
+    });
+
+    function cargarDatosUsuario() {
+        const nombreReal = usuarioData.nombre || usuarioData.correo.split('@')[0];
+        const nombreCapitalizado = nombreReal.split(' ')[0].charAt(0).toUpperCase() + nombreReal.split(' ')[0].slice(1);
+        const inicial = nombreCapitalizado.charAt(0).toUpperCase();
+
+        document.getElementById('saludoUsuario').textContent = `Hola, Dr. ${nombreCapitalizado}`;
+        document.getElementById('inicialUsuario').textContent = inicial;
+        document.getElementById('avatarInicial').textContent = inicial;
+        document.getElementById('nombreCompleto').textContent = `Dr. ${nombreReal}`;
+    }
+
+    function cargarEstadisticas() {
+        document.getElementById('citasHoy').textContent = '8';
+        document.getElementById('pacientesActivos').textContent = '45';
+        document.getElementById('proximaCita').textContent = '10:30';
+        document.getElementById('consultasPendientes').textContent = '3';
+    }
+
+    function toggleSidebar() {
+        document.getElementById('sidebarPerfil').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    function verAgenda() {
+        window.location.href = '/Vistas/agenda-medico.html';
+    }
+
+    function atenderPaciente() {
+        window.location.href = '/Vistas/atencion-medica.html';
+    }
+
+    function verHistoriales() {
+        window.location.href = '/Vistas/historiales-medico.html';
+    }
+
+    function verPrescripciones() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Próximamente',
+            text: 'Esta funcionalidad estará disponible pronto',
+            confirmButtonColor: '#0077b6'
+        });
+    }
+
+    function verOrdenesLab() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Próximamente',
+            text: 'Esta funcionalidad estará disponible pronto',
+            confirmButtonColor: '#0077b6'
+        });
+    }
+
+    function verEstadisticas() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Próximamente',
+            text: 'Esta funcionalidad estará disponible pronto',
+            confirmButtonColor: '#0077b6'
+        });
+    }
+
+    function cerrarSesion() {
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: '¿Estás seguro de que deseas salir?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0077b6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('usuario');
+                window.location.href = '/login.html';
+            }
+        });
+    }
+</script>
+
+</body>
+</html>
