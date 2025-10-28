@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Agenda Médica | VITAL+</title>
+    <title>Gestión de Agenda Médica | VITAL+</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        /* ========== ESTILOS BASE ========== */
         * {
             margin: 0;
             padding: 0;
@@ -67,7 +66,7 @@
 
         .container {
             flex-grow: 1;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 40px auto;
             padding: 40px;
             background: white;
@@ -78,8 +77,36 @@
         h2 {
             text-align: center;
             color: #0077b6;
-            margin-bottom: 30px;
+            margin-bottom: 10px;
             font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1em;
+        }
+
+        .card-info {
+            background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            border-left: 4px solid #0077b6;
+        }
+
+        .card-info h3 {
+            color: #0077b6;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-info p {
+            color: #333;
+            margin: 5px 0;
         }
 
         form {
@@ -87,22 +114,37 @@
             gap: 25px;
         }
 
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         .form-group {
             display: flex;
             flex-direction: column;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
         }
 
         label {
             font-weight: 600;
             color: #333;
             margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        input[type="text"],
-        input[type="date"],
+        label i {
+            color: #0077b6;
+        }
+
         input[type="time"],
-        select,
-        textarea {
+        input[type="number"],
+        select {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ccc;
@@ -112,11 +154,70 @@
         }
 
         input:focus,
-        select:focus,
-        textarea:focus {
+        select:focus {
             outline: none;
             border-color: #00b4d8;
             box-shadow: 0 0 5px rgba(0,180,216,0.4);
+        }
+
+        .dias-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .dia-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .dia-checkbox:hover {
+            background: #e3f2fd;
+        }
+
+        .dia-checkbox input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .dia-checkbox input[type="checkbox"]:checked + label {
+            color: #0077b6;
+            font-weight: 600;
+        }
+
+        .horario-section {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .horario-section h4 {
+            color: #0077b6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .info-box i {
+            color: #ffc107;
+            margin-right: 10px;
         }
 
         .btn-guardar {
@@ -127,18 +228,24 @@
             border-radius: 10px;
             font-size: 1.1em;
             cursor: pointer;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
             font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-guardar:hover {
             background: linear-gradient(135deg, #005f8f, #0096c7);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
         }
 
-        .estado {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        .btn-guardar:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
         }
 
         footer {
@@ -146,10 +253,39 @@
             padding: 20px;
             color: #555;
         }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #0077b6;
+        }
+
+        .loading i {
+            font-size: 3em;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .dias-selector {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .container {
+                padding: 20px;
+                margin: 20px;
+            }
+        }
     </style>
 </head>
 <body>
-<!-- 🔷 HEADER -->
 <header class="header">
     <div class="logo-header" onclick="window.location.href='dashboard.html'">
         <img src="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" alt="Logo VITAL+">
@@ -158,111 +294,245 @@
     <a href="gestion-agendas.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
 </header>
 
-<!-- 🩺 CONTENEDOR PRINCIPAL -->
 <main class="container">
-    <h2><i class="fas fa-calendar-check"></i> Editar Agenda Médica</h2>
+    <h2><i class="fas fa-calendar-alt"></i> Configuración de Agenda Médica</h2>
+    <p class="subtitle">Define los horarios de atención y genera automáticamente las citas</p>
 
-    <form id="formAgenda">
-        <div class="form-group">
-            <label for="idDoctor">ID del Médico</label>
-            <input type="text" id="idDoctor" name="idDoctor" placeholder="Ej: 3" required>
+    <div id="loadingSection" class="loading">
+        <i class="fas fa-spinner"></i>
+        <p>Cargando información del médico...</p>
+    </div>
+
+    <div id="formSection" style="display: none;">
+        <div class="card-info" id="medicoInfo"></div>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle"></i>
+            <strong>Instrucciones:</strong> Selecciona los días laborales, define los horarios de atención (mañana y/o tarde)
+            y establece la duración de cada cita. El sistema generará automáticamente los bloques de citas disponibles.
         </div>
 
-        <div class="form-group">
-            <label for="fecha">Fecha</label>
-            <input type="date" id="fecha" name="fecha" required>
-        </div>
+        <form id="formAgenda">
+            <div class="form-group full-width">
+                <label><i class="fas fa-calendar-week"></i> Días de Atención</label>
+                <div class="dias-selector">
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="lunes" name="dias" value="Lunes">
+                        <label for="lunes">Lunes</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="martes" name="dias" value="Martes">
+                        <label for="martes">Martes</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="miercoles" name="dias" value="Miércoles">
+                        <label for="miercoles">Miércoles</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="jueves" name="dias" value="Jueves">
+                        <label for="jueves">Jueves</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="viernes" name="dias" value="Viernes">
+                        <label for="viernes">Viernes</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="sabado" name="dias" value="Sábado">
+                        <label for="sabado">Sábado</label>
+                    </div>
+                    <div class="dia-checkbox">
+                        <input type="checkbox" id="domingo" name="dias" value="Domingo">
+                        <label for="domingo">Domingo</label>
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="horaInicio">Hora de Inicio</label>
-            <input type="time" id="horaInicio" name="horaInicio" required>
-        </div>
+            <div class="horario-section">
+                <h4><i class="fas fa-sun"></i> Horario de Mañana</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Hora de Inicio</label>
+                        <input type="time" id="horaInicioManana" name="horaInicioManana">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Hora de Fin</label>
+                        <input type="time" id="horaFinManana" name="horaFinManana">
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="horaFin">Hora de Fin</label>
-            <input type="time" id="horaFin" name="horaFin" required>
-        </div>
+            <div class="horario-section">
+                <h4><i class="fas fa-moon"></i> Horario de Tarde</h4>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Hora de Inicio</label>
+                        <input type="time" id="horaInicioTarde" name="horaInicioTarde">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-clock"></i> Hora de Fin</label>
+                        <input type="time" id="horaFinTarde" name="horaFinTarde">
+                    </div>
+                </div>
+            </div>
 
-        <div class="form-group">
-            <label for="estado">Estado</label>
-            <select id="estado" name="estado" required>
-                <option value="disponible">Disponible</option>
-                <option value="reservada">Reservada</option>
-                <option value="cancelada">Cancelada</option>
-            </select>
-        </div>
+            <div class="form-group">
+                <label><i class="fas fa-hourglass-half"></i> Duración de cada Cita (minutos)</label>
+                <select id="duracionCita" name="duracionCita" required>
+                    <option value="15">15 minutos</option>
+                    <option value="20">20 minutos</option>
+                    <option value="30" selected>30 minutos</option>
+                    <option value="45">45 minutos</option>
+                    <option value="60">60 minutos</option>
+                </select>
+            </div>
 
-        <div class="form-group">
-            <label for="paciente">Paciente (opcional)</label>
-            <input type="text" id="paciente" name="paciente" placeholder="Nombre del paciente si aplica">
-        </div>
-
-        <div class="form-group">
-            <label for="descripcion">Descripción / Notas</label>
-            <textarea id="descripcion" name="descripcion" rows="3" placeholder="Detalles sobre la cita o el bloque de agenda"></textarea>
-        </div>
-
-        <button type="submit" class="btn-guardar"><i class="fas fa-save"></i> Guardar Cambios</button>
-    </form>
+            <button type="submit" class="btn-guardar">
+                <i class="fas fa-save"></i> Guardar Configuración y Generar Citas
+            </button>
+        </form>
+    </div>
 </main>
 
 <footer>
     &copy; 2025 VITAL+ | Sistema de Gestión Médica
 </footer>
 
-<!-- 💾 SCRIPT -->
 <script>
     const API_URL = 'http://localhost:3000/api/agendas';
     const params = new URLSearchParams(window.location.search);
-    const agendaId = params.get('id');
+    const idMedico = params.get('id');
     const token = localStorage.getItem('token');
 
     document.addEventListener('DOMContentLoaded', async () => {
-        if (!agendaId) {
-            Swal.fire('Error', 'No se especificó una agenda para editar', 'error');
+        if (!idMedico) {
+            Swal.fire('Error', 'No se especificó un médico para configurar la agenda', 'error')
+                .then(() => window.location.href = 'gestion-agendas.html');
             return;
         }
 
+        await cargarAgendaMedico();
+    });
+
+    async function cargarAgendaMedico() {
         try {
-            const res = await fetch(`${API_URL}/doctor/${agendaId}`, {
+            const res = await fetch(`${API_URL}/doctor/${idMedico}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
 
-            if (!data.exito) throw new Error(data.mensaje || 'Error al cargar la agenda');
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('formSection').style.display = 'block';
 
-            const agenda = data.datos[0];
-            if (agenda) {
-                document.getElementById('idDoctor').value = agenda.idDoctor;
-                document.getElementById('fecha').value = agenda.fecha;
-                document.getElementById('horaInicio').value = agenda.horaInicio;
-                document.getElementById('horaFin').value = agenda.horaFin;
-                document.getElementById('estado').value = agenda.estado;
-                document.getElementById('paciente').value = agenda.paciente || '';
-                document.getElementById('descripcion').value = agenda.descripcion || '';
+            if (data.exito && data.datos) {
+                const agenda = data.datos;
+
+                // Mostrar información del médico
+                const medicoInfo = document.getElementById('medicoInfo');
+                if (agenda.medico) {
+                    medicoInfo.innerHTML = `
+                        <h3><i class="fas fa-user-md"></i> Médico: ${agenda.medico.nombre}</h3>
+                        <p><strong>Especialidad:</strong> ${agenda.medico.especialidad || 'No especificada'}</p>
+                        <p><strong>Correo:</strong> ${agenda.medico.correo}</p>
+                    `;
+                }
+
+                // Cargar días disponibles
+                if (agenda.dias_disponibles && Array.isArray(agenda.dias_disponibles)) {
+                    agenda.dias_disponibles.forEach(dia => {
+                        const checkbox = document.querySelector(`input[value="${dia}"]`);
+                        if (checkbox) checkbox.checked = true;
+                    });
+                }
+
+                // Cargar horarios
+                if (agenda.hora_inicio_manana) {
+                    document.getElementById('horaInicioManana').value = agenda.hora_inicio_manana;
+                }
+                if (agenda.hora_fin_manana) {
+                    document.getElementById('horaFinManana').value = agenda.hora_fin_manana;
+                }
+                if (agenda.hora_inicio_tarde) {
+                    document.getElementById('horaInicioTarde').value = agenda.hora_inicio_tarde;
+                }
+                if (agenda.hora_fin_tarde) {
+                    document.getElementById('horaFinTarde').value = agenda.hora_fin_tarde;
+                }
+                if (agenda.duracion_cita_minutos) {
+                    document.getElementById('duracionCita').value = agenda.duracion_cita_minutos;
+                }
+            } else {
+                // Si no existe agenda, obtener info del médico
+                const resMedico = await fetch(`http://localhost:3000/api/usuarios/${idMedico}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataMedico = await resMedico.json();
+
+                if (dataMedico.exito && dataMedico.datos) {
+                    document.getElementById('medicoInfo').innerHTML = `
+                        <h3><i class="fas fa-user-md"></i> Médico: ${dataMedico.datos.nombre}</h3>
+                        <p><strong>Especialidad:</strong> ${dataMedico.datos.especialidad || 'No especificada'}</p>
+                        <p><strong>Correo:</strong> ${dataMedico.datos.correo}</p>
+                    `;
+                }
             }
         } catch (error) {
-            console.error(error);
-            Swal.fire('Error', 'No se pudo cargar la información de la agenda', 'error');
+            console.error('Error al cargar agenda:', error);
+            document.getElementById('loadingSection').style.display = 'none';
+            document.getElementById('formSection').style.display = 'block';
         }
-    });
+    }
 
     document.getElementById('formAgenda').addEventListener('submit', async (e) => {
         e.preventDefault();
 
+        // Obtener días seleccionados
+        const diasCheckboxes = document.querySelectorAll('input[name="dias"]:checked');
+        const diasSeleccionados = Array.from(diasCheckboxes).map(cb => cb.value);
+
+        if (diasSeleccionados.length === 0) {
+            Swal.fire('Error', 'Debes seleccionar al menos un día de atención', 'error');
+            return;
+        }
+
+        const horaInicioManana = document.getElementById('horaInicioManana').value;
+        const horaFinManana = document.getElementById('horaFinManana').value;
+        const horaInicioTarde = document.getElementById('horaInicioTarde').value;
+        const horaFinTarde = document.getElementById('horaFinTarde').value;
+
+        // Validar que al menos un horario esté configurado
+        if ((!horaInicioManana || !horaFinManana) && (!horaInicioTarde || !horaFinTarde)) {
+            Swal.fire('Error', 'Debes configurar al menos un horario (mañana o tarde)', 'error');
+            return;
+        }
+
+        // Validar horarios de mañana
+        if (horaInicioManana && horaFinManana && horaInicioManana >= horaFinManana) {
+            Swal.fire('Error', 'La hora de fin de la mañana debe ser mayor que la hora de inicio', 'error');
+            return;
+        }
+
+        // Validar horarios de tarde
+        if (horaInicioTarde && horaFinTarde && horaInicioTarde >= horaFinTarde) {
+            Swal.fire('Error', 'La hora de fin de la tarde debe ser mayor que la hora de inicio', 'error');
+            return;
+        }
+
         const formData = {
-            idDoctor: document.getElementById('idDoctor').value,
-            fecha: document.getElementById('fecha').value,
-            horaInicio: document.getElementById('horaInicio').value,
-            horaFin: document.getElementById('horaFin').value,
-            estado: document.getElementById('estado').value,
-            paciente: document.getElementById('paciente').value,
-            descripcion: document.getElementById('descripcion').value
+            dias_disponibles: diasSeleccionados,
+            hora_inicio_manana: horaInicioManana || null,
+            hora_fin_manana: horaFinManana || null,
+            hora_inicio_tarde: horaInicioTarde || null,
+            hora_fin_tarde: horaFinTarde || null,
+            duracion_cita_minutos: parseInt(document.getElementById('duracionCita').value)
         };
 
         try {
-            const res = await fetch(`${API_URL}/${agendaId}`, {
-                method: 'PUT',
+            const btnGuardar = document.querySelector('.btn-guardar');
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+            const res = await fetch(`${API_URL}/${idMedico}`, {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -275,18 +545,23 @@
             if (data.exito) {
                 Swal.fire({
                     icon: 'success',
-                    title: 'Agenda actualizada',
-                    text: 'Los cambios se han guardado correctamente',
+                    title: 'Agenda Configurada',
+                    text: 'La agenda ha sido guardada correctamente. Las citas se han generado automáticamente.',
                     confirmButtonText: 'Volver a la gestión'
                 }).then(() => {
                     window.location.href = 'gestion-agendas.html';
                 });
             } else {
-                Swal.fire('Error', data.mensaje || 'No se pudo actualizar la agenda', 'error');
+                Swal.fire('Error', data.mensaje || 'No se pudo guardar la agenda', 'error');
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Configuración y Generar Citas';
             }
         } catch (error) {
-            console.error(error);
-            Swal.fire('Error', 'Ocurrió un problema al actualizar la agenda', 'error');
+            console.error('Error:', error);
+            Swal.fire('Error', 'Ocurrió un problema al guardar la agenda', 'error');
+            const btnGuardar = document.querySelector('.btn-guardar');
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = '<i class="fas fa-save"></i> Guardar Configuración y Generar Citas';
         }
     });
 </script>
