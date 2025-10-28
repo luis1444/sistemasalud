@@ -105,7 +105,7 @@ class UsuarioControlador {
         }
     }
 
-    // 🔹 Nuevo método para obtener usuarios filtrados por rol (doctor, laboratorio, farmacia)
+    // ✅ CORREGIDO: Método para obtener usuarios filtrados por rol
     async obtenerPorRol(req, res) {
         try {
             const { rol } = req.query;
@@ -118,6 +118,7 @@ class UsuarioControlador {
             }
 
             const usuarios = await usuarioServicio.obtenerTodos({ rol });
+
             res.json({
                 exito: true,
                 total: usuarios.length,
@@ -125,7 +126,29 @@ class UsuarioControlador {
             });
         } catch (error) {
             console.error('❌ Error al obtener usuarios por rol:', error);
-            res.status(500).json({ exito: false, mensaje: error.message });
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message || 'Error al consultar usuarios'
+            });
+        }
+    }
+
+    // ✅ NUEVO: Método específico para obtener médicos
+    async obtenerMedicos(req, res) {
+        try {
+            const medicos = await usuarioServicio.obtenerMedicos();
+
+            res.json({
+                exito: true,
+                total: medicos.length,
+                datos: medicos
+            });
+        } catch (error) {
+            console.error('❌ Error al obtener médicos:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
         }
     }
 
@@ -139,6 +162,7 @@ class UsuarioControlador {
                 datos: usuarios
             });
         } catch (error) {
+            console.error('❌ Error al obtener todos:', error);
             res.status(500).json({ exito: false, mensaje: error.message });
         }
     }
@@ -188,6 +212,7 @@ class UsuarioControlador {
                 }
             });
         } catch (error) {
+            console.error('❌ Error al crear personal:', error);
             res.status(400).json({
                 exito: false,
                 mensaje: error.message

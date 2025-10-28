@@ -5,7 +5,7 @@ const usuarioRepositorio = require('../repositorios/UsuarioRepositorio');
 const jwt = require('jsonwebtoken');
 
 const { enviarCorreo, enviarCorreoCredenciales } = require('../public/js/email');
-const emailServicio = require('./emailServicio'); // ✅ usado para enviar el código
+const emailServicio = require('./emailServicio');
 
 // 🧠 Mapa temporal de recuperación
 const codigosRecuperacion = new Map();
@@ -168,19 +168,29 @@ class UsuarioServicio {
         return usuario;
     }
 
+    // ✅ CORREGIDO: Método obtenerTodos simplificado
     async obtenerTodos(filtros = {}) {
-        // ✅ Corrige el filtro por rol (PostgreSQL + Sequelize)
         try {
-            const query = {};
+            // Normalizar el rol a minúsculas si existe
             if (filtros.rol) {
-                // Usa ILIKE para que no importe mayúsculas o minúsculas
-                query.rol = filtros.rol.toLowerCase();
+                filtros.rol = filtros.rol.toLowerCase();
             }
-            const usuarios = await usuarioRepositorio.buscarTodos(query);
+
+            const usuarios = await usuarioRepositorio.buscarTodos(filtros);
             return usuarios;
         } catch (error) {
-            console.error('❌ Error en obtenerTodos:', error);
-            throw new Error('Error al consultar usuarios en la base de datos');
+            console.error('❌ Error en obtenerTodos servicio:', error);
+            throw error;
+        }
+    }
+
+    // ✅ NUEVO: Método específico para obtener médicos
+    async obtenerMedicos() {
+        try {
+            return await usuarioRepositorio.obtenerMedicosConAgenda();
+        } catch (error) {
+            console.error('❌ Error al obtener médicos:', error);
+            throw new Error('Error al consultar médicos');
         }
     }
 

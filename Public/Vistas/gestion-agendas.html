@@ -197,37 +197,60 @@
         }
     }
 
+    // ✅ CORREGIDO: Usar la ruta correcta para obtener médicos
     async function cargarMedicos() {
         try {
             const token = localStorage.getItem('token');
+
+            // Usar la ruta con el parámetro de query correcto
             const response = await fetch('http://localhost:3000/api/usuarios?rol=doctor', {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
             });
 
-            if (!response.ok) throw new Error('Error al obtener médicos');
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.mensaje || 'Error al obtener médicos');
+            }
 
-            medicos = await response.json();
+            const resultado = await response.json();
+
+            // ✅ Verificar la estructura de la respuesta
+            if (resultado.exito && resultado.datos) {
+                medicos = resultado.datos;
+            } else {
+                medicos = [];
+            }
+
+            console.log('✅ Médicos cargados:', medicos);
             renderizarTabla();
         } catch (error) {
-            console.error(error);
+            console.error('❌ Error:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error al cargar médicos',
-                text: 'No se pudieron obtener los médicos registrados.'
+                text: error.message || 'No se pudieron obtener los médicos registrados.'
             });
+
+            // Mostrar mensaje en la tabla
+            const cuerpo = document.getElementById('tablaCuerpo');
+            cuerpo.innerHTML = `<tr><td colspan="5" class="sin-datos">Error al cargar médicos: ${error.message}</td></tr>`;
         }
     }
 
     function renderizarTabla() {
         const cuerpo = document.getElementById('tablaCuerpo');
-        if (!medicos.length) {
+
+        if (!medicos || medicos.length === 0) {
             cuerpo.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay médicos registrados.</td></tr>`;
             return;
         }
 
         cuerpo.innerHTML = medicos.map(medico => `
         <tr>
-          <td>${medico.nombre} ${medico.apellido}</td>
+          <td>${medico.nombre || 'Sin nombre'}</td>
           <td>${medico.especialidad || 'No especificada'}</td>
           <td>${medico.diasDisponibles?.join(', ') || 'No asignados'}</td>
           <td>${medico.horario || 'No definido'}</td>
@@ -253,7 +276,10 @@
                     const token = localStorage.getItem('token');
                     const res = await fetch('http://localhost:3000/api/agendas/auto-organizar', {
                         method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        }
                     });
 
                     if (!res.ok) throw new Error('Error en la organización automática');
