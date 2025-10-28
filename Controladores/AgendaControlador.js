@@ -1,5 +1,5 @@
 const agendaServicio = require('../servicios/AgendaServicios');
-const usuarioServicio = require('../servicios/UsuarioServicios'); // Para obtener datos del médico si es necesario
+const usuarioServicio = require('../servicios/UsuarioServicios');
 
 class AgendaControlador {
 
@@ -7,12 +7,14 @@ class AgendaControlador {
         try {
             const { idMedico } = req.params;
             const agenda = await agendaServicio.obtenerAgendaPorMedico(idMedico);
+
             if (!agenda) {
                 return res.status(404).json({
                     exito: false,
                     mensaje: 'Agenda no encontrada para este médico.'
                 });
             }
+
             res.json({ exito: true, datos: agenda });
         } catch (error) {
             console.error('❌ Error en AgendaControlador.obtenerAgendaMedico:', error);
@@ -25,16 +27,24 @@ class AgendaControlador {
             const { idMedico } = req.params;
             const datosAgenda = req.body;
 
-            // Asegurarse de que el médico exista y sea un 'doctor'
+            // Validar que el médico exista y sea un 'doctor'
             const medico = await usuarioServicio.obtenerPerfil(idMedico);
             if (!medico || medico.rol !== 'doctor') {
-                return res.status(404).json({ exito: false, mensaje: 'Médico no encontrado o no es un doctor.' });
+                return res.status(404).json({
+                    exito: false,
+                    mensaje: 'Médico no encontrado o no es un doctor.'
+                });
             }
 
+            // Guardar la configuración de la agenda
             const agendaGuardada = await agendaServicio.guardarAgenda(idMedico, datosAgenda);
+
+            // Generar las citas automáticamente
+            await agendaServicio.generarCitasAutomaticas(idMedico, agendaGuardada);
+
             res.status(200).json({
                 exito: true,
-                mensaje: 'Agenda guardada correctamente.',
+                mensaje: 'Agenda guardada y citas generadas correctamente.',
                 datos: agendaGuardada
             });
         } catch (error) {
