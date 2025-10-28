@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const { sequelize, testConnection } = require('./Config/database');
+require('./entidades/asociaciones'); // ✅ Importa relaciones
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;

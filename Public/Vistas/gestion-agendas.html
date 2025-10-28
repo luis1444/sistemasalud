@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestión de Agendas Médicas | VITAL+</title>
     <style>
+        /* Tu CSS existente */
         * {
             margin: 0;
             padding: 0;
@@ -170,11 +171,12 @@
             <th>Especialidad</th>
             <th>Días Disponibles</th>
             <th>Horario</th>
+            <th>Duración Cita</th>
             <th>Acciones</th>
         </tr>
         </thead>
         <tbody id="tablaCuerpo">
-        <tr><td colspan="5" class="sin-datos">Cargando médicos...</td></tr>
+        <tr><td colspan="6" class="sin-datos">Cargando médicos...</td></tr>
         </tbody>
     </table>
 </div>
@@ -197,12 +199,11 @@
         }
     }
 
-    // ✅ CORREGIDO: Usar la ruta correcta para obtener médicos
     async function cargarMedicos() {
         try {
             const token = localStorage.getItem('token');
 
-            // Usar la ruta con el parámetro de query correcto
+            // Usar la ruta que incluye la agenda del médico
             const response = await fetch('http://localhost:3000/api/usuarios?rol=doctor', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -217,7 +218,6 @@
 
             const resultado = await response.json();
 
-            // ✅ Verificar la estructura de la respuesta
             if (resultado.exito && resultado.datos) {
                 medicos = resultado.datos;
             } else {
@@ -234,9 +234,8 @@
                 text: error.message || 'No se pudieron obtener los médicos registrados.'
             });
 
-            // Mostrar mensaje en la tabla
             const cuerpo = document.getElementById('tablaCuerpo');
-            cuerpo.innerHTML = `<tr><td colspan="5" class="sin-datos">Error al cargar médicos: ${error.message}</td></tr>`;
+            cuerpo.innerHTML = `<tr><td colspan="6" class="sin-datos">Error al cargar médicos: ${error.message}</td></tr>`;
         }
     }
 
@@ -244,22 +243,32 @@
         const cuerpo = document.getElementById('tablaCuerpo');
 
         if (!medicos || medicos.length === 0) {
-            cuerpo.innerHTML = `<tr><td colspan="5" class="sin-datos">No hay médicos registrados.</td></tr>`;
+            cuerpo.innerHTML = `<tr><td colspan="6" class="sin-datos">No hay médicos registrados.</td></tr>`;
             return;
         }
 
-        cuerpo.innerHTML = medicos.map(medico => `
-        <tr>
-          <td>${medico.nombre || 'Sin nombre'}</td>
-          <td>${medico.especialidad || 'No especificada'}</td>
-          <td>${medico.diasDisponibles?.join(', ') || 'No asignados'}</td>
-          <td>${medico.horario || 'No definido'}</td>
-          <td class="acciones">
-            <button onclick="editarAgenda('${medico.id}')">🕒 Editar</button>
-            <button onclick="verAgenda('${medico.id}')">👁️ Ver</button>
-          </td>
-        </tr>
-      `).join('');
+        cuerpo.innerHTML = medicos.map(medico => {
+            const agenda = medico.agenda; // Accedemos a la agenda directamente
+            const dias = agenda?.dias_disponibles?.join(', ') || 'No asignados';
+            const horario = agenda ?
+                `${agenda.hora_inicio_manana || ''} - ${agenda.hora_fin_manana || ''} ${agenda.hora_inicio_tarde ? ` / ${agenda.hora_inicio_tarde} - ${agenda.hora_fin_tarde}` : ''}`.trim() :
+                'No definido';
+            const duracionCita = agenda?.duracion_cita_minutos ? `${agenda.duracion_cita_minutos} min` : 'No definida';
+
+            return `
+                <tr>
+                  <td>${medico.nombre || 'Sin nombre'}</td>
+                  <td>${medico.especialidad || 'No especificada'}</td>
+                  <td>${dias}</td>
+                  <td>${horario}</td>
+                  <td>${duracionCita}</td>
+                  <td class="acciones">
+                    <button onclick="editarAgenda('${medico.id}')">🕒 Editar</button>
+                    <button onclick="verAgenda('${medico.id}')">👁️ Ver Citas</button>
+                  </td>
+                </tr>
+            `;
+        }).join('');
     }
 
     function organizarAutomaticamente() {
@@ -282,7 +291,10 @@
                         }
                     });
 
-                    if (!res.ok) throw new Error('Error en la organización automática');
+                    if (!res.ok) {
+                        const errorData = await res.json();
+                        throw new Error(errorData.mensaje || 'Error en la organización automática');
+                    }
 
                     Swal.fire({
                         icon: 'success',
@@ -291,12 +303,12 @@
                         showConfirmButton: false
                     });
 
-                    await cargarMedicos();
+                    await cargarMedicos(); // Recargar la tabla para ver los cambios
                 } catch (error) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error al organizar agendas',
-                        text: 'Ocurrió un problema en el servidor.'
+                        text: error.message || 'Ocurrió un problema en el servidor.'
                     });
                 }
             }
@@ -304,12 +316,12 @@
     }
 
     function editarAgenda(id) {
-        localStorage.setItem('medicoSeleccionado', id);
+        localStorage.setItem('medicoSeleccionadoId', id); // Usar un nombre más específico
         window.location.href = '/Vistas/editar-agenda.html';
     }
 
     function verAgenda(id) {
-        localStorage.setItem('medicoSeleccionado', id);
+        localStorage.setItem('medicoSeleccionadoId', id); // Usar un nombre más específico
         window.location.href = '/Vistas/agenda-medico.html';
     }
 </script>

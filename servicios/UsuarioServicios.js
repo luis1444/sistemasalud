@@ -184,9 +184,9 @@ class UsuarioServicio {
         }
     }
 
-    // ✅ NUEVO: Método específico para obtener médicos
     async obtenerMedicos() {
         try {
+            // El repositorio ahora se encargará de incluir la agenda
             return await usuarioRepositorio.obtenerMedicosConAgenda();
         } catch (error) {
             console.error('❌ Error al obtener médicos:', error);

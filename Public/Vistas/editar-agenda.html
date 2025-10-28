@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Agenda Médica | VITAL+</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        /* ========== ESTILOS BASE ========== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        .container {
+            flex-grow: 1;
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 40px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0, 119, 182, 0.15);
+        }
+
+        h2 {
+            text-align: center;
+            color: #0077b6;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        form {
+            display: grid;
+            gap: 25px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        input[type="text"],
+        input[type="date"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #00b4d8;
+            box-shadow: 0 0 5px rgba(0,180,216,0.4);
+        }
+
+        .btn-guardar {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-guardar:hover {
+            background: linear-gradient(135deg, #005f8f, #0096c7);
+        }
+
+        .estado {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+<!-- 🔷 HEADER -->
+<header class="header">
+    <div class="logo-header" onclick="window.location.href='dashboard.html'">
+        <img src="https://cdn-icons-png.flaticon.com/512/2966/2966485.png" alt="Logo VITAL+">
+        <h1>VITAL+</h1>
+    </div>
+    <a href="gestion-agendas.html" class="btn-volver"><i class="fas fa-arrow-left"></i> Volver</a>
+</header>
+
+<!-- 🩺 CONTENEDOR PRINCIPAL -->
+<main class="container">
+    <h2><i class="fas fa-calendar-check"></i> Editar Agenda Médica</h2>
+
+    <form id="formAgenda">
+        <div class="form-group">
+            <label for="idDoctor">ID del Médico</label>
+            <input type="text" id="idDoctor" name="idDoctor" placeholder="Ej: 3" required>
+        </div>
+
+        <div class="form-group">
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" required>
+        </div>
+
+        <div class="form-group">
+            <label for="horaInicio">Hora de Inicio</label>
+            <input type="time" id="horaInicio" name="horaInicio" required>
+        </div>
+
+        <div class="form-group">
+            <label for="horaFin">Hora de Fin</label>
+            <input type="time" id="horaFin" name="horaFin" required>
+        </div>
+
+        <div class="form-group">
+            <label for="estado">Estado</label>
+            <select id="estado" name="estado" required>
+                <option value="disponible">Disponible</option>
+                <option value="reservada">Reservada</option>
+                <option value="cancelada">Cancelada</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="paciente">Paciente (opcional)</label>
+            <input type="text" id="paciente" name="paciente" placeholder="Nombre del paciente si aplica">
+        </div>
+
+        <div class="form-group">
+            <label for="descripcion">Descripción / Notas</label>
+            <textarea id="descripcion" name="descripcion" rows="3" placeholder="Detalles sobre la cita o el bloque de agenda"></textarea>
+        </div>
+
+        <button type="submit" class="btn-guardar"><i class="fas fa-save"></i> Guardar Cambios</button>
+    </form>
+</main>
+
+<footer>
+    &copy; 2025 VITAL+ | Sistema de Gestión Médica
+</footer>
+
+<!-- 💾 SCRIPT -->
+<script>
+    const API_URL = 'http://localhost:3000/api/agendas';
+    const params = new URLSearchParams(window.location.search);
+    const agendaId = params.get('id');
+    const token = localStorage.getItem('token');
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (!agendaId) {
+            Swal.fire('Error', 'No se especificó una agenda para editar', 'error');
+            return;
+        }
+
+        try {
+            const res = await fetch(`${API_URL}/doctor/${agendaId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await res.json();
+
+            if (!data.exito) throw new Error(data.mensaje || 'Error al cargar la agenda');
+
+            const agenda = data.datos[0];
+            if (agenda) {
+                document.getElementById('idDoctor').value = agenda.idDoctor;
+                document.getElementById('fecha').value = agenda.fecha;
+                document.getElementById('horaInicio').value = agenda.horaInicio;
+                document.getElementById('horaFin').value = agenda.horaFin;
+                document.getElementById('estado').value = agenda.estado;
+                document.getElementById('paciente').value = agenda.paciente || '';
+                document.getElementById('descripcion').value = agenda.descripcion || '';
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'No se pudo cargar la información de la agenda', 'error');
+        }
+    });
+
+    document.getElementById('formAgenda').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = {
+            idDoctor: document.getElementById('idDoctor').value,
+            fecha: document.getElementById('fecha').value,
+            horaInicio: document.getElementById('horaInicio').value,
+            horaFin: document.getElementById('horaFin').value,
+            estado: document.getElementById('estado').value,
+            paciente: document.getElementById('paciente').value,
+            descripcion: document.getElementById('descripcion').value
+        };
+
+        try {
+            const res = await fetch(`${API_URL}/${agendaId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await res.json();
+
+            if (data.exito) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Agenda actualizada',
+                    text: 'Los cambios se han guardado correctamente',
+                    confirmButtonText: 'Volver a la gestión'
+                }).then(() => {
+                    window.location.href = 'gestion-agendas.html';
+                });
+            } else {
+                Swal.fire('Error', data.mensaje || 'No se pudo actualizar la agenda', 'error');
+            }
+        } catch (error) {
+            console.error(error);
+            Swal.fire('Error', 'Ocurrió un problema al actualizar la agenda', 'error');
+        }
+    });
+</script>
+</body>
+</html>

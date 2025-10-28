@@ -2,6 +2,7 @@
 // 📄 repositorios/UsuarioRepositorio.js
 // ============================================
 const Usuario = require('../entidades/Usuarios');
+const Agenda = require('../entidades/Agenda');
 const { Op } = require('sequelize');
 
 class UsuarioRepositorio {
@@ -144,13 +145,18 @@ class UsuarioRepositorio {
             const medicos = await Usuario.findAll({
                 where: { rol: 'doctor', activo: true },
                 attributes: { exclude: ['contrasena'] },
+                include: [{
+                    model: Agenda,
+                    as: 'agenda',
+                    required: false // Incluye médicos incluso si no tienen agenda aún
+                }],
                 order: [['nombre', 'ASC']]
             });
 
             return medicos;
         } catch (error) {
-            console.error('❌ Error al obtener médicos:', error);
-            throw new Error('Error al consultar médicos');
+            console.error('❌ Error al obtener médicos con agenda:', error);
+            throw new Error('Error al consultar médicos con su agenda');
         }
     }
 }
