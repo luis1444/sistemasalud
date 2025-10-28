@@ -255,6 +255,56 @@
             gap: 8px;
         }
 
+        /* Modal de términos */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            animation: aparecer 0.3s ease;
+        }
+
+        .modal-content h3 {
+            color: #0077b6;
+            margin-bottom: 15px;
+        }
+
+        .modal-content ul {
+            padding-left: 20px;
+        }
+
+        .modal-content button {
+            margin-top: 15px;
+            background: #0077b6;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+        @keyframes aparecer {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
         /* Responsive */
         @media (max-width: 968px) {
             body {
@@ -313,7 +363,7 @@
     </div>
 </div>
 
-<!-- Panel Derecho - Formulario -->
+<!-- Panel Derecho -->
 <div class="panel-derecho">
     <div class="registro-container">
         <h2>Registro</h2>
@@ -364,18 +414,77 @@
                 <input type="password" id="contrasena" name="contrasena" placeholder="Mínimo 8 caracteres" required>
             </div>
 
+            <!-- Checkbox de términos -->
+            <div class="form-group full-width" style="display:flex; align-items:center; gap:10px;">
+                <input type="checkbox" id="terminos" required>
+                <label for="terminos" style="margin:0;">Acepto los
+                    <a href="#" id="abrirModal" style="color:#0077b6; text-decoration:underline;">términos y condiciones</a>
+                </label>
+            </div>
+
             <button type="submit">Registrarse</button>
         </form>
 
         <div class="volver">
-            <a href="index.html">← Volver al inicio</a>
+            <a href="/Vistas/index.html">← Volver al inicio</a>
         </div>
     </div>
 </div>
 
-<!-- Librería SweetAlert2 -->
+<!-- Modal -->
+<div class="modal" id="modalTerminos">
+    <div class="modal-content">
+        <h3>Términos y Condiciones de Uso - VITAL+</h3>
+        <p>Al registrarse en VITAL+, usted acepta lo siguiente:</p>
+        <ul>
+            <li>Sus datos personales serán tratados conforme a la Ley 1581 de 2012.</li>
+            <li>Se compromete a proporcionar información veraz y actualizada.</li>
+            <li>VITAL+ podrá enviarle comunicaciones relacionadas con su cuenta.</li>
+            <li>Está prohibido el acceso no autorizado o la manipulación de datos del sistema.</li>
+            <li>El uso de la plataforma implica la aceptación de las políticas de privacidad vigentes.</li>
+        </ul>
+        <button id="cerrarModal">Cerrar</button>
+    </div>
+</div>
+
+<!-- Librerías -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="../js/registro.js"></script>
+
+<!-- Script del modal -->
+<script>
+    const abrirModal = document.getElementById('abrirModal');
+    const modal = document.getElementById('modalTerminos');
+    const cerrarModal = document.getElementById('cerrarModal');
+
+    abrirModal.addEventListener('click', (e) => {
+        e.preventDefault();
+        modal.style.display = 'flex';
+    });
+
+    cerrarModal.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Validación de términos antes de enviar
+    document.getElementById('formRegistro').addEventListener('submit', function(e) {
+        const terminos = document.getElementById('terminos');
+        if (!terminos.checked) {
+            e.preventDefault();
+            Swal.fire({
+                icon: 'warning',
+                title: 'Debe aceptar los términos y condiciones',
+                confirmButtonColor: '#0077b6'
+            });
+        }
+    });
+</script>
 
 </body>
 </html>
