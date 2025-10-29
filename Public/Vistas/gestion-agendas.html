@@ -316,14 +316,15 @@
     }
 
     function editarAgenda(id) {
-        localStorage.setItem('medicoSeleccionadoId', id); // Usar un nombre más específico
-        window.location.href = '/Vistas/editar-agenda.html';
+        localStorage.setItem('medicoSeleccionadoId', id); // Puedes dejarlo como respaldo
+        window.location.href = `/Vistas/editar-agenda.html?idMedico=${id}`; // ✅ Enviar el ID por URL
     }
 
     function verAgenda(id) {
-        localStorage.setItem('medicoSeleccionadoId', id); // Usar un nombre más específico
-        window.location.href = '/Vistas/agenda-medico.html';
+        localStorage.setItem('medicoSeleccionadoId', id);
+        window.location.href = `/Vistas/agenda-medico.html?idMedico=${id}`;
     }
+
 </script>
 </body>
 </html>

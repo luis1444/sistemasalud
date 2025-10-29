@@ -9,8 +9,8 @@ const usuarioControlador = require('../Controladores/UsuarioControlador');
 const AgendaControlador = require('../Controladores/AgendaControlador'); // ✅ Solución a ReferenceError
 
 // 🔒 MIDDLEWARE
-const authMiddleware = require('../middleware/authMiddleware');
-const { autenticar, verificarRol } = require('../middleware/authMiddleware');
+const authMiddleware = require('../middlewares/authMiddleware');
+const { autenticar, verificarRol } = require('../middlewares/authMiddleware');
 
 // ============================================
 //  RUTAS PÚBLICAS

@@ -400,7 +400,7 @@
 <script>
     const API_URL = 'http://localhost:3000/api/agendas';
     const params = new URLSearchParams(window.location.search);
-    const idMedico = params.get('id');
+    const idMedico = params.get('idMedico') || params.get('id'); // Acepta ambos parámetros
     const token = localStorage.getItem('token');
 
     document.addEventListener('DOMContentLoaded', async () => {
@@ -418,11 +418,13 @@
             const res = await fetch(`${API_URL}/doctor/${idMedico}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
+
             const data = await res.json();
 
             document.getElementById('loadingSection').style.display = 'none';
             document.getElementById('formSection').style.display = 'block';
 
+            // Si la respuesta es exitosa Y hay datos de agenda
             if (data.exito && data.datos) {
                 const agenda = data.datos;
 
@@ -430,10 +432,10 @@
                 const medicoInfo = document.getElementById('medicoInfo');
                 if (agenda.medico) {
                     medicoInfo.innerHTML = `
-                        <h3><i class="fas fa-user-md"></i> Médico: ${agenda.medico.nombre}</h3>
-                        <p><strong>Especialidad:</strong> ${agenda.medico.especialidad || 'No especificada'}</p>
-                        <p><strong>Correo:</strong> ${agenda.medico.correo}</p>
-                    `;
+                    <h3><i class="fas fa-user-md"></i> Médico: ${agenda.medico.nombre}</h3>
+                    <p><strong>Especialidad:</strong> ${agenda.medico.especialidad || 'No especificada'}</p>
+                    <p><strong>Correo:</strong> ${agenda.medico.correo}</p>
+                `;
                 }
 
                 // Cargar días disponibles
@@ -461,7 +463,7 @@
                     document.getElementById('duracionCita').value = agenda.duracion_cita_minutos;
                 }
             } else {
-                // Si no existe agenda, obtener info del médico
+                // Si no existe agenda, obtener info del médico desde el endpoint de usuarios
                 const resMedico = await fetch(`http://localhost:3000/api/usuarios/${idMedico}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -469,16 +471,19 @@
 
                 if (dataMedico.exito && dataMedico.datos) {
                     document.getElementById('medicoInfo').innerHTML = `
-                        <h3><i class="fas fa-user-md"></i> Médico: ${dataMedico.datos.nombre}</h3>
-                        <p><strong>Especialidad:</strong> ${dataMedico.datos.especialidad || 'No especificada'}</p>
-                        <p><strong>Correo:</strong> ${dataMedico.datos.correo}</p>
-                    `;
+                    <h3><i class="fas fa-user-md"></i> Médico: ${dataMedico.datos.nombre}</h3>
+                    <p><strong>Especialidad:</strong> ${dataMedico.datos.especialidad || 'No especificada'}</p>
+                    <p><strong>Correo:</strong> ${dataMedico.datos.correo}</p>
+                `;
+                } else {
+                    Swal.fire('Error', 'No se pudo cargar la información del médico', 'error')
+                        .then(() => window.location.href = 'gestion-agendas.html');
                 }
             }
         } catch (error) {
             console.error('Error al cargar agenda:', error);
-            document.getElementById('loadingSection').style.display = 'none';
-            document.getElementById('formSection').style.display = 'block';
+            Swal.fire('Error', 'Ocurrió un problema al cargar la información del médico', 'error')
+                .then(() => window.location.href = 'gestion-agendas.html');
         }
     }
 
