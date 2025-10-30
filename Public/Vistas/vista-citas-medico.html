@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas del Médico | VITAL+</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        .medico-info {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .medico-info h2 {
+            color: #0077b6;
+            font-size: 1.5em;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+            color: #0077b6;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .filtros {
+            display: flex;
+            gap: 15px;
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .filtro-grupo {
+            flex: 1;
+        }
+
+        .filtro-grupo label {
+            display: block;
+            margin-bottom: 8px;
+            color: #0077b6;
+            font-weight: 600;
+        }
+
+        .filtro-grupo select, .filtro-grupo input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .citas-lista {
+            display: grid;
+            gap: 20px;
+        }
+
+        .cita-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            gap: 25px;
+            align-items: center;
+            transition: all 0.3s ease;
+            border-left: 5px solid #00b4d8;
+        }
+
+        .cita-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.15);
+        }
+
+        .cita-hora {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .hora-texto {
+            font-size: 1.8em;
+            font-weight: 700;
+        }
+
+        .duracion-texto {
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .cita-info {
+            flex: 1;
+        }
+
+        .cita-info h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+            margin-bottom: 10px;
+        }
+
+        .cita-detalle {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            color: #52796f;
+        }
+
+        .cita-detalle-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .estado-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .estado-disponible {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .estado-reservada {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .estado-completada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .estado-cancelada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .no-citas {
+            text-align: center;
+            padding: 60px;
+            background: white;
+            border-radius: 15px;
+        }
+
+        .no-citas-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .cita-card {
+                grid-template-columns: 1fr;
+            }
+
+            .filtros {
+                flex-direction: column;
+            }
+
+            .stats {
+                flex-direction: column;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-header">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <a href="javascript:history.back()" class="btn-volver">← Volver</a>
+</div>
+
+<div class="container">
+    <div class="medico-info" id="medicoInfo">
+        <div>
+            <h2 id="nombreMedico">Cargando...</h2>
+            <p id="especialidadMedico"></p>
+        </div>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalCitas">0</div>
+                <div class="stat-label">Total Citas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="citasReservadas">0</div>
+                <div class="stat-label">Reservadas</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="citasDisponibles">0</div>
+                <div class="stat-label">Disponibles</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="filtros">
+        <div class="filtro-grupo">
+            <label>Vista</label>
+            <select id="vistaFiltro" onchange="filtrarCitas()">
+                <option value="todas">Todas</option>
+                <option value="hoy">Hoy</option>
+                <option value="semana">Esta Semana</option>
+                <option value="mes">Este Mes</option>
+            </select>
+        </div>
+        <div class="filtro-grupo">
+            <label>Fecha</label>
+            <input type="date" id="fechaFiltro" onchange="filtrarCitas()">
+        </div>
+        <div class="filtro-grupo">
+            <label>Estado</label>
+            <select id="estadoFiltro" onchange="filtrarCitas()">
+                <option value="todas">Todas</option>
+                <option value="disponible">Disponibles</option>
+                <option value="reservada">Reservadas</option>
+                <option value="completada">Completadas</option>
+                <option value="cancelada">Canceladas</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="citas-lista" id="citasLista">
+        <!-- Se llenará dinámicamente -->
+    </div>
+</div>
+
+<script>
+    let citas = [];
+    let todasLasCitas = [];
+    const params = new URLSearchParams(window.location.search);
+    const idMedico = params.get('idMedico') || localStorage.getItem('medicoSeleccionadoId');
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        if (!idMedico) {
+            Swal.fire('Error', 'No se especificó un médico', 'error')
+                .then(() => window.history.back());
+            return;
+        }
+
+        document.getElementById('fechaFiltro').value = new Date().toISOString().split('T')[0];
+        await cargarCitas();
+        filtrarCitas();
+    });
+
+    async function cargarCitas() {
+        try {
+            const token = localStorage.getItem('token');
+
+            const response = await fetch(`http://localhost:3000/api/citas/doctor/${idMedico}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al obtener las citas');
+            }
+
+            const resultado = await response.json();
+            todasLasCitas = resultado.datos || resultado;
+            citas = [...todasLasCitas];
+
+            console.log('Citas cargadas:', citas);
+
+            // Cargar información del médico
+            if (citas.length > 0 && citas[0].medico) {
+                document.getElementById('nombreMedico').textContent = citas[0].medico.nombre;
+                document.getElementById('especialidadMedico').textContent =
+                    citas[0].medico.especialidad || 'Médico General';
+            } else {
+                // Cargar info del médico desde el endpoint de usuarios
+                const resMedico = await fetch(`http://localhost:3000/api/usuarios/${idMedico}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const dataMedico = await resMedico.json();
+                if (dataMedico.exito && dataMedico.datos) {
+                    document.getElementById('nombreMedico').textContent = dataMedico.datos.nombre;
+                    document.getElementById('especialidadMedico').textContent =
+                        dataMedico.datos.especialidad || 'Médico General';
+                }
+            }
+
+            actualizarEstadisticas();
+
+        } catch (error) {
+            console.error('Error completo:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error al cargar citas',
+                text: 'No se pudieron obtener las citas del servidor.'
+            });
+        }
+    }
+
+    function actualizarEstadisticas() {
+        document.getElementById('totalCitas').textContent = todasLasCitas.length;
+        document.getElementById('citasReservadas').textContent =
+            todasLasCitas.filter(c => c.estado === 'reservada').length;
+        document.getElementById('citasDisponibles').textContent =
+            todasLasCitas.filter(c => c.estado === 'disponible').length;
+    }
+
+    function filtrarCitas() {
+        const vista = document.getElementById('vistaFiltro').value;
+        const fechaSeleccionada = document.getElementById('fechaFiltro').value;
+        const estado = document.getElementById('estadoFiltro').value;
+
+        let citasFiltradas = [...todasLasCitas];
+
+        // Filtrar por vista
+        if (vista === 'hoy') {
+            const hoy = new Date().toISOString().split('T')[0];
+            citasFiltradas = citasFiltradas.filter(c => c.fecha === hoy);
+        } else if (vista === 'semana') {
+            const hoy = new Date();
+            const enUnaSemana = new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+            citasFiltradas = citasFiltradas.filter(c => {
+                const fechaCita = new Date(c.fecha);
+                return fechaCita >= hoy && fechaCita <= enUnaSemana;
+            });
+        } else if (vista === 'mes') {
+            const hoy = new Date();
+            const enUnMes = new Date(hoy.getTime() + 30 * 24 * 60 * 60 * 1000);
+            citasFiltradas = citasFiltradas.filter(c => {
+                const fechaCita = new Date(c.fecha);
+                return fechaCita >= hoy && fechaCita <= enUnMes;
+            });
+        }
+
+        // Filtrar por fecha específica
+        if (fechaSeleccionada && vista !== 'todas') {
+            citasFiltradas = citasFiltradas.filter(c => c.fecha === fechaSeleccionada);
+        }
+
+        // Filtrar por estado
+        if (estado !== 'todas') {
+            citasFiltradas = citasFiltradas.filter(c => c.estado === estado);
+        }
+
+        renderizarCitas(citasFiltradas);
+    }
+
+    function renderizarCitas(citasFiltradas) {
+        const container = document.getElementById('citasLista');
+
+        if (citasFiltradas.length === 0) {
+            container.innerHTML = `
+                <div class="no-citas">
+                    <div class="no-citas-icon">📅</div>
+                    <h3 style="color: #0077b6; margin-bottom: 10px;">No hay citas</h3>
+                    <p style="color: #52796f;">No se encontraron citas para los filtros seleccionados</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = citasFiltradas.map(cita => {
+            console.log('Renderizando cita:', cita.id, 'Estado:', cita.estado);
+
+            const estadoClass = `estado-${cita.estado}`;
+            const estadoTexto = {
+                'disponible': 'Disponible',
+                'reservada': 'Reservada',
+                'completada': 'Completada',
+                'cancelada': 'Cancelada'
+            }[cita.estado] || cita.estado;
+
+            const nombrePaciente = cita.paciente?.nombre || 'Sin paciente asignado';
+
+            const horaInicio = cita.hora_inicio ? cita.hora_inicio.substring(0, 5) : '00:00';
+            const horaFin = cita.hora_fin ? cita.hora_fin.substring(0, 5) : '00:30';
+
+            const [horaInicioH, horaInicioM] = horaInicio.split(':').map(Number);
+            const [horaFinH, horaFinM] = horaFin.split(':').map(Number);
+            const duracionMin = (horaFinH * 60 + horaFinM) - (horaInicioH * 60 + horaInicioM);
+
+            return `
+                <div class="cita-card">
+                    <div class="cita-hora">
+                        <div class="hora-texto">${horaInicio}</div>
+                        <div class="duracion-texto">${duracionMin} min</div>
+                    </div>
+                    <div class="cita-info">
+                        <h3>${nombrePaciente}</h3>
+                        <div class="cita-detalle">
+                            <div class="cita-detalle-item">
+                                <span>📅</span> ${cita.fecha}
+                            </div>
+                            ${cita.motivo_consulta ? `
+                                <div class="cita-detalle-item">
+                                    <span>💬</span> ${cita.motivo_consulta}
+                                </div>
+                            ` : ''}
+                            <div class="cita-detalle-item">
+                                <span class="estado-badge ${estadoClass}">${estadoTexto}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+</script>
+
+</body>
+</html>

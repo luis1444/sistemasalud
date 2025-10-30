@@ -47,7 +47,12 @@
             font-size: 1.8em;
         }
 
-        .btn-volver {
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn-header {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid white;
             color: white;
@@ -57,11 +62,24 @@
             font-weight: 600;
             transition: all 0.3s ease;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .btn-volver:hover {
+        .btn-header:hover {
             background: white;
             color: #0077b6;
+        }
+
+        .btn-ver-citas {
+            background: rgba(40, 167, 69, 0.9);
+            border-color: #28a745;
+        }
+
+        .btn-ver-citas:hover {
+            background: #28a745;
+            color: white;
         }
 
         .container {
@@ -282,6 +300,11 @@
                 padding: 20px;
                 margin: 20px;
             }
+
+            .header-actions {
+                flex-direction: column;
+                gap: 10px;
+            }
         }
     </style>
 </head>
@@ -291,7 +314,14 @@
         <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
         <h1>VITAL+</h1>
     </div>
-    <a href="/Vistas/gestion-agendas.html" class="btn-volver">← Volver al Dashboard</a>
+    <div class="header-actions">
+        <button class="btn-header btn-ver-citas" onclick="verCitasMedico()">
+            <i class="fas fa-calendar-check"></i> Ver Citas
+        </button>
+        <a href="/Vistas/gestion-agendas.html" class="btn-header">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
 </div>
 <main class="container">
     <h2><i class="fas fa-calendar-alt"></i> Configuración de Agenda Médica</h2>
@@ -399,8 +429,22 @@
 <script>
     const API_URL = 'http://localhost:3000/api/agendas';
     const params = new URLSearchParams(window.location.search);
-    const idMedico = params.get('idMedico') || params.get('id'); // Acepta ambos parámetros
+    const idMedico = params.get('idMedico') || params.get('id');
     const token = localStorage.getItem('token');
+
+    // Función para ver las citas del médico
+    function verCitasMedico() {
+        if (!idMedico) {
+            Swal.fire('Error', 'No se puede acceder a las citas sin un ID de médico', 'error');
+            return;
+        }
+
+        // Guardar el ID del médico en localStorage temporalmente
+        localStorage.setItem('medicoSeleccionadoId', idMedico);
+
+        // Redirigir a la vista de citas
+        window.location.href = `/Vistas/vista-citas-medico.html?idMedico=${idMedico}`;
+    }
 
     document.addEventListener('DOMContentLoaded', async () => {
         if (!idMedico) {
@@ -423,7 +467,6 @@
             document.getElementById('loadingSection').style.display = 'none';
             document.getElementById('formSection').style.display = 'block';
 
-            // Si la respuesta es exitosa Y hay datos de agenda
             if (data.exito && data.datos) {
                 const agenda = data.datos;
 
@@ -462,7 +505,7 @@
                     document.getElementById('duracionCita').value = agenda.duracion_cita_minutos;
                 }
             } else {
-                // Si no existe agenda, obtener info del médico desde el endpoint de usuarios
+                // Si no existe agenda, obtener info del médico
                 const resMedico = await fetch(`http://localhost:3000/api/usuarios/${idMedico}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -489,7 +532,6 @@
     document.getElementById('formAgenda').addEventListener('submit', async (e) => {
         e.preventDefault();
 
-        // Obtener días seleccionados
         const diasCheckboxes = document.querySelectorAll('input[name="dias"]:checked');
         const diasSeleccionados = Array.from(diasCheckboxes).map(cb => cb.value);
 
@@ -503,19 +545,16 @@
         const horaInicioTarde = document.getElementById('horaInicioTarde').value;
         const horaFinTarde = document.getElementById('horaFinTarde').value;
 
-        // Validar que al menos un horario esté configurado
         if ((!horaInicioManana || !horaFinManana) && (!horaInicioTarde || !horaFinTarde)) {
             Swal.fire('Error', 'Debes configurar al menos un horario (mañana o tarde)', 'error');
             return;
         }
 
-        // Validar horarios de mañana
         if (horaInicioManana && horaFinManana && horaInicioManana >= horaFinManana) {
             Swal.fire('Error', 'La hora de fin de la mañana debe ser mayor que la hora de inicio', 'error');
             return;
         }
 
-        // Validar horarios de tarde
         if (horaInicioTarde && horaFinTarde && horaInicioTarde >= horaFinTarde) {
             Swal.fire('Error', 'La hora de fin de la tarde debe ser mayor que la hora de inicio', 'error');
             return;
