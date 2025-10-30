@@ -339,6 +339,33 @@ class UsuarioControlador {
             });
         }
     }
+    async obtenerPorId(req, res) {
+        try {
+            const { id } = req.params;
+            const usuario = await usuarioServicio.obtenerPerfil(id);
+
+            if (!usuario) {
+                return res.status(404).json({
+                    exito: false,
+                    mensaje: 'Usuario no encontrado.'
+                });
+            }
+
+            // Eliminar información sensible antes de enviar
+            const { contrasena, codigo_recuperacion, expiracion_codigo, ...usuarioSinPassword } = usuario.toJSON();
+
+            res.json({
+                exito: true,
+                datos: usuarioSinPassword
+            });
+        } catch (error) {
+            console.error('❌ Error en UsuarioControlador.obtenerPorId:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
 }
 
 module.exports = new UsuarioControlador();

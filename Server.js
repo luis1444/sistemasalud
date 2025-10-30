@@ -5,7 +5,6 @@ const cors = require('cors');
 const { sequelize, testConnection } = require('./Config/database');
 require('./entidades/asociaciones'); // ✅ Importa relaciones
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -32,6 +31,18 @@ app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 // ============================================
 // 🧩 Rutas de API
 // ============================================
+// ⚠️ IMPORTANTE: Las rutas más específicas deben ir PRIMERO
+// para evitar que /api/usuarios/:id capture /api/usuarios/perfil
+
+// 1️⃣ Rutas de Agenda
+const agendaRutas = require('./rutas/agendaRutas');
+app.use('/api/agendas', agendaRutas);
+
+// 2️⃣ Rutas de Citas
+const citaRutas = require('./rutas/citaRutas');
+app.use('/api/citas', citaRutas);
+
+// 3️⃣ Rutas de Usuarios
 const usuarioRutas = require('./rutas/UsuarioRutas');
 app.use('/api/usuarios', usuarioRutas);
 
@@ -88,8 +99,9 @@ app.listen(PORT, async () => {
 
     try {
         console.log('🔄 Sincronizando base de datos...');
-        // 2️⃣ Cargar modelo Usuario
+        // 2️⃣ Cargar modelos
         require('./entidades/Usuarios');
+        require('./entidades/Agenda');
 
         // 3️⃣ Crear o actualizar tablas automáticamente
         await sequelize.sync({ alter: true });
@@ -102,7 +114,7 @@ app.listen(PORT, async () => {
 // Manejar errores 404 (filtrar errores de Chrome DevTools)
 app.use((req, res) => {
     // Ignorar peticiones de Chrome DevTools
-    if (req.url.includes('.well-known/appspecifigc')) {
+    if (req.url.includes('.well-known/appspecific')) {
         return res.status(404).end();
     }
 

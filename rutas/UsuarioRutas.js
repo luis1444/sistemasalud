@@ -1,19 +1,18 @@
 // ============================================
-// 📄 rutas/UsuarioRutas.js (AJUSTADO)
+// 📄 rutas/UsuarioRutas.js (LIMPIO - SIN RUTAS DE AGENDA)
 // ============================================
 const express = require('express');
 const router = express.Router();
 
 // 💡 CONTROLADORES REQUERIDOS
 const usuarioControlador = require('../Controladores/UsuarioControlador');
-const AgendaControlador = require('../Controladores/AgendaControlador'); // ✅ Solución a ReferenceError
 
 // 🔒 MIDDLEWARE
 const authMiddleware = require('../middlewares/authMiddleware');
 const { autenticar, verificarRol } = require('../middlewares/authMiddleware');
 
 // ============================================
-//  RUTAS PÚBLICAS
+// 🌐 RUTAS PÚBLICAS
 // ============================================
 router.get('/', usuarioControlador.obtenerPorRol); // Ruta para /api/usuarios?rol=doctor
 router.post('/registro', usuarioControlador.registrar);
@@ -25,14 +24,18 @@ router.post('/verificar-codigo', usuarioControlador.verificarCodigo);
 router.post('/cambiar-contrasena', usuarioControlador.cambiarContrasenaRecuperacion);
 
 // ============================================
-// RUTAS PROTEGIDAS (Perfil del usuario autenticado)
+// 🔒 RUTAS PROTEGIDAS (Perfil del usuario autenticado)
 // ============================================
 router.get('/perfil', authMiddleware.verificarToken, usuarioControlador.obtenerPerfil);
 router.put('/perfil', authMiddleware.verificarToken, usuarioControlador.actualizarPerfil);
 
+// ============================================
+// 👨‍⚕️ RUTA DE UTILIDAD (Obtener médicos)
+// ============================================
+router.get('/medicos', authMiddleware.verificarToken, authMiddleware.esAdmin, usuarioControlador.obtenerMedicos);
 
 // ============================================
-// RUTAS ADMINISTRATIVAS / EXCLUSIVAS PARA ADMIN
+// 👑 RUTAS ADMINISTRATIVAS (Solo para ADMIN)
 // ============================================
 router.post(
     '/crear-personal',
@@ -40,52 +43,48 @@ router.post(
     verificarRol(['admin']),
     usuarioControlador.crearPersonal
 );
+
 router.get(
     '/listar',
     autenticar,
     verificarRol(['admin']),
     usuarioControlador.obtenerTodos
 );
+
 router.get(
     '/estadisticas',
     autenticar,
     verificarRol(['admin']),
     usuarioControlador.obtenerEstadisticas
 );
+
+// ✅ IMPORTANTE: Esta ruta debe ir DESPUÉS de las rutas específicas
+// para evitar que /:id capture rutas como /perfil, /medicos, etc.
+router.get(
+    '/:id',
+    autenticar,
+    usuarioControlador.obtenerPorId
+);
+
 router.put(
     '/:id',
     autenticar,
     verificarRol(['admin']),
     usuarioControlador.actualizarUsuario
 );
+
 router.delete(
     '/:id',
     autenticar,
     verificarRol(['admin']),
     usuarioControlador.desactivarUsuario
 );
+
 router.post(
     '/:id/activar',
     autenticar,
     verificarRol(['admin']),
     usuarioControlador.activarUsuario
 );
-
-// --------------------------------------------
-//  RUTAS DE AGENDA (Prefijo /agendas)
-// --------------------------------------------
-// La URL final será /api/agendas (Si Server.js usa app.use('/api', router))
-// La URL final será /api/usuarios/agendas (Si Server.js usa app.use('/api/usuarios', router))
-router.get('/agendas', authMiddleware.verificarToken, authMiddleware.esAdmin, AgendaControlador.obtenerTodasLasAgendas);
-router.get('/agendas/medico/:idMedico', authMiddleware.verificarToken, authMiddleware.esAdmin, AgendaControlador.obtenerAgendaMedico);
-router.post('/agendas/medico/:idMedico', authMiddleware.verificarToken, authMiddleware.esAdmin, AgendaControlador.guardarAgendaMedico);
-router.post('/agendas/auto-organizar', authMiddleware.verificarToken, authMiddleware.esAdmin, AgendaControlador.autoOrganizarAgendas);
-
-// --------------------------------------------
-//  RUTA DE UTILIDAD (Medicos)
-// --------------------------------------------
-// La URL final será /api/usuarios/medicos
-router.get('/medicos', authMiddleware.verificarToken, authMiddleware.esAdmin, usuarioControlador.obtenerMedicos);
-
 
 module.exports = router;

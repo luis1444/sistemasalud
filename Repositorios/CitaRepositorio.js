@@ -36,7 +36,12 @@ class CitaRepositorio {
 
     async buscarPorMedico(idMedico, fechaInicio = null, fechaFin = null) {
         try {
-            const where = { id_medico: idMedico };
+            const where = {};
+
+            // Solo agregar filtro de médico si se proporciona
+            if (idMedico) {
+                where.id_medico = idMedico;
+            }
 
             if (fechaInicio && fechaFin) {
                 where.fecha = {
@@ -50,7 +55,8 @@ class CitaRepositorio {
                     {
                         model: Usuario,
                         as: 'paciente',
-                        attributes: ['id', 'nombre', 'correo', 'telefono']
+                        attributes: ['id', 'nombre', 'correo', 'telefono'],
+                        required: false // LEFT JOIN para incluir citas sin paciente
                     }
                 ],
                 order: [['fecha', 'ASC'], ['hora_inicio', 'ASC']]
@@ -96,6 +102,29 @@ class CitaRepositorio {
         }
     }
 
+    async buscarPorId(idCita) {
+        try {
+            return await Cita.findByPk(idCita, {
+                include: [
+                    {
+                        model: Usuario,
+                        as: 'paciente',
+                        attributes: ['id', 'nombre', 'correo', 'telefono'],
+                        required: false
+                    },
+                    {
+                        model: Usuario,
+                        as: 'medico',
+                        attributes: ['id', 'nombre', 'especialidad', 'correo']
+                    }
+                ]
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaRepositorio.buscarPorId:', error);
+            throw new Error('Error al buscar cita por ID.');
+        }
+    }
+
     async actualizarEstado(idCita, nuevoEstado, datosCita = {}) {
         try {
             const cita = await Cita.findByPk(idCita);
@@ -103,10 +132,12 @@ class CitaRepositorio {
                 throw new Error('Cita no encontrada.');
             }
 
-            return await cita.update({
-                estado: nuevoEstado,
-                ...datosCita
-            });
+            const updateData = { ...datosCita };
+            if (nuevoEstado) {
+                updateData.estado = nuevoEstado;
+            }
+
+            return await cita.update(updateData);
         } catch (error) {
             console.error('❌ Error en CitaRepositorio.actualizarEstado:', error);
             throw new Error('Error al actualizar estado de la cita.');

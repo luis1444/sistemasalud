@@ -1,148 +1,183 @@
 // ============================================
-// 📄 controladores/CitaControlador.js
+// 📄 controladores/CitaControlador.js (CORREGIDO)
 // ============================================
+const citaServicio = require('../servicios/CitaServicio');
 
-const { Cita, Usuario } = require('../entidades/asociaciones'); // asegúrate de que Cita esté asociado
-const { Op } = require('sequelize');
+class CitaControlador {
 
-// ============================================
-// 📅 Obtener citas de un médico
-// ============================================
-exports.obtenerCitasMedico = async (req, res) => {
-    const { idMedico } = req.params;
-    try {
-        const citas = await Cita.findAll({
-            where: { idMedico },
-            include: [{ model: Usuario, as: 'paciente', attributes: ['id', 'nombre', 'apellido'] }],
-            order: [['fecha', 'ASC']]
-        });
-        res.json(citas);
-    } catch (error) {
-        console.error('❌ Error al obtener citas del médico:', error);
-        res.status(500).json({ error: 'Error al obtener citas del médico' });
-    }
-};
+    // ============================================
+    //  Obtener citas de un médico
+    // ============================================
+    async obtenerCitasMedico(req, res) {
+        try {
+            const { idMedico } = req.params;
+            const { fechaInicio, fechaFin } = req.query;
 
-// ============================================
-// 👤 Obtener citas de un paciente
-// ============================================
-exports.obtenerCitasPaciente = async (req, res) => {
-    const { idPaciente } = req.params;
-    try {
-        const citas = await Cita.findAll({
-            where: { idPaciente },
-            include: [{ model: Usuario, as: 'medico', attributes: ['id', 'nombre', 'apellido'] }],
-            order: [['fecha', 'ASC']]
-        });
-        res.json(citas);
-    } catch (error) {
-        console.error('❌ Error al obtener citas del paciente:', error);
-        res.status(500).json({ error: 'Error al obtener citas del paciente' });
-    }
-};
-
-// ============================================
-// 🔍 Obtener citas disponibles de un médico en una fecha
-// ============================================
-exports.obtenerCitasDisponibles = async (req, res) => {
-    const { idMedico, fecha } = req.params;
-    try {
-        const citas = await Cita.findAll({
-            where: {
+            const citas = await citaServicio.obtenerCitasPorMedico(
                 idMedico,
-                fecha,
-                estado: 'disponible'
-            },
-            order: [['hora', 'ASC']]
-        });
-        res.json(citas);
-    } catch (error) {
-        console.error('❌ Error al obtener citas disponibles:', error);
-        res.status(500).json({ error: 'Error al obtener citas disponibles' });
-    }
-};
+                fechaInicio,
+                fechaFin
+            );
 
-// ============================================
-// ✅ Reservar una cita
-// ============================================
-exports.reservarCita = async (req, res) => {
-    const { idCita } = req.params;
-    const idPaciente = req.usuario.id; // viene del token JWT
-
-    try {
-        const cita = await Cita.findByPk(idCita);
-        if (!cita) return res.status(404).json({ error: 'Cita no encontrada' });
-
-        if (cita.estado !== 'disponible') {
-            return res.status(400).json({ error: 'La cita no está disponible' });
+            res.json({
+                exito: true,
+                total: citas.length,
+                datos: citas
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.obtenerCitasMedico:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
         }
-
-        cita.idPaciente = idPaciente;
-        cita.estado = 'reservada';
-        await cita.save();
-
-        res.json({ mensaje: 'Cita reservada correctamente', cita });
-    } catch (error) {
-        console.error('❌ Error al reservar cita:', error);
-        res.status(500).json({ error: 'Error al reservar cita' });
     }
-};
 
-// ============================================
-// ❌ Cancelar una cita
-// ============================================
-exports.cancelarCita = async (req, res) => {
-    const { idCita } = req.params;
-    try {
-        const cita = await Cita.findByPk(idCita);
-        if (!cita) return res.status(404).json({ error: 'Cita no encontrada' });
+    // ============================================
+    // 👤 Obtener citas de un paciente
+    // ============================================
+    async obtenerCitasPaciente(req, res) {
+        try {
+            const { idPaciente } = req.params;
 
-        cita.estado = 'cancelada';
-        await cita.save();
+            const citas = await citaServicio.obtenerCitasPorPaciente(idPaciente);
 
-        res.json({ mensaje: 'Cita cancelada correctamente' });
-    } catch (error) {
-        console.error('❌ Error al cancelar cita:', error);
-        res.status(500).json({ error: 'Error al cancelar cita' });
+            res.json({
+                exito: true,
+                total: citas.length,
+                datos: citas
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.obtenerCitasPaciente:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
     }
-};
 
-// ============================================
-// ✔️ Completar una cita
-// ============================================
-exports.completarCita = async (req, res) => {
-    const { idCita } = req.params;
-    try {
-        const cita = await Cita.findByPk(idCita);
-        if (!cita) return res.status(404).json({ error: 'Cita no encontrada' });
+    // ============================================
+    // Obtener citas disponibles de un médico en una fecha
+    // ============================================
+    async obtenerCitasDisponibles(req, res) {
+        try {
+            const { idMedico, fecha } = req.params;
 
-        cita.estado = 'completada';
-        await cita.save();
+            const citas = await citaServicio.obtenerCitasDisponibles(idMedico, fecha);
 
-        res.json({ mensaje: 'Cita completada correctamente' });
-    } catch (error) {
-        console.error('❌ Error al completar cita:', error);
-        res.status(500).json({ error: 'Error al completar cita' });
+            res.json({
+                exito: true,
+                total: citas.length,
+                datos: citas
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.obtenerCitasDisponibles:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
     }
-};
 
-// ============================================
-// 📝 Actualizar notas médicas
-// ============================================
-exports.actualizarNotas = async (req, res) => {
-    const { idCita } = req.params;
-    const { notas } = req.body;
-    try {
-        const cita = await Cita.findByPk(idCita);
-        if (!cita) return res.status(404).json({ error: 'Cita no encontrada' });
+    // ============================================
+    //  Reservar una cita
+    // ============================================
+    async reservarCita(req, res) {
+        try {
+            const { idCita } = req.params;
+            const { motivo_consulta } = req.body;
+            const idPaciente = req.usuario.id; // Viene del middleware de autenticación
 
-        cita.notas = notas;
-        await cita.save();
+            const citaReservada = await citaServicio.reservarCita(
+                idCita,
+                idPaciente,
+                motivo_consulta
+            );
 
-        res.json({ mensaje: 'Notas actualizadas correctamente', cita });
-    } catch (error) {
-        console.error('❌ Error al actualizar notas:', error);
-        res.status(500).json({ error: 'Error al actualizar notas' });
+            res.json({
+                exito: true,
+                mensaje: 'Cita reservada correctamente.',
+                datos: citaReservada
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.reservarCita:', error);
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
     }
-};
 
+    // ============================================
+    // Cancelar una cita
+    // ============================================
+    async cancelarCita(req, res) {
+        try {
+            const { idCita } = req.params;
+
+            const citaCancelada = await citaServicio.cancelarCita(idCita);
+
+            res.json({
+                exito: true,
+                mensaje: 'Cita cancelada correctamente.',
+                datos: citaCancelada
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.cancelarCita:', error);
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // ============================================
+    //  Completar una cita
+    // ============================================
+    async completarCita(req, res) {
+        try {
+            const { idCita } = req.params;
+            const { notas } = req.body;
+
+            const citaCompletada = await citaServicio.completarCita(idCita, notas);
+
+            res.json({
+                exito: true,
+                mensaje: 'Cita completada correctamente.',
+                datos: citaCompletada
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.completarCita:', error);
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // Actualizar notas médicas
+    // ============================================
+    async actualizarNotas(req, res) {
+        try {
+            const { idCita } = req.params;
+            const { notas } = req.body;
+
+            const citaActualizada = await citaServicio.actualizarNotas(idCita, notas);
+
+            res.json({
+                exito: true,
+                mensaje: 'Notas actualizadas correctamente.',
+                datos: citaActualizada
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.actualizarNotas:', error);
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+}
+
+module.exports = new CitaControlador();
