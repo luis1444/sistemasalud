@@ -1,0 +1,1471 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Citas | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+            letter-spacing: 1px;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            background: white;
+            padding: 10px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #52796f;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            box-shadow: 0 3px 10px rgba(0, 119, 182, 0.3);
+        }
+
+        .tab:hover:not(.active) {
+            background: #e0f7fa;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Sección de búsqueda de médicos */
+        .busqueda-medicos {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .busqueda-medicos h2 {
+            color: #0077b6;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        .filtros {
+            display: grid;
+            grid-template-columns: 1fr 1fr 200px;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #52796f;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 12px;
+            border: 2px solid #e0f7fa;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #0077b6;
+        }
+
+        .btn-buscar {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            align-self: end;
+        }
+
+        .btn-buscar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        /* Lista de médicos */
+        .medicos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .medico-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #00b4d8;
+        }
+
+        .medico-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
+        }
+
+        .medico-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .medico-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+        }
+
+        .medico-info h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .medico-info p {
+            color: #52796f;
+            font-size: 0.95em;
+        }
+
+        .medico-especialidad {
+            background: #e0f7fa;
+            padding: 8px 15px;
+            border-radius: 20px;
+            display: inline-block;
+            color: #0077b6;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .btn-ver-horarios {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ver-horarios:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        /* Mis citas */
+        .citas-lista {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .cita-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            border-left: 5px solid #00b4d8;
+        }
+
+        .cita-card.reservada {
+            border-left-color: #0077b6;
+        }
+
+        .cita-card.completada {
+            border-left-color: #28a745;
+        }
+
+        .cita-card.cancelada {
+            border-left-color: #dc3545;
+        }
+
+        .cita-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .cita-info h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+            margin-bottom: 5px;
+        }
+
+        .cita-fecha-hora {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 10px;
+        }
+
+        .cita-fecha, .cita-hora {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #52796f;
+            font-weight: 600;
+        }
+
+        .cita-estado {
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .cita-estado.disponible {
+            background: #e0f7fa;
+            color: #0077b6;
+        }
+
+        .cita-estado.reservada {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .cita-estado.completada {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .cita-estado.cancelada {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .cita-motivo {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .cita-motivo strong {
+            color: #0077b6;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .cita-acciones {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-accion {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-modificar {
+            background: #ffc107;
+            color: #000;
+        }
+
+        .btn-cancelar {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-detalles {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-accion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e0f7fa;
+        }
+
+        .modal-header h2 {
+            color: #0077b6;
+            font-size: 1.8em;
+        }
+
+        .btn-cerrar-modal {
+            background: #dc3545;
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cerrar-modal:hover {
+            transform: rotate(90deg);
+            background: #c82333;
+        }
+
+        .horarios-disponibles {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .horario-slot {
+            padding: 15px;
+            background: #e0f7fa;
+            border: 2px solid #00b4d8;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            color: #0077b6;
+        }
+
+        .horario-slot:hover {
+            background: #00b4d8;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .horario-slot.ocupado {
+            background: #f8d7da;
+            border-color: #dc3545;
+            color: #721c24;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .horario-slot.ocupado:hover {
+            background: #f8d7da;
+            color: #721c24;
+            transform: none;
+        }
+
+        .horario-slot.seleccionado {
+            background: #0077b6;
+            color: white;
+            border-color: #005a8d;
+        }
+
+        .sin-resultados {
+            text-align: center;
+            padding: 60px 20px;
+            color: #52796f;
+        }
+
+        .sin-resultados-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+
+        .sin-resultados h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        /* Calendario de fechas */
+        .calendario-fechas {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .fecha-btn {
+            padding: 15px;
+            background: #e0f7fa;
+            border: 2px solid #00b4d8;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .fecha-btn:hover {
+            background: #00b4d8;
+            color: white;
+        }
+
+        .fecha-btn.seleccionada {
+            background: #0077b6;
+            color: white;
+            border-color: #005a8d;
+        }
+
+        .fecha-btn .dia {
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .fecha-btn .numero {
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .filtros {
+                grid-template-columns: 1fr;
+            }
+
+            .medicos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .cita-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .calendario-fechas {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .horarios-disponibles {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loader */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0077b6;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* --- Añadir al final de la sección <style> --- */
+        /* Estilos para la tabla de citas */
+        .citas-container {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+        }
+
+        .citas-filtros {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .citas-filtros .form-group {
+            flex-grow: 1;
+        }
+
+        .citas-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .citas-table th, .citas-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0f7fa;
+        }
+
+        .citas-table th {
+            background-color: #f8f9fa;
+            color: #0077b6;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .citas-table tr:hover {
+            background-color: #e0f7fa;
+        }
+
+        .citas-table td {
+            color: #52796f;
+        }
+
+        /* Reutilizando los estilos de estado */
+        .estado-disponible { background: #e0f7fa; color: #0077b6; }
+        .estado-reservada { background: #fff3cd; color: #856404; }
+        .estado-completada { background: #d4edda; color: #155724; }
+        .estado-cancelada { background: #f8d7da; color: #721c24; }
+        .estado-badge {
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            .citas-filtros {
+                flex-direction: column;
+            }
+            .citas-table, .citas-table tbody, .citas-table tr, .citas-table td {
+                display: block;
+            }
+            .citas-table thead {
+                display: none; /* Ocultar encabezados en móvil */
+            }
+            .citas-table tr {
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+            }
+            .citas-table td {
+                text-align: right;
+                padding-left: 50%;
+                position: relative;
+            }
+            .citas-table td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 0;
+                width: 50%;
+                padding-left: 15px;
+                font-weight: 600;
+                color: #0077b6;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <div class="logo-header">
+        <h1>📅 Mis Citas</h1>
+    </div>
+    <button class="btn-volver" onclick="volverDashboard()">← Volver al Dashboard</button>
+</div>
+
+<!-- Container -->
+<div class="container">
+    <!-- Tabs -->
+    <div class="tabs">
+        <button class="tab active" onclick="cambiarTab('agendar')">📆 Agendar Cita</button>
+        <button class="tab" onclick="cambiarTab('mis-citas')">📋 Mis Citas</button>
+    </div>
+
+    <!-- Tab: Agendar Cita -->
+    <div class="tab-content active" id="tab-agendar">
+        <div class="busqueda-medicos">
+            <h2>Buscar Médico</h2>
+
+            <!-- Botón de prueba de conexión -->
+            <div style="margin-bottom: 20px; padding: 15px; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <p style="margin: 0 0 10px 0; color: #856404; font-weight: 600;">
+                    💡 Diagnóstico de Conexión
+                </p>
+                <button onclick="probarConexion()" style="padding: 8px 15px; background: #ffc107; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                    🔍 Probar Conexión al Servidor
+                </button>
+            </div>
+
+            <div class="filtros">
+                <div class="form-group">
+                    <label>Especialidad</label>
+                    <select id="filtroEspecialidad">
+                        <option value="">Todas las especialidades</option>
+                        <option value="Cardiología">Cardiología</option>
+                        <option value="Pediatría">Pediatría</option>
+                        <option value="Medicina General">Medicina General</option>
+                        <option value="Dermatología">Dermatología</option>
+                        <option value="Ginecología">Ginecología</option>
+                        <option value="Traumatología">Traumatología</option>
+                        <option value="Oftalmología">Oftalmología</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Buscar por nombre</label>
+                    <input type="text" id="filtroNombre" placeholder="Nombre del médico...">
+                </div>
+                <button class="btn-buscar" onclick="buscarMedicos()">🔍 Buscar</button>
+            </div>
+        </div>
+
+        <div id="medicosResultados">
+            <div class="sin-resultados">
+                <div class="sin-resultados-icon">🔍</div>
+                <h3>Realiza una búsqueda</h3>
+                <p>Selecciona una especialidad o busca por nombre de médico</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab: Mis Citas -->
+    <div class="tab-content" id="tab-mis-citas">
+        <div class="citas-container">
+            <h2>Mis Citas Programadas</h2>
+            <div class="citas-filtros">
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="filtroEstadoCita" onchange="aplicarFiltrosCitas()">
+                        <option value="">Todos los estados</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="reservada">Reservada</option>
+                        <option value="completada">Completada</option>
+                        <option value="cancelada">Cancelada</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha desde</label>
+                    <input type="date" id="filtroFechaDesdeCita" onchange="aplicarFiltrosCitas()">
+                </div>
+            </div>
+
+            <div id="citasTablaContainer">
+                <div class="loader"></div> </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- Modal Horarios -->
+<div class="modal" id="modalHorarios">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitulo">Seleccionar Horario</h2>
+            <button class="btn-cerrar-modal" onclick="cerrarModal()">✕</button>
+        </div>
+        <div id="modalBody">
+            <!-- Contenido dinámico -->
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // ============================================
+    // VARIABLES GLOBALES
+    // ============================================
+    const API_URL = 'http://localhost:3000/api';
+    let usuarioData = null;
+    let token = null;
+    let medicoSeleccionado = null;
+    let fechaSeleccionada = null;
+    let horarioSeleccionado = null;
+    let todasMisCitas = [];
+
+    // ============================================
+    // INICIALIZACIÓN
+    // ============================================
+    window.addEventListener('DOMContentLoaded', () => {
+        token = localStorage.getItem('token');
+        const usuario = localStorage.getItem('usuario');
+
+        if (!token || !usuario) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        usuarioData = JSON.parse(usuario);
+
+        if (usuarioData.rol !== 'paciente') {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso denegado',
+                text: 'No tienes permisos para acceder a esta página'
+            }).then(() => {
+                window.location.href = '/login.html';
+            });
+            return;
+        }
+
+        cargarMisCitas();
+    });
+
+    // ============================================
+    // FUNCIONES DE NAVEGACIÓN
+    // ============================================
+    function volverDashboard() {
+        window.location.href = '/dashboard-paciente.html';
+    }
+
+    function cambiarTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+        event.target.classList.add('active');
+
+        if (tab === 'agendar') {
+            document.getElementById('tab-agendar').classList.add('active');
+        } else {
+            document.getElementById('tab-mis-citas').classList.add('active');
+            cargarMisCitas();
+        }
+    }
+
+    // ============================================
+    // BUSCAR MÉDICOS
+    // ============================================
+    async function buscarMedicos() {
+        const especialidad = document.getElementById('filtroEspecialidad').value;
+        const nombre = document.getElementById('filtroNombre').value;
+
+        try {
+            const response = await fetch(`${API_URL}/usuarios/medicos`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) throw new Error('Error al cargar médicos');
+
+            const data = await response.json();
+            let medicos = data.datos || [];
+
+            // Aplicar filtros
+            if (especialidad) {
+                medicos = medicos.filter(m => m.especialidad === especialidad);
+            }
+
+            if (nombre) {
+                medicos = medicos.filter(m =>
+                    m.nombre.toLowerCase().includes(nombre.toLowerCase())
+                );
+            }
+
+            mostrarMedicos(medicos);
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudieron cargar los médicos'
+            });
+        }
+    }
+
+    function mostrarMedicos(medicos) {
+        const container = document.getElementById('medicosResultados');
+
+        if (medicos.length === 0) {
+            container.innerHTML = `
+                <div class="sin-resultados">
+                    <div class="sin-resultados-icon">😕</div>
+                    <h3>No se encontraron médicos</h3>
+                    <p>Intenta con otros criterios de búsqueda</p>
+                </div>
+            `;
+            return;
+        }
+
+        const html = `
+            <div class="medicos-grid">
+                ${medicos.map(medico => `
+                    <div class="medico-card">
+                        <div class="medico-header">
+                            <div class="medico-avatar">
+                                ${medico.nombre.charAt(0).toUpperCase()}
+                            </div>
+                            <div class="medico-info">
+                                <h3>${medico.nombre}</h3>
+                                <p>${medico.correo}</p>
+                            </div>
+                        </div>
+                        <span class="medico-especialidad">${medico.especialidad}</span>
+                        <button class="btn-ver-horarios" onclick="verHorarios(${medico.id}, '${medico.nombre}', '${medico.especialidad}')">
+                            Ver Horarios Disponibles
+                        </button>
+                    </div>
+                `).join('')}
+            </div>
+        `;
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // VER HORARIOS DISPONIBLES
+    // ============================================
+    async function verHorarios(idMedico, nombreMedico, especialidad) {
+        medicoSeleccionado = { id: idMedico, nombre: nombreMedico, especialidad };
+
+        document.getElementById('modalTitulo').textContent = `Horarios - Dr. ${nombreMedico}`;
+
+        // Generar próximos 14 días
+        const fechas = [];
+        const hoy = new Date();
+
+        for (let i = 0; i < 14; i++) {
+            const fecha = new Date(hoy);
+            fecha.setDate(hoy.getDate() + i);
+            fechas.push(fecha);
+        }
+
+        const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+
+        const html = `
+            <div class="form-group">
+                <label>Selecciona una fecha:</label>
+                <div class="calendario-fechas">
+                    ${fechas.map((fecha, index) => {
+            const fechaStr = fecha.toISOString().split('T')[0];
+            return `
+                            <button class="fecha-btn ${index === 0 ? 'seleccionada' : ''}"
+                                    onclick="seleccionarFecha('${fechaStr}', this)">
+                                <div class="dia">${diasSemana[fecha.getDay()]}</div>
+                                <div class="numero">${fecha.getDate()}</div>
+                            </button>
+                        `;
+        }).join('')}
+                </div>
+            </div>
+            <div id="horariosContainer">
+                <div class="loader"></div>
+            </div>
+        `;
+
+        document.getElementById('modalBody').innerHTML = html;
+        document.getElementById('modalHorarios').classList.add('active');
+
+        // Cargar horarios del primer día
+        const primerDia = fechas[0].toISOString().split('T')[0];
+        cargarHorariosDelDia(idMedico, primerDia);
+    }
+
+    async function seleccionarFecha(fecha, elemento) {
+        fechaSeleccionada = fecha;
+
+        // Actualizar UI
+        document.querySelectorAll('.fecha-btn').forEach(btn =>
+            btn.classList.remove('seleccionada')
+        );
+        elemento.classList.add('seleccionada');
+
+        // Cargar horarios
+        await cargarHorariosDelDia(medicoSeleccionado.id, fecha);
+    }
+    async function cargarHorariosDelDia(idMedico, fecha) {
+        const container = document.getElementById('horariosContainer');
+        container.innerHTML = '<div class="loader"></div>';
+
+        try {
+            // ✅ CORREGIDO: la fecha va como parte de la ruta
+            const url = `${API_URL}/citas/disponibles/${idMedico}/${fecha}`;
+            console.log(`📅 Cargando horarios desde: ${url}`);
+
+            const response = await fetch(url, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!response.ok) {
+                const msg = await response.text();
+                console.error('❌ Respuesta del servidor:', msg);
+                throw new Error('No se pudieron obtener los horarios');
+            }
+
+            const data = await response.json();
+            const horarios = data.datos || data.data || data.horarios || [];
+
+            if (!Array.isArray(horarios) || horarios.length === 0) {
+                container.innerHTML = `
+                <div class="sin-resultados">
+                    <div class="sin-resultados-icon">📅</div>
+                    <h3>No hay horarios disponibles</h3>
+                    <p>Selecciona otra fecha</p>
+                </div>
+            `;
+                return;
+            }
+
+            container.innerHTML = `
+            <div class="form-group">
+                <label>Horarios disponibles:</label>
+                <div class="horarios-disponibles">
+                    ${horarios.map(h => `
+                        <button class="horario-slot ${h.estado !== 'disponible' ? 'ocupado' : ''}"
+                                onclick="seleccionarHorario(${h.id}, '${h.hora_inicio}', '${h.hora_fin}', this)"
+                                ${h.estado !== 'disponible' ? 'disabled' : ''}>
+                            ${h.hora_inicio.substring(0, 5)} - ${h.hora_fin.substring(0, 5)}
+                        </button>
+                    `).join('')}
+                </div>
+            </div>
+            <div class="form-group" id="motivoContainer" style="display:none;">
+                <label>Motivo de la consulta:</label>
+                <textarea id="motivoConsulta" rows="4"
+                          style="width:100%;padding:12px;border:2px solid #e0f7fa;border-radius:8px;font-family:inherit;"
+                          placeholder="Describe brevemente el motivo de tu consulta..."></textarea>
+            </div>
+            <button id="btnConfirmar" class="btn-buscar" style="display:none;margin-top:20px;" onclick="confirmarReserva()">
+                ✓ Confirmar Cita
+            </button>
+        `;
+        } catch (error) {
+            console.error('⚠️ Error al cargar horarios:', error);
+            container.innerHTML = `
+            <div class="sin-resultados">
+                <div class="sin-resultados-icon">❌</div>
+                <h3>Error al cargar horarios</h3>
+                <p>${error.message}</p>
+            </div>
+        `;
+        }
+    }
+
+    function seleccionarHorario(idCita, horaInicio, horaFin, elemento) {
+        horarioSeleccionado = { id: idCita, horaInicio, horaFin };
+
+        // Actualizar UI
+        document.querySelectorAll('.horario-slot').forEach(btn =>
+            btn.classList.remove('seleccionado')
+        );
+        elemento.classList.add('seleccionado');
+
+        // Mostrar campo de motivo y botón confirmar
+        document.getElementById('motivoContainer').style.display = 'block';
+        document.getElementById('btnConfirmar').style.display = 'block';
+    }
+
+    // ============================================
+    // CONFIRMAR RESERVA
+    // ============================================
+    async function confirmarReserva() {
+        const motivo = document.getElementById('motivoConsulta').value.trim();
+
+        if (!motivo) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Motivo requerido',
+                text: 'Por favor describe el motivo de tu consulta'
+            });
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `${API_URL}/citas/${horarioSeleccionado.id}/reservar`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        motivo_consulta: motivo
+                    })
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.mensaje || 'Error al reservar la cita');
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Cita reservada!',
+                text: `Tu cita con Dr. ${medicoSeleccionado.nombre} ha sido confirmada`,
+                confirmButtonColor: '#0077b6'
+            }).then(() => {
+                cerrarModal();
+                cambiarTab('mis-citas');
+                // Actualizar tab
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab')[1].classList.add('active');
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // CARGAR MIS CITAS
+    // ============================================
+    async function cargarMisCitas() {
+        const container = document.getElementById('citasTablaContainer');
+        container.innerHTML = '<div class="loader"></div>';
+
+        // Si ya estamos en la pestaña de Agendar Cita, no cargar las citas.
+        // Esto previene que se carguen al iniciar si la pestaña por defecto es Agendar.
+        if (!document.getElementById('tab-mis-citas').classList.contains('active')) {
+            return;
+        }
+
+        try {
+            // *** IMPORTANTE: AJUSTA ESTE ENDPOINT SI ES NECESARIO ***
+            // Se asume que el backend tiene un endpoint para listar las citas de un paciente
+            const response = await fetch(`${API_URL}/citas/paciente`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.mensaje || 'Error al cargar mis citas');
+            }
+
+            const data = await response.json();
+
+            // El diagnóstico mostró: {exito: true, total: 0, datos: Array(0)}
+            // Usaremos data.datos
+            todasMisCitas = data.datos || [];
+
+            // Log para ver si ya se reciben datos. ESTA PARTE FUE LA QUE DIJO QUE RECIBE 0.
+            console.log(`📦 Citas recibidas (Mis Citas):`, data);
+            console.log(`📅 Total citas (Mis Citas): ${todasMisCitas.length}`);
+
+
+            // Mostrar las citas cargadas (sin filtros iniciales)
+            mostrarMisCitas(todasMisCitas);
+        } catch (error) {
+            console.error('Error al cargar mis citas:', error);
+            container.innerHTML = `
+            <div class="sin-resultados">
+                <div class="sin-resultados-icon">❌</div>
+                <h3>Error al cargar tus citas</h3>
+                <p>No se pudieron obtener tus citas. Intenta de nuevo. (${error.message})</p>
+            </div>
+        `;
+        }
+    }
+    function aplicarFiltrosCitas() {
+        const estadoFiltro = document.getElementById('filtroEstadoCita').value;
+        const fechaDesdeFiltro = document.getElementById('filtroFechaDesdeCita').value;
+
+        let citasFiltradas = todasMisCitas;
+
+        // Filtrar por estado
+        if (estadoFiltro) {
+            citasFiltradas = citasFiltradas.filter(cita => cita.estado === estadoFiltro);
+        }
+
+        // Filtrar por fecha (desde)
+        if (fechaDesdeFiltro) {
+            citasFiltradas = citasFiltradas.filter(cita => cita.fecha >= fechaDesdeFiltro);
+        }
+
+        mostrarMisCitas(citasFiltradas);
+    }
+
+
+    /**
+     * Renderiza la tabla de citas.
+     * @param {Array} citas - El array de objetos de cita a mostrar.
+     */
+    function mostrarMisCitas(citas) {
+        const container = document.getElementById('citasTablaContainer');
+
+        if (citas.length === 0) {
+            container.innerHTML = `
+            <div class="sin-resultados">
+                <div class="sin-resultados-icon">🗓️</div>
+                <h3>No tienes citas programadas</h3>
+                <p>Realiza una búsqueda y agenda una cita en la pestaña "Agendar Cita".</p>
+            </div>
+        `;
+            return;
+        }
+
+        const htmlTabla = `
+        <table class="citas-table">
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Médico</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${citas.map(cita => {
+            // Nota: Se asume que el objeto cita incluye el nombre del médico (cita.medico.nombre)
+            // o que el backend lo provee de alguna forma para mostrarlo en la tabla.
+            const nombreMedico = cita.medico ? cita.medico.nombre : 'Médico Desconocido';
+
+            return `
+                        <tr>
+                            <td data-label="Fecha">${cita.fecha}</td>
+                            <td data-label="Hora">${cita.hora_inicio.substring(0, 5)} - ${cita.hora_fin.substring(0, 5)}</td>
+                            <td data-label="Médico">${nombreMedico}</td>
+                            <td data-label="Motivo">${cita.motivo_consulta || 'N/A'}</td>
+                            <td data-label="Estado">
+                                <span class="estado-badge estado-${cita.estado}">
+                                    ${cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
+                                </span>
+                            </td>
+                            <td data-label="Acciones">
+                                ${cita.estado === 'reservada' ?
+                `<button class="btn-accion btn-cancelar" onclick="cancelarCita(${cita.id})">Cancelar</button>` :
+                `<button class="btn-accion btn-detalles" onclick="verDetallesCita(${cita.id})">Detalles</button>`
+            }
+                            </td>
+                        </tr>
+                    `;
+        }).join('')}
+            </tbody>
+        </table>
+    `;
+
+        container.innerHTML = htmlTabla;
+    }
+
+    // ============================================
+    // VER DETALLES DE CITA
+    // ============================================
+    async function verDetallesCita(idCita) {
+        try {
+            const response = await fetch(
+                `${API_URL}/citas/paciente/${usuarioData.id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) throw new Error('Error al cargar detalles');
+
+            const data = await response.json();
+            const cita = data.datos.find(c => c.id === idCita);
+
+            if (!cita) throw new Error('Cita no encontrada');
+
+            const fecha = new Date(cita.fecha);
+            const fechaFormateada = fecha.toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            Swal.fire({
+                title: 'Detalles de la Cita',
+                html: `
+                    <div style="text-align: left; padding: 20px;">
+                        <p><strong>Médico:</strong> Dr. ${cita.medico.nombre}</p>
+                        <p><strong>Especialidad:</strong> ${cita.medico.especialidad}</p>
+                        <p><strong>Correo:</strong> ${cita.medico.correo}</p>
+                        <hr style="margin: 15px 0;">
+                        <p><strong>Fecha:</strong> ${fechaFormateada}</p>
+                        <p><strong>Hora:</strong> ${cita.hora_inicio.substring(0, 5)} - ${cita.hora_fin.substring(0, 5)}</p>
+                        <p><strong>Estado:</strong> ${cita.estado.toUpperCase()}</p>
+                        <hr style="margin: 15px 0;">
+                        ${cita.motivo_consulta ? `<p><strong>Motivo:</strong> ${cita.motivo_consulta}</p>` : ''}
+                        ${cita.notas ? `<p><strong>Notas del médico:</strong> ${cita.notas}</p>` : ''}
+                    </div>
+                `,
+                confirmButtonColor: '#0077b6',
+                confirmButtonText: 'Cerrar',
+                width: '600px'
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // MODIFICAR CITA
+    // ============================================
+    async function modificarCita(idCita) {
+        try {
+            const response = await fetch(
+                `${API_URL}/citas/paciente/${usuarioData.id}`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) throw new Error('Error al cargar cita');
+
+            const data = await response.json();
+            const cita = data.datos.find(c => c.id === idCita);
+
+            if (!cita) throw new Error('Cita no encontrada');
+
+            const { value: nuevoMotivo } = await Swal.fire({
+                title: 'Modificar Motivo de Consulta',
+                html: `
+                    <div style="text-align: left;">
+                        <p><strong>Dr. ${cita.medico.nombre}</strong></p>
+                        <p>${new Date(cita.fecha).toLocaleDateString('es-ES')} - ${cita.hora_inicio.substring(0, 5)}</p>
+                    </div>
+                `,
+                input: 'textarea',
+                inputLabel: 'Nuevo motivo de consulta',
+                inputValue: cita.motivo_consulta || '',
+                inputPlaceholder: 'Describe el motivo de tu consulta...',
+                showCancelButton: true,
+                confirmButtonText: 'Guardar',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#0077b6',
+                inputValidator: (value) => {
+                    if (!value) {
+                        return 'Debes escribir un motivo'
+                    }
+                }
+            });
+
+            if (nuevoMotivo) {
+                // Actualizar la cita (esto requeriría un endpoint adicional en el backend)
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Funcionalidad en desarrollo',
+                    text: 'La modificación del motivo estará disponible pronto. Por ahora, cancela y crea una nueva cita.',
+                    confirmButtonColor: '#0077b6'
+                });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // CANCELAR CITA
+    // ============================================
+    async function cancelarCita(idCita) {
+        const result = await Swal.fire({
+            title: '¿Cancelar cita?',
+            text: 'Esta acción no se puede deshacer',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#dc3545',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, cancelar',
+            cancelButtonText: 'No'
+        });
+
+        if (!result.isConfirmed) return;
+
+        try {
+            const response = await fetch(
+                `${API_URL}/citas/${idCita}/cancelar`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.mensaje || 'Error al cancelar la cita');
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'Cita cancelada',
+                text: 'La cita ha sido cancelada correctamente',
+                confirmButtonColor: '#0077b6'
+            }).then(() => {
+                cargarMisCitas();
+            });
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // CERRAR MODAL
+    // ============================================
+    function cerrarModal() {
+        document.getElementById('modalHorarios').classList.remove('active');
+        medicoSeleccionado = null;
+        fechaSeleccionada = null;
+        horarioSeleccionado = null;
+    }
+
+    // Cerrar modal al hacer clic fuera
+    document.getElementById('modalHorarios').addEventListener('click', (e) => {
+        if (e.target.id === 'modalHorarios') {
+            cerrarModal();
+        }
+    });
+</script>
+
+</body>
+</html>

@@ -61,7 +61,8 @@ class CitaControlador {
     // ============================================
     async obtenerCitasDisponibles(req, res) {
         try {
-            const { idMedico, fecha } = req.params;
+            const { idMedico, fecha } = req.params; // ✅ Fecha y médico desde params
+            console.log(`🔍 Buscando citas disponibles para médico ${idMedico} en ${fecha}`);
 
             const citas = await citaServicio.obtenerCitasDisponibles(idMedico, fecha);
 
@@ -78,6 +79,7 @@ class CitaControlador {
             });
         }
     }
+
 
     // ============================================
     //  Reservar una cita

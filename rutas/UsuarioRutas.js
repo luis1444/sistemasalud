@@ -1,5 +1,5 @@
 // ============================================
-// 📄 rutas/UsuarioRutas.js (LIMPIO - SIN RUTAS DE AGENDA)
+// 📄 rutas/UsuarioRutas.js (CORREGIDO)
 // ============================================
 const express = require('express');
 const router = express.Router();
@@ -31,8 +31,9 @@ router.put('/perfil', authMiddleware.verificarToken, usuarioControlador.actualiz
 
 // ============================================
 // 👨‍⚕️ RUTA DE UTILIDAD (Obtener médicos)
+// ✅ CORRECCIÓN APLICADA AQUÍ: Se incluye el rol 'paciente' para la búsqueda.
 // ============================================
-router.get('/medicos', authMiddleware.verificarToken, authMiddleware.esAdmin, usuarioControlador.obtenerMedicos);
+router.get('/medicos', authMiddleware.verificarToken, verificarRol(['admin', 'paciente']), usuarioControlador.obtenerMedicos);
 
 // ============================================
 // 👑 RUTAS ADMINISTRATIVAS (Solo para ADMIN)
