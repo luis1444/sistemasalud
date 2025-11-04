@@ -34,7 +34,35 @@ class CitaControlador {
     }
 
     // ============================================
-    // 👤 Obtener citas de un paciente
+    // ✅ NUEVO: Obtener citas del paciente autenticado
+    // ============================================
+    async obtenerMisCitas(req, res) {
+        try {
+            // El ID viene del token JWT (middleware authMiddleware)
+            const idPaciente = req.usuario.id;
+
+            console.log(`📋 Obteniendo citas del paciente ID: ${idPaciente}`);
+
+            const citas = await citaServicio.obtenerCitasPorPaciente(idPaciente);
+
+            console.log(`✅ Se encontraron ${citas.length} citas para el paciente ${idPaciente}`);
+
+            res.json({
+                exito: true,
+                total: citas.length,
+                datos: citas
+            });
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.obtenerMisCitas:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // ============================================
+    // 👤 Obtener citas de un paciente (por ID específico)
     // ============================================
     async obtenerCitasPaciente(req, res) {
         try {
@@ -61,7 +89,7 @@ class CitaControlador {
     // ============================================
     async obtenerCitasDisponibles(req, res) {
         try {
-            const { idMedico, fecha } = req.params; // ✅ Fecha y médico desde params
+            const { idMedico, fecha } = req.params;
             console.log(`🔍 Buscando citas disponibles para médico ${idMedico} en ${fecha}`);
 
             const citas = await citaServicio.obtenerCitasDisponibles(idMedico, fecha);
@@ -80,7 +108,6 @@ class CitaControlador {
         }
     }
 
-
     // ============================================
     //  Reservar una cita
     // ============================================
@@ -88,7 +115,7 @@ class CitaControlador {
         try {
             const { idCita } = req.params;
             const { motivo_consulta } = req.body;
-            const idPaciente = req.usuario.id; // Viene del middleware de autenticación
+            const idPaciente = req.usuario.id;
 
             const citaReservada = await citaServicio.reservarCita(
                 idCita,

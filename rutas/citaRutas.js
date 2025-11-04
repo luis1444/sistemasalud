@@ -23,7 +23,14 @@ router.get('/medico/:idMedico',
     citaControlador.obtenerCitasMedico
 );
 
-//  Obtener citas de un paciente
+// ✅ NUEVO: Obtener citas del paciente autenticado (desde el token)
+// GET /api/citas/paciente
+router.get('/paciente',
+    authMiddleware.verificarToken,
+    citaControlador.obtenerMisCitas
+);
+
+//  Obtener citas de un paciente específico (por ID)
 // GET /api/citas/paciente/:idPaciente
 router.get('/paciente/:idPaciente',
     authMiddleware.verificarToken,
@@ -51,7 +58,7 @@ router.put('/:idCita/cancelar',
     citaControlador.cancelarCita
 );
 
-// ✔Marcar cita como completada
+// ✔ Marcar cita como completada
 // PUT /api/citas/:idCita/completar
 router.put('/:idCita/completar',
     authMiddleware.verificarToken,
@@ -64,8 +71,5 @@ router.put('/:idCita/notas',
     authMiddleware.verificarToken,
     citaControlador.actualizarNotas
 );
-
-
-
 
 module.exports = router;
