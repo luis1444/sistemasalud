@@ -1,3 +1,6 @@
+// ============================================
+// 📄 entidades/Cita.js — Modelo Sequelize
+// ============================================
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../Config/database');
 
@@ -35,8 +38,13 @@ const Cita = sequelize.define('Cita', {
         type: DataTypes.TIME,
         allowNull: false
     },
+    duracion_cita_minutos: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 30
+    },
     estado: {
-        type: DataTypes.ENUM('disponible', 'reservada', 'completada', 'cancelada'),
+        type: DataTypes.ENUM('disponible', 'programada', 'en-curso', 'completada', 'cancelada'),
         allowNull: false,
         defaultValue: 'disponible'
     },
@@ -52,19 +60,7 @@ const Cita = sequelize.define('Cita', {
     tableName: 'citas',
     timestamps: true,
     createdAt: 'fecha_creacion',
-    updatedAt: 'fecha_actualizacion',
-    indexes: [
-        {
-            fields: ['id_medico', 'fecha', 'hora_inicio'],
-            unique: true
-        },
-        {
-            fields: ['id_paciente']
-        },
-        {
-            fields: ['estado']
-        }
-    ]
+    updatedAt: 'fecha_actualizacion'
 });
 
 module.exports = Cita;

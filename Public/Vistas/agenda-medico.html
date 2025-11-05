@@ -208,6 +208,11 @@
             font-weight: 600;
         }
 
+        .estado-disponible {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
         .estado-programada {
             background: #fff3cd;
             color: #856404;
@@ -260,6 +265,7 @@
                 <option value="hoy">Hoy</option>
                 <option value="semana">Esta Semana</option>
                 <option value="mes">Este Mes</option>
+                <option value="todas">Todas</option>
             </select>
         </div>
         <div class="filtro-grupo">
@@ -270,6 +276,7 @@
             <label>Estado</label>
             <select id="estadoFiltro" onchange="filtrarCitas()">
                 <option value="todas">Todas</option>
+                <option value="disponible">Disponibles</option>
                 <option value="programada">Programadas</option>
                 <option value="en-curso">En Curso</option>
                 <option value="completada">Completadas</option>
@@ -302,7 +309,6 @@
         }
     }
 
-
     async function cargarCitas() {
         try {
             const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
@@ -320,13 +326,11 @@
             }
 
             const resultado = await response.json();
-
-            // El backend devuelve { exito: true, datos: [...] }
             citas = resultado.datos || resultado;
 
-            console.log('Citas cargadas:', citas); // Para debug
+            console.log('✅ Citas cargadas:', citas);
         } catch (error) {
-            console.error('Error completo:', error);
+            console.error('❌ Error al cargar citas:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error al cargar citas',
@@ -337,16 +341,38 @@
 
     function filtrarCitas() {
         const vista = document.getElementById('vistaFiltro').value;
-        const fecha = new Date(document.getElementById('fechaFiltro').value);
+        const fechaSeleccionada = document.getElementById('fechaFiltro').value;
         const estado = document.getElementById('estadoFiltro').value;
 
         let citasFiltradas = [...citas];
 
+        // Filtrar por vista (hoy, semana, mes)
         if (vista === 'hoy') {
             const hoy = new Date().toISOString().split('T')[0];
             citasFiltradas = citasFiltradas.filter(c => c.fecha === hoy);
+        } else if (vista === 'semana') {
+            const hoy = new Date();
+            const enUnaSemana = new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000);
+            citasFiltradas = citasFiltradas.filter(c => {
+                const fechaCita = new Date(c.fecha);
+                return fechaCita >= hoy && fechaCita <= enUnaSemana;
+            });
+        } else if (vista === 'mes') {
+            const hoy = new Date();
+            const mesActual = hoy.getMonth();
+            const añoActual = hoy.getFullYear();
+            citasFiltradas = citasFiltradas.filter(c => {
+                const fechaCita = new Date(c.fecha);
+                return fechaCita.getMonth() === mesActual && fechaCita.getFullYear() === añoActual;
+            });
         }
 
+        // Filtrar por fecha específica
+        if (fechaSeleccionada) {
+            citasFiltradas = citasFiltradas.filter(c => c.fecha === fechaSeleccionada);
+        }
+
+        // Filtrar por estado
         if (estado !== 'todas') {
             citasFiltradas = citasFiltradas.filter(c => c.estado === estado);
         }
@@ -361,7 +387,7 @@
             container.innerHTML = `
                 <div style="text-align: center; padding: 60px; background: white; border-radius: 15px;">
                     <div style="font-size: 5em; margin-bottom: 20px;">📅</div>
-                    <h3 style="color: #0077b6; margin-bottom: 10px;">No hay citas programadas</h3>
+                    <h3 style="color: #0077b6; margin-bottom: 10px;">No hay citas</h3>
                     <p style="color: #52796f;">No tienes citas para los filtros seleccionados</p>
                 </div>
             `;
@@ -370,38 +396,49 @@
 
         container.innerHTML = citasFiltradas.map(cita => {
             const estadoClass = `estado-${cita.estado}`;
-            const estadoTexto = cita.estado === 'programada' ? 'Programada' :
-                cita.estado === 'en-curso' ? 'En Curso' : 'Completada';
+            const estadoTexto = {
+                'disponible': 'Disponible',
+                'programada': 'Programada',
+                'en-curso': 'En Curso',
+                'completada': 'Completada',
+                'cancelada': 'Cancelada'
+            }[cita.estado] || cita.estado;
 
             return `
                 <div class="cita-card">
                     <div class="cita-hora">
-                        <div class="hora-texto">${cita.hora}</div>
+                        <div class="hora-texto">${cita.hora || 'N/A'}</div>
                         <div class="duracion-texto">${cita.duracion || 30} min</div>
                     </div>
                     <div class="cita-info">
-                        <h3>${cita.paciente || 'Paciente desconocido'}</h3>
+                        <h3>${cita.paciente || 'Sin paciente asignado'}</h3>
                         <div class="cita-detalle">
                             <div class="cita-detalle-item">
-                                <span>📋</span> ${cita.tipoConsulta || 'Consulta'}
+                                <span>📋</span> ${cita.tipoConsulta || 'Consulta General'}
                             </div>
-                            <div class="cita-detalle-item">
-                                <span>💬</span> ${cita.motivo || 'Sin motivo especificado'}
-                            </div>
+                            ${cita.motivo ? `
+                                <div class="cita-detalle-item">
+                                    <span>💬</span> ${cita.motivo}
+                                </div>
+                            ` : ''}
                             <div class="cita-detalle-item">
                                 <span class="estado-badge ${estadoClass}">${estadoTexto}</span>
                             </div>
                         </div>
                     </div>
                     <div class="cita-acciones">
-                        ${cita.estado === 'programada' ? `
+                        ${cita.estado === 'programada' && cita.pacienteId ? `
                             <button class="btn-accion btn-atender" onclick="atenderPaciente(${cita.id}, ${cita.pacienteId})">
                                 🩺 Atender
                             </button>
+                            <button class="btn-accion btn-ver-historial" onclick="verHistorial(${cita.pacienteId})">
+                                📋 Ver Historial
+                            </button>
+                        ` : cita.estado === 'completada' && cita.pacienteId ? `
+                            <button class="btn-accion btn-ver-historial" onclick="verHistorial(${cita.pacienteId})">
+                                📋 Ver Historial
+                            </button>
                         ` : ''}
-                        <button class="btn-accion btn-ver-historial" onclick="verHistorial(${cita.pacienteId})">
-                            📋 Ver Historial
-                        </button>
                     </div>
                 </div>
             `;
