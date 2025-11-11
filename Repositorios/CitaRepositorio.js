@@ -7,7 +7,7 @@ class CitaRepositorio {
     async crearMultiples(citas) {
         try {
             return await Cita.bulkCreate(citas, {
-                ignoreDuplicates: true // Evitar duplicados
+                ignoreDuplicates: true
             });
         } catch (error) {
             console.error('❌ Error en CitaRepositorio.crearMultiples:', error);
@@ -38,7 +38,6 @@ class CitaRepositorio {
         try {
             const where = {};
 
-            // Solo agregar filtro de médico si se proporciona
             if (idMedico) {
                 where.id_medico = idMedico;
             }
@@ -56,7 +55,7 @@ class CitaRepositorio {
                         model: Usuario,
                         as: 'paciente',
                         attributes: ['id', 'nombre', 'correo', 'telefono'],
-                        required: false // LEFT JOIN para incluir citas sin paciente
+                        required: false
                     }
                 ],
                 order: [['fecha', 'ASC'], ['hora_inicio', 'ASC']]
@@ -88,7 +87,9 @@ class CitaRepositorio {
 
     async buscarDisponibles(idMedico, fecha) {
         try {
-            return await Cita.findAll({
+            console.log(`🔍 Buscando citas disponibles - Médico: ${idMedico}, Fecha: ${fecha}`);
+
+            const citas = await Cita.findAll({
                 where: {
                     id_medico: idMedico,
                     fecha: fecha,
@@ -96,6 +97,20 @@ class CitaRepositorio {
                 },
                 order: [['hora_inicio', 'ASC']]
             });
+
+            console.log(`📊 Citas encontradas: ${citas.length}`);
+
+            if (citas.length > 0) {
+                console.log('📝 Primera cita (raw):', JSON.stringify(citas[0], null, 2));
+                const primeraJSON = citas[0].toJSON();
+                console.log('📝 Primera cita (JSON):', primeraJSON);
+                console.log('⏰ Campos de tiempo:', {
+                    hora_inicio: primeraJSON.hora_inicio,
+                    hora_fin: primeraJSON.hora_fin
+                });
+            }
+
+            return citas;
         } catch (error) {
             console.error('❌ Error en CitaRepositorio.buscarDisponibles:', error);
             throw new Error('Error al buscar citas disponibles.');

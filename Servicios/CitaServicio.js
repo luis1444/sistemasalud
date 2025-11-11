@@ -73,7 +73,9 @@ class CitaServicio {
                 return {
                     id: citaJSON.id,
                     fecha: citaJSON.fecha,
-                    hora: citaJSON.hora_inicio,
+                    hora_inicio: citaJSON.hora_inicio, // ⚠️ Mantener nombre original
+                    hora_fin: citaJSON.hora_fin,       // ⚠️ Mantener nombre original
+                    hora: citaJSON.hora_inicio,        // Para compatibilidad
                     duracion: citaJSON.duracion_cita_minutos || 30,
                     estado: citaJSON.estado
                 };
@@ -139,6 +141,25 @@ class CitaServicio {
             });
         } catch (error) {
             console.error('❌ Error en CitaServicio.actualizarNotas:', error);
+            throw error;
+        }
+    }
+
+    async iniciarCita(idCita) {
+        try {
+            const cita = await citaRepositorio.buscarPorId(idCita);
+
+            if (!cita) {
+                throw new Error('Cita no encontrada.');
+            }
+
+            if (cita.estado !== 'programada') {
+                throw new Error('Solo se pueden iniciar citas programadas.');
+            }
+
+            return await citaRepositorio.actualizarEstado(idCita, 'en-curso');
+        } catch (error) {
+            console.error('❌ Error en CitaServicio.iniciarCita:', error);
             throw error;
         }
     }

@@ -14,11 +14,10 @@
 
         body {
             display: flex;
-            min-height: 100vh;
+            height: 100vh;
             overflow: hidden;
         }
 
-        /* Panel izquierdo */
         .panel-izquierdo {
             flex: 1;
             background: linear-gradient(135deg, #0077b6 0%, #00b4d8 50%, #48cae4 100%);
@@ -115,43 +114,46 @@
             50% { transform: scale(1.3); opacity: 1; }
         }
 
-        /* Panel derecho - Formulario */
         .panel-derecho {
             flex: 1.5;
             background: #f8f9fa;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            padding: 40px;
+            padding: 30px 20px;
             overflow-y: auto;
+            overflow-x: hidden;
+            height: 100vh;
         }
 
         .panel-derecho::-webkit-scrollbar {
-            width: 10px;
+            width: 12px;
         }
 
         .panel-derecho::-webkit-scrollbar-track {
-            background: #e0e0e0;
+            background: #e9ecef;
+            border-radius: 10px;
         }
 
         .panel-derecho::-webkit-scrollbar-thumb {
-            background: #00b4d8;
-            border-radius: 5px;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
         }
 
         .panel-derecho::-webkit-scrollbar-thumb:hover {
-            background: #0077b6;
+            background: linear-gradient(135deg, #005a8d, #0096c7);
         }
 
         .registro-container {
             background: #ffffff;
-            padding: 40px 45px;
+            padding: 30px 25px;
             border-radius: 20px;
             box-shadow: 0 15px 40px rgba(0, 119, 182, 0.12);
             width: 100%;
-            max-width: 650px;
+            max-width: 550px;
             border-left: 5px solid #00b4d8;
-            margin: 20px 0;
+            margin: 20px auto;
         }
 
         h2 {
@@ -159,25 +161,26 @@
             margin-bottom: 10px;
             color: #0077b6;
             font-weight: 700;
-            font-size: 2em;
+            font-size: 1.8em;
         }
 
         .subtitulo {
             text-align: center;
             color: #52796f;
-            margin-bottom: 35px;
-            font-size: 0.95em;
+            margin-bottom: 30px;
+            font-size: 0.9em;
         }
 
         form {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px 25px;
+            gap: 18px 12px;
         }
 
         .form-group {
             display: flex;
             flex-direction: column;
+            min-width: 0;
         }
 
         .form-group.full-width {
@@ -187,17 +190,19 @@
         label {
             font-weight: 600;
             color: #2d6a4f;
-            margin-bottom: 8px;
-            font-size: 0.95em;
+            margin-bottom: 6px;
+            font-size: 0.9em;
         }
 
         input, select {
-            padding: 14px 16px;
+            padding: 11px 12px;
             border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 1em;
+            border-radius: 8px;
+            font-size: 0.95em;
             transition: all 0.3s ease;
             background: #fafafa;
+            width: 100%;
+            min-width: 0;
         }
 
         input:focus, select:focus {
@@ -211,13 +216,38 @@
             cursor: pointer;
         }
 
+        .telefono-container {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .telefono-container select {
+            flex: 0 0 95px;
+            min-width: 95px;
+        }
+
+        .telefono-container input {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .identificacion-container {
+            display: grid;
+            gap: 15px;
+        }
+
+        #verificacionPadre {
+            display: none;
+        }
+
         button {
             grid-column: 1 / -1;
             margin-top: 10px;
-            padding: 15px;
+            padding: 14px;
             border: none;
             border-radius: 10px;
-            font-size: 1.1em;
+            font-size: 1.05em;
             font-weight: 600;
             background: linear-gradient(135deg, #0077b6, #00b4d8);
             color: white;
@@ -236,7 +266,7 @@
         }
 
         .volver {
-            margin-top: 25px;
+            margin-top: 20px;
             text-align: center;
         }
 
@@ -248,6 +278,7 @@
             display: inline-flex;
             align-items: center;
             gap: 5px;
+            font-size: 0.95em;
         }
 
         .volver a:hover {
@@ -255,7 +286,6 @@
             gap: 8px;
         }
 
-        /* Modal de términos */
         .modal {
             display: none;
             position: fixed;
@@ -279,6 +309,20 @@
             overflow-y: auto;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
             animation: aparecer 0.3s ease;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #0077b6;
+            border-radius: 10px;
         }
 
         .modal-content h3 {
@@ -305,10 +349,43 @@
             to { transform: scale(1); opacity: 1; }
         }
 
-        /* Responsive */
+        .error-message {
+            color: #d32f2f;
+            font-size: 0.8em;
+            margin-top: 4px;
+            display: none;
+        }
+
+        .scroll-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 119, 182, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9em;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            animation: bounce 2s ease-in-out infinite;
+            z-index: 100;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .scroll-indicator.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
         @media (max-width: 968px) {
             body {
                 flex-direction: column;
+                height: auto;
             }
 
             .panel-izquierdo {
@@ -326,11 +403,13 @@
             }
 
             .panel-derecho {
-                padding: 30px 20px;
+                padding: 30px 15px;
+                height: auto;
+                min-height: 60vh;
             }
 
             .registro-container {
-                padding: 35px 30px;
+                padding: 25px 20px;
             }
 
             form {
@@ -349,10 +428,9 @@
 </head>
 <body>
 
-<!-- Panel Izquierdo -->
 <div class="panel-izquierdo">
     <div class="logo-section">
-        <img src="/images/logo.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <img src="https://cdn-icons-png.flaticon.com/512/3774/3774299.png" alt="Logo VITAL+">
         <h1>VITAL+</h1>
         <p>Sistema integral de gestión hospitalaria para el cuidado de tu salud</p>
         <div class="decoracion">
@@ -363,45 +441,110 @@
     </div>
 </div>
 
-<!-- Panel Derecho -->
-<div class="panel-derecho">
+<div class="panel-derecho" id="panelDerecho">
     <div class="registro-container">
         <h2>Registro</h2>
         <p class="subtitulo">Crea tu cuenta en VITAL+</p>
 
         <form id="formRegistro">
             <div class="form-group">
-                <label for="nombre">Nombre completo</label>
-                <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu nombre completo" required>
+                <label for="primerNombre">Primer nombre *</label>
+                <input type="text" id="primerNombre" name="primerNombre" placeholder="Primer nombre" required>
             </div>
 
             <div class="form-group">
-                <label for="identificacion">Identificación</label>
-                <input type="text" id="identificacion" name="identificacion" placeholder="Número de documento" required>
+                <label for="segundoNombre">Segundo nombre</label>
+                <input type="text" id="segundoNombre" name="segundoNombre" placeholder="Segundo nombre">
             </div>
 
             <div class="form-group">
-                <label for="fechaNacimiento">Fecha de nacimiento</label>
+                <label for="primerApellido">Primer apellido *</label>
+                <input type="text" id="primerApellido" name="primerApellido" placeholder="Primer apellido" required>
+            </div>
+
+            <div class="form-group">
+                <label for="segundoApellido">Segundo apellido</label>
+                <input type="text" id="segundoApellido" name="segundoApellido" placeholder="Segundo apellido">
+            </div>
+
+            <div class="form-group full-width">
+                <label for="tipoIdentificacion">Tipo de identificación *</label>
+                <select id="tipoIdentificacion" name="tipoIdentificacion" required>
+                    <option value="">Selecciona un tipo</option>
+                    <option value="registro_civil">Registro civil</option>
+                    <option value="tarjeta_identidad">Tarjeta de identidad</option>
+                    <option value="cedula">Cédula de ciudadanía</option>
+                    <option value="cedula_extranjeria">Cédula de extranjería</option>
+                    <option value="pasaporte">Pasaporte</option>
+                </select>
+            </div>
+
+            <div class="form-group full-width identificacion-container">
+                <div class="form-group" style="margin: 0;">
+                    <label for="identificacion">Número de identificación *</label>
+                    <input type="text" id="identificacion" name="identificacion" placeholder="Número de documento" required>
+                </div>
+
+                <div id="verificacionPadre" class="form-group" style="margin: 0;">
+                    <label for="nombrePadre">Nombre del padre/tutor *</label>
+                    <input type="text" id="nombrePadre" name="nombrePadre" placeholder="Nombre completo del padre o tutor">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de nacimiento *</label>
                 <input type="date" id="fechaNacimiento" name="fechaNacimiento" required>
             </div>
 
             <div class="form-group">
-                <label for="telefono">Teléfono</label>
-                <input type="tel" id="telefono" name="telefono" placeholder="300 123 4567" required>
+                <label for="telefono">Teléfono *</label>
+                <div class="telefono-container">
+                    <select id="prefijoPais" name="prefijoPais" required></select>
+                    <input type="tel" id="telefono" name="telefono" placeholder="3001234567" required>
+                </div>
+                <span class="error-message" id="telefonoError">Para Colombia debe ingresar 10 dígitos</span>
+            </div>
+
+            <div class="form-group">
+                <label for="pais">País *</label>
+                <select id="pais" name="pais" required>
+                    <option value="">Selecciona un país</option>
+                    <option value="Colombia">Colombia</option>
+                    <option value="Argentina">Argentina</option>
+                    <option value="Brasil">Brasil</option>
+                    <option value="Chile">Chile</option>
+                    <option value="Ecuador">Ecuador</option>
+                    <option value="España">España</option>
+                    <option value="Estados Unidos">Estados Unidos</option>
+                    <option value="México">México</option>
+                    <option value="Perú">Perú</option>
+                    <option value="Venezuela">Venezuela</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ciudad">Ciudad *</label>
+                <input type="text" id="ciudad" name="ciudad" placeholder="Ciudad de residencia" required>
             </div>
 
             <div class="form-group full-width">
-                <label for="direccion">Dirección</label>
+                <label for="direccion">Dirección *</label>
                 <input type="text" id="direccion" name="direccion" placeholder="Dirección de residencia" required>
             </div>
 
             <div class="form-group full-width">
-                <label for="correo">Correo electrónico</label>
+                <label for="correo">Correo electrónico *</label>
                 <input type="email" id="correo" name="correo" placeholder="correo@ejemplo.com" required>
             </div>
 
+            <div class="form-group full-width">
+                <label for="confirmarCorreo">Confirmar correo electrónico *</label>
+                <input type="email" id="confirmarCorreo" name="confirmarCorreo" placeholder="correo@ejemplo.com" required>
+                <span class="error-message" id="correoError">Los correos no coinciden</span>
+            </div>
+
             <div class="form-group">
-                <label for="rol">Rol</label>
+                <label for="rol">Rol *</label>
                 <select id="rol" name="rol" required>
                     <option value="">Selecciona un rol</option>
                     <option value="paciente">Paciente</option>
@@ -410,14 +553,19 @@
             </div>
 
             <div class="form-group">
-                <label for="contrasena">Contraseña</label>
+                <label for="contrasena">Contraseña *</label>
                 <input type="password" id="contrasena" name="contrasena" placeholder="Mínimo 8 caracteres" required>
             </div>
 
-            <!-- Checkbox de términos -->
-            <div class="form-group full-width" style="display:flex; align-items:center; gap:10px;">
-                <input type="checkbox" id="terminos" required>
-                <label for="terminos" style="margin:0;">Acepto los
+            <div class="form-group full-width">
+                <label for="confirmarContrasena">Confirmar contraseña *</label>
+                <input type="password" id="confirmarContrasena" name="confirmarContrasena" placeholder="Mínimo 8 caracteres" required>
+                <span class="error-message" id="contrasenaError">Las contraseñas no coinciden</span>
+            </div>
+
+            <div class="form-group full-width" style="display:flex; align-items:center; gap:10px; flex-direction: row;">
+                <input type="checkbox" id="terminos" required style="width: auto; flex: none;">
+                <label for="terminos" style="margin:0; font-size: 0.9em;">Acepto los
                     <a href="#" id="abrirModal" style="color:#0077b6; text-decoration:underline;">términos y condiciones</a>
                 </label>
             </div>
@@ -426,12 +574,15 @@
         </form>
 
         <div class="volver">
-            <a href="/Vistas/index.html">← Volver al inicio</a>
+            <a href="#">← Volver al inicio</a>
         </div>
     </div>
 </div>
 
-<!-- Modal -->
+<div class="scroll-indicator" id="scrollIndicator">
+    ↓ Desplázate para continuar ↓
+</div>
+
 <div class="modal" id="modalTerminos">
     <div class="modal-content">
         <h3>Términos y Condiciones de Uso - VITAL+</h3>
@@ -447,12 +598,235 @@
     </div>
 </div>
 
-<!-- Librerías -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="../js/registro.js"></script>
 
-<!-- Script del modal -->
 <script>
+    const countriesData = [
+        { name: "Afganistán", code: "AF", phone: "93" },
+        { name: "Albania", code: "AL", phone: "355" },
+        { name: "Alemania", code: "DE", phone: "49" },
+        { name: "Andorra", code: "AD", phone: "376" },
+        { name: "Angola", code: "AO", phone: "244" },
+        { name: "Arabia Saudita", code: "SA", phone: "966" },
+        { name: "Argelia", code: "DZ", phone: "213" },
+        { name: "Argentina", code: "AR", phone: "54" },
+        { name: "Armenia", code: "AM", phone: "374" },
+        { name: "Australia", code: "AU", phone: "61" },
+        { name: "Austria", code: "AT", phone: "43" },
+        { name: "Azerbaiyán", code: "AZ", phone: "994" },
+        { name: "Bahamas", code: "BS", phone: "1242" },
+        { name: "Bangladés", code: "BD", phone: "880" },
+        { name: "Barbados", code: "BB", phone: "1246" },
+        { name: "Baréin", code: "BH", phone: "973" },
+        { name: "Bélgica", code: "BE", phone: "32" },
+        { name: "Belice", code: "BZ", phone: "501" },
+        { name: "Benín", code: "BJ", phone: "229" },
+        { name: "Bielorrusia", code: "BY", phone: "375" },
+        { name: "Bolivia", code: "BO", phone: "591" },
+        { name: "Bosnia y Herzegovina", code: "BA", phone: "387" },
+        { name: "Botsuana", code: "BW", phone: "267" },
+        { name: "Brasil", code: "BR", phone: "55" },
+        { name: "Brunéi", code: "BN", phone: "673" },
+        { name: "Bulgaria", code: "BG", phone: "359" },
+        { name: "Burkina Faso", code: "BF", phone: "226" },
+        { name: "Burundi", code: "BI", phone: "257" },
+        { name: "Bután", code: "BT", phone: "975" },
+        { name: "Cabo Verde", code: "CV", phone: "238" },
+        { name: "Camboya", code: "KH", phone: "855" },
+        { name: "Camerún", code: "CM", phone: "237" },
+        { name: "Canadá", code: "CA", phone: "1" },
+        { name: "Catar", code: "QA", phone: "974" },
+        { name: "Chad", code: "TD", phone: "235" },
+        { name: "Chile", code: "CL", phone: "56" },
+        { name: "China", code: "CN", phone: "86" },
+        { name: "Chipre", code: "CY", phone: "357" },
+        { name: "Colombia", code: "CO", phone: "57" },
+        { name: "Comoras", code: "KM", phone: "269" },
+        { name: "Corea del Norte", code: "KP", phone: "850" },
+        { name: "Corea del Sur", code: "KR", phone: "82" },
+        { name: "Costa de Marfil", code: "CI", phone: "225" },
+        { name: "Costa Rica", code: "CR", phone: "506" },
+        { name: "Croacia", code: "HR", phone: "385" },
+        { name: "Cuba", code: "CU", phone: "53" },
+        { name: "Dinamarca", code: "DK", phone: "45" },
+        { name: "Dominica", code: "DM", phone: "1767" },
+        { name: "Ecuador", code: "EC", phone: "593" },
+        { name: "Egipto", code: "EG", phone: "20" },
+        { name: "El Salvador", code: "SV", phone: "503" },
+        { name: "Emiratos Árabes Unidos", code: "AE", phone: "971" },
+        { name: "Eritrea", code: "ER", phone: "291" },
+        { name: "Eslovaquia", code: "SK", phone: "421" },
+        { name: "Eslovenia", code: "SI", phone: "386" },
+        { name: "España", code: "ES", phone: "34" },
+        { name: "Estados Unidos", code: "US", phone: "1" },
+        { name: "Estonia", code: "EE", phone: "372" },
+        { name: "Etiopía", code: "ET", phone: "251" },
+        { name: "Filipinas", code: "PH", phone: "63" },
+        { name: "Finlandia", code: "FI", phone: "358" },
+        { name: "Fiyi", code: "FJ", phone: "679" },
+        { name: "Francia", code: "FR", phone: "33" },
+        { name: "Gabón", code: "GA", phone: "241" },
+        { name: "Gambia", code: "GM", phone: "220" },
+        { name: "Georgia", code: "GE", phone: "995" },
+        { name: "Ghana", code: "GH", phone: "233" },
+        { name: "Granada", code: "GD", phone: "1473" },
+        { name: "Grecia", code: "GR", phone: "30" },
+        { name: "Guatemala", code: "GT", phone: "502" },
+        { name: "Guinea", code: "GN", phone: "224" },
+        { name: "Guinea Ecuatorial", code: "GQ", phone: "240" },
+        { name: "Guinea-Bisáu", code: "GW", phone: "245" },
+        { name: "Guyana", code: "GY", phone: "592" },
+        { name: "Haití", code: "HT", phone: "509" },
+        { name: "Honduras", code: "HN", phone: "504" },
+        { name: "Hungría", code: "HU", phone: "36" },
+        { name: "India", code: "IN", phone: "91" },
+        { name: "Indonesia", code: "ID", phone: "62" },
+        { name: "Irak", code: "IQ", phone: "964" },
+        { name: "Irán", code: "IR", phone: "98" },
+        { name: "Irlanda", code: "IE", phone: "353" },
+        { name: "Islandia", code: "IS", phone: "354" },
+        { name: "Israel", code: "IL", phone: "972" },
+        { name: "Italia", code: "IT", phone: "39" },
+        { name: "Jamaica", code: "JM", phone: "1876" },
+        { name: "Japón", code: "JP", phone: "81" },
+        { name: "Jordania", code: "JO", phone: "962" },
+        { name: "Kazajistán", code: "KZ", phone: "7" },
+        { name: "Kenia", code: "KE", phone: "254" },
+        { name: "Kirguistán", code: "KG", phone: "996" },
+        { name: "Kiribati", code: "KI", phone: "686" },
+        { name: "Kuwait", code: "KW", phone: "965" },
+        { name: "Laos", code: "LA", phone: "856" },
+        { name: "Lesoto", code: "LS", phone: "266" },
+        { name: "Letonia", code: "LV", phone: "371" },
+        { name: "Líbano", code: "LB", phone: "961" },
+        { name: "Liberia", code: "LR", phone: "231" },
+        { name: "Libia", code: "LY", phone: "218" },
+        { name: "Liechtenstein", code: "LI", phone: "423" },
+        { name: "Lituania", code: "LT", phone: "370" },
+        { name: "Luxemburgo", code: "LU", phone: "352" },
+        { name: "Madagascar", code: "MG", phone: "261" },
+        { name: "Malasia", code: "MY", phone: "60" },
+        { name: "Malaui", code: "MW", phone: "265" },
+        { name: "Maldivas", code: "MV", phone: "960" },
+        { name: "Malí", code: "ML", phone: "223" },
+        { name: "Malta", code: "MT", phone: "356" },
+        { name: "Marruecos", code: "MA", phone: "212" },
+        { name: "Mauricio", code: "MU", phone: "230" },
+        { name: "Mauritania", code: "MR", phone: "222" },
+        { name: "México", code: "MX", phone: "52" },
+        { name: "Micronesia", code: "FM", phone: "691" },
+        { name: "Moldavia", code: "MD", phone: "373" },
+        { name: "Mónaco", code: "MC", phone: "377" },
+        { name: "Mongolia", code: "MN", phone: "976" },
+        { name: "Montenegro", code: "ME", phone: "382" },
+        { name: "Mozambique", code: "MZ", phone: "258" },
+        { name: "Namibia", code: "NA", phone: "264" },
+        { name: "Nauru", code: "NR", phone: "674" },
+        { name: "Nepal", code: "NP", phone: "977" },
+        { name: "Nicaragua", code: "NI", phone: "505" },
+        { name: "Níger", code: "NE", phone: "227" },
+        { name: "Nigeria", code: "NG", phone: "234" },
+        { name: "Noruega", code: "NO", phone: "47" },
+        { name: "Nueva Zelanda", code: "NZ", phone: "64" },
+        { name: "Omán", code: "OM", phone: "968" },
+        { name: "Países Bajos", code: "NL", phone: "31" },
+        { name: "Pakistán", code: "PK", phone: "92" },
+        { name: "Palaos", code: "PW", phone: "680" },
+        { name: "Panamá", code: "PA", phone: "507" },
+        { name: "Papúa Nueva Guinea", code: "PG", phone: "675" },
+        { name: "Paraguay", code: "PY", phone: "595" },
+        { name: "Perú", code: "PE", phone: "51" },
+        { name: "Polonia", code: "PL", phone: "48" },
+        { name: "Portugal", code: "PT", phone: "351" },
+        { name: "Puerto Rico", code: "PR", phone: "1" },
+        { name: "Reino Unido", code: "GB", phone: "44" },
+        { name: "República Centroafricana", code: "CF", phone: "236" },
+        { name: "República Checa", code: "CZ", phone: "420" },
+        { name: "República del Congo", code: "CG", phone: "242" },
+        { name: "República Democrática del Congo", code: "CD", phone: "243" },
+        { name: "República Dominicana", code: "DO", phone: "1" },
+        { name: "Ruanda", code: "RW", phone: "250" },
+        { name: "Rumanía", code: "RO", phone: "40" },
+        { name: "Rusia", code: "RU", phone: "7" },
+        { name: "Samoa", code: "WS", phone: "685" },
+        { name: "San Cristóbal y Nieves", code: "KN", phone: "1869" },
+        { name: "San Marino", code: "SM", phone: "378" },
+        { name: "San Vicente y las Granadinas", code: "VC", phone: "1784" },
+        { name: "Santa Lucía", code: "LC", phone: "1758" },
+        { name: "Santo Tomé y Príncipe", code: "ST", phone: "239" },
+        { name: "Senegal", code: "SN", phone: "221" },
+        { name: "Serbia", code: "RS", phone: "381" },
+        { name: "Seychelles", code: "SC", phone: "248" },
+        { name: "Sierra Leona", code: "SL", phone: "232" },
+        { name: "Singapur", code: "SG", phone: "65" },
+        { name: "Siria", code: "SY", phone: "963" },
+        { name: "Somalia", code: "SO", phone: "252" },
+        { name: "Sri Lanka", code: "LK", phone: "94" },
+        { name: "Suazilandia", code: "SZ", phone: "268" },
+        { name: "Sudáfrica", code: "ZA", phone: "27" },
+        { name: "Sudán", code: "SD", phone: "249" },
+        { name: "Sudán del Sur", code: "SS", phone: "211" },
+        { name: "Suecia", code: "SE", phone: "46" },
+        { name: "Suiza", code: "CH", phone: "41" },
+        { name: "Surinam", code: "SR", phone: "597" },
+        { name: "Tailandia", code: "TH", phone: "66" },
+        { name: "Tanzania", code: "TZ", phone: "255" },
+        { name: "Tayikistán", code: "TJ", phone: "992" },
+        { name: "Timor Oriental", code: "TL", phone: "670" },
+        { name: "Togo", code: "TG", phone: "228" },
+        { name: "Tonga", code: "TO", phone: "676" },
+        { name: "Trinidad y Tobago", code: "TT", phone: "1868" },
+        { name: "Túnez", code: "TN", phone: "216" },
+        { name: "Turkmenistán", code: "TM", phone: "993" },
+        { name: "Turquía", code: "TR", phone: "90" },
+        { name: "Tuvalu", code: "TV", phone: "688" },
+        { name: "Ucrania", code: "UA", phone: "380" },
+        { name: "Uganda", code: "UG", phone: "256" },
+        { name: "Uruguay", code: "UY", phone: "598" },
+        { name: "Uzbekistán", code: "UZ", phone: "998" },
+        { name: "Vanuatu", code: "VU", phone: "678" },
+        { name: "Vaticano", code: "VA", phone: "379" },
+        { name: "Venezuela", code: "VE", phone: "58" },
+        { name: "Vietnam", code: "VN", phone: "84" },
+        { name: "Yemen", code: "YE", phone: "967" },
+        { name: "Yibuti", code: "DJ", phone: "253" },
+        { name: "Zambia", code: "ZM", phone: "260" },
+        { name: "Zimbabue", code: "ZW", phone: "263" }
+    ];
+
+    function getFlagEmoji(countryCode) {
+        const codePoints = countryCode
+            .toUpperCase()
+            .split("")
+            .map(char => 127397 + char.charCodeAt());
+        return String.fromCodePoint(...codePoints);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const select = document.getElementById("prefijoPais");
+        select.innerHTML = "";
+
+        countriesData.forEach(country => {
+            const option = document.createElement("option");
+            option.value = `+${country.phone}`;
+            option.textContent = `${getFlagEmoji(country.code)} +${country.phone}`;
+            select.appendChild(option);
+        });
+
+        select.value = "+57";
+    });
+
+    const panelDerecho = document.getElementById('panelDerecho');
+    const scrollIndicator = document.getElementById('scrollIndicator');
+
+    panelDerecho.addEventListener('scroll', function() {
+        if (this.scrollTop > 100) {
+            scrollIndicator.classList.add('hidden');
+        } else {
+            scrollIndicator.classList.remove('hidden');
+        }
+    });
+
     const abrirModal = document.getElementById('abrirModal');
     const modal = document.getElementById('modalTerminos');
     const cerrarModal = document.getElementById('cerrarModal');
@@ -472,17 +846,129 @@
         }
     });
 
-    // Validación de términos antes de enviar
+    const tipoIdentificacion = document.getElementById('tipoIdentificacion');
+    const verificacionPadre = document.getElementById('verificacionPadre');
+    const nombrePadre = document.getElementById('nombrePadre');
+
+    tipoIdentificacion.addEventListener('change', function() {
+        if (this.value === 'registro_civil' || this.value === 'tarjeta_identidad') {
+            verificacionPadre.style.display = 'block';
+            nombrePadre.setAttribute('required', 'required');
+        } else {
+            verificacionPadre.style.display = 'none';
+            nombrePadre.removeAttribute('required');
+            nombrePadre.value = '';
+        }
+    });
+
+    const prefijoPais = document.getElementById('prefijoPais');
+    const telefono = document.getElementById('telefono');
+    const telefonoError = document.getElementById('telefonoError');
+
+    telefono.addEventListener('input', function() {
+        this.value = this.value.replace(/\D/g, '');
+
+        if (prefijoPais.value === '+57') {
+            if (this.value.length !== 10 && this.value.length > 0) {
+                telefonoError.style.display = 'block';
+                this.setCustomValidity('Debe ingresar 10 dígitos para Colombia');
+            } else {
+                telefonoError.style.display = 'none';
+                this.setCustomValidity('');
+            }
+        } else {
+            telefonoError.style.display = 'none';
+            this.setCustomValidity('');
+        }
+    });
+
+    prefijoPais.addEventListener('change', function() {
+        telefono.value = '';
+        telefonoError.style.display = 'none';
+        telefono.setCustomValidity('');
+    });
+
+    const correo = document.getElementById('correo');
+    const confirmarCorreo = document.getElementById('confirmarCorreo');
+    const correoError = document.getElementById('correoError');
+
+    function validarCorreos() {
+        if (confirmarCorreo.value && correo.value !== confirmarCorreo.value) {
+            correoError.style.display = 'block';
+            confirmarCorreo.setCustomValidity('Los correos no coinciden');
+        } else {
+            correoError.style.display = 'none';
+            confirmarCorreo.setCustomValidity('');
+        }
+    }
+
+    correo.addEventListener('input', validarCorreos);
+    confirmarCorreo.addEventListener('input', validarCorreos);
+
+    const contrasena = document.getElementById('contrasena');
+    const confirmarContrasena = document.getElementById('confirmarContrasena');
+    const contrasenaError = document.getElementById('contrasenaError');
+
+    function validarContrasenas() {
+        if (confirmarContrasena.value && contrasena.value !== confirmarContrasena.value) {
+            contrasenaError.style.display = 'block';
+            confirmarContrasena.setCustomValidity('Las contraseñas no coinciden');
+        } else {
+            contrasenaError.style.display = 'none';
+            confirmarContrasena.setCustomValidity('');
+        }
+    }
+
+    contrasena.addEventListener('input', validarContrasenas);
+    confirmarContrasena.addEventListener('input', validarContrasenas);
+
     document.getElementById('formRegistro').addEventListener('submit', function(e) {
+        e.preventDefault();
+
         const terminos = document.getElementById('terminos');
         if (!terminos.checked) {
-            e.preventDefault();
             Swal.fire({
                 icon: 'warning',
                 title: 'Debe aceptar los términos y condiciones',
                 confirmButtonColor: '#0077b6'
             });
+            return;
         }
+
+        if (contrasena.value !== confirmarContrasena.value) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Las contraseñas no coinciden',
+                confirmButtonColor: '#0077b6'
+            });
+            return;
+        }
+
+        if (correo.value !== confirmarCorreo.value) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Los correos no coinciden',
+                confirmButtonColor: '#0077b6'
+            });
+            return;
+        }
+
+        if (prefijoPais.value === '+57' && telefono.value.length !== 10) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Teléfono inválido',
+                text: 'Para Colombia debe ingresar 10 dígitos',
+                confirmButtonColor: '#0077b6'
+            });
+            return;
+        }
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: 'Tu cuenta ha sido creada correctamente',
+            confirmButtonColor: '#0077b6'
+        });
     });
 </script>
 
