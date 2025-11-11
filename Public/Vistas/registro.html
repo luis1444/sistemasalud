@@ -797,23 +797,27 @@
     function getFlagEmoji(countryCode) {
         const codePoints = countryCode
             .toUpperCase()
-            .split("")
+            .split('')
             .map(char => 127397 + char.charCodeAt());
         return String.fromCodePoint(...codePoints);
     }
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const select = document.getElementById("prefijoPais");
-        select.innerHTML = "";
+    const countrySelect = document.getElementById("prefijoPais");
 
-        countriesData.forEach(country => {
-            const option = document.createElement("option");
-            option.value = `+${country.phone}`;
-            option.textContent = `${getFlagEmoji(country.code)} +${country.phone}`;
-            select.appendChild(option);
-        });
+    function getFlagEmoji(countryCode) {
+        // Convierte código ISO (ej. "CO") en emoji 🇨🇴
+        return countryCode
+            .toUpperCase()
+            .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()));
+    }
 
-        select.value = "+57";
+    // Llenar el select con bandera + prefijo
+    countriesData.forEach(country => {
+        const option = document.createElement("option");
+        const flag = getFlagEmoji(country.code);
+        option.value = country.phone;
+        option.textContent = `${flag} +${country.phone}`;
+        countrySelect.appendChild(option);
     });
 
     const panelDerecho = document.getElementById('panelDerecho');

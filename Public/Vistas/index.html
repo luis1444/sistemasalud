@@ -204,6 +204,132 @@
             box-shadow: 0 25px 70px rgba(0, 119, 182, 0.25);
         }
 
+        /* SECCIONES SECUNDARIAS */
+        .section-padding {
+            padding: 80px 80px;
+            text-align: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .services-section {
+            background-color: #ffffff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .features-section {
+            background-color: #f0f8ff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .section-padding h2 {
+            font-size: 2.5em;
+            margin-bottom: 40px;
+            color: #0077b6;
+            font-weight: 700;
+        }
+
+        /* Servicios Container */
+        .services-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .service-card {
+            background: #f0f8ff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.1);
+            text-align: left;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border-left: 5px solid #0077b6;
+            height: 100%; /* Asegura que todas tengan la misma altura */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .services-section .service-card {
+            background: #ffffff; /* Las tarjetas de servicios son blancas */
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 119, 182, 0.15);
+        }
+
+        .service-card h3 {
+            font-size: 1.4em;
+            color: #0077b6;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #b3e0ff;
+            padding-bottom: 10px;
+        }
+
+        .service-card ul {
+            list-style: none;
+            padding-left: 0;
+            margin-top: auto; /* Empuja la lista hacia abajo */
+        }
+
+        .service-card ul li {
+            margin-bottom: 10px;
+            color: #5a6c7d;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .service-card ul li::before {
+            content: '✓';
+            color: #00b4d8;
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        /* Features Container (Similar a services pero con diseño diferente) */
+        .features-container {
+            display: flex;
+            gap: 40px;
+            text-align: left;
+        }
+
+        .feature-item {
+            flex: 1;
+            padding: 40px;
+            border-radius: 15px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .feature-item:hover {
+            box-shadow: 0 15px 40px rgba(0, 119, 182, 0.1);
+        }
+
+        .feature-item h3 {
+            font-size: 1.6em;
+            color: #0077b6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-item h3 span {
+            font-size: 1.8em;
+            margin-right: 15px;
+        }
+
+        .feature-item p {
+            color: #5a6c7d;
+            font-size: 1.1em;
+            line-height: 1.6;
+        }
+
         /* FOOTER */
         footer {
             text-align: center;
@@ -213,6 +339,7 @@
             font-size: 0.95em;
             color: #7f8c8d;
             border-top: 1px solid rgba(0, 119, 182, 0.1);
+            margin-top: auto;
         }
 
         /* RESPONSIVE */
@@ -220,6 +347,8 @@
             .navbar { padding: 20px 40px; }
             .hero { padding: 80px 40px; gap: 40px; }
             .hero-text h2 { font-size: 2.5em; }
+            .section-padding { padding: 60px 40px; }
+            .features-container { flex-direction: column; }
         }
 
         @media (max-width: 768px) {
@@ -230,16 +359,20 @@
                 padding: 60px 20px;
                 text-align: center;
             }
+            .hero-text { max-width: 100%; }
             .hero-text h2 { font-size: 2em; }
             .hero-text p { font-size: 1em; }
-            .hero-image img { max-width: 100%; }
+            .hero-image { display: none; }
             .actions { width: 100%; justify-content: center; margin-top: 15px; }
+            .section-padding { padding: 40px 20px; }
+            .service-card { padding: 20px; }
+            .features-container { gap: 20px; }
+            .feature-item { padding: 30px; }
         }
     </style>
 </head>
 
 <body>
-<!-- NAVBAR -->
 <header class="navbar">
     <div class="logo" onclick="window.location.href='index.html'">
         <img src="images/logo.png" alt="VITAL+ Logo"
@@ -247,33 +380,89 @@
         <h1>VITAL+</h1>
     </div>
     <nav>
+        <a href="/Vistas/index.html">Inicio</a>
         <a href="nosotros">Nosotros</a>
-        <a href="servicios">Servicios</a>
+        <a href="#servicios">Servicios</a>
+        <a href="#caracteristicas">Características</a>
         <a href="blog">Blog</a>
 
     </nav>
     <div class="actions">
-        <!-- 👇 Redirecciones corregidas -->
-        <button class="btn-secondary" onclick="window.location.href='/registro.html'">Registrarse</button>
+        <button class="btn-secondary" onclick="window.location.href='/Vistas/registro.html'">Registrarse</button>
         <button class="btn-primary" onclick="window.location.href='/login.html'">Iniciar Sesión</button>
 
     </div>
 </header>
 
-<!-- HERO -->
 <main class="hero">
     <div class="hero-text">
-        <h2>Toda tu información médica, <span>en un solo lugar</span></h2>
-        <p>Información médica y administrativa, segura y en tiempo real. Accede a tu historial, citas y resultados desde
-            cualquier lugar.</p>
-        <button class="btn-primary" onclick="window.location.href='/registro.html'">Regístrate Ahora</button>
+        <h2>Conectando la <span>Salud</span>, Unificando tu <span>Historial</span></h2>
+        <p>VITAL+ es la plataforma segura que revoluciona la gestión de la salud al unificar la información médica y administrativa. <strong>Acceso, control y eficiencia en tiempo real</strong> para pacientes y profesionales.</p>
+
     </div>
 
     <div class="hero-image">
         <img src="https://images.pexels.com/photos/5722164/pexels-photo-5722164.jpeg?auto=compress&cs=tinysrgb&w=600"
-             alt="Profesional médico">
+             alt="Profesional médico consultando datos">
     </div>
 </main>
+
+<section class="services-section section-padding" id="servicios">
+    <h2>Servicios Centrales de VITAL+ (SOA)</h2>
+    <div class="services-container">
+
+        <div class="service-card">
+            <h3>Servicio de Gestión de Pacientes</h3>
+            <ul>
+                <li>Registro único del paciente.</li>
+                <li>Acceso al historial clínico unificado.</li>
+                <li>Autenticación y permisos de acceso.</li>
+            </ul>
+        </div>
+
+        <div class="service-card">
+            <h3>Servicio de Citas y Agenda Médica</h3>
+            <ul>
+                <li>Programación, modificación y cancelación de citas.</li>
+                <li>Coordinación de turnos entre distintas instituciones.</li>
+            </ul>
+        </div>
+
+        <div class="service-card">
+            <h3>Servicio de Resultados Clínicos y Laboratorio</h3>
+            <ul>
+                <li>Consulta de resultados de exámenes (laboratorio o imágenes).</li>
+                <li>Intercambio de resultados entre diferentes centros médicos.</li>
+            </ul>
+        </div>
+
+        <div class="service-card">
+            <h3>Servicio de Prescripción y Farmacia</h3>
+            <ul>
+                <li>Registro y validación de recetas médicas.</li>
+                <li>Consulta de disponibilidad en farmacias interconectadas.</li>
+            </ul>
+        </div>
+
+    </div>
+</section>
+
+<section class="features-section section-padding" id="caracteristicas">
+    <h2>Características por Usuario</h2>
+    <div class="features-container">
+
+        <div class="feature-item">
+            <h3><span role="img" aria-label="emoji-stethoscope">🩺</span> Como Paciente:</h3>
+            <p>Accede de forma segura a tu <strong>historial clínico unificado</strong>, agenda y gestiona tus <strong>citas médicas</strong> con facilidad, y consulta los <strong>resultados de tus exámenes</strong> desde cualquier dispositivo. <strong>Tu salud, bajo tu control.</strong></p>
+        </div>
+
+        <div class="feature-item">
+            <h3><span role="img" aria-label="emoji-doctor">👨‍⚕️</span> Como Médico o Profesional:</h3>
+            <p>Obtén una <strong>vista 360° del historial del paciente</strong> al instante, coordina <strong>agendas</strong> de manera eficiente entre distintas instituciones y agiliza el proceso de <strong>prescripción</strong> con validaciones en línea. <strong>Mejora la calidad y la rapidez de la atención.</strong></p>
+        </div>
+
+    </div>
+</section>
 
 <footer>
     <p>© 2025 VITAL+ | Sistema de Salud Interconectado - Todos los derechos reservados</p>
