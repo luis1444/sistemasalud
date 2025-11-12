@@ -31,8 +31,25 @@ Usuario.init({
         allowNull: true,
         unique: true
     },
+    tipo_identificacion: {
+        type: DataTypes.ENUM('registro_civil', 'tarjeta_identidad', 'cedula', 'cedula_extranjeria', 'pasaporte'),
+        allowNull: true
+    },
+    nombre_padre: {
+        type: DataTypes.STRING(255),
+        allowNull: true,
+        comment: 'Nombre del padre o tutor legal (para menores)'
+    },
     fecha_nacimiento: {
         type: DataTypes.DATEONLY,
+        allowNull: true
+    },
+    pais: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+    },
+    ciudad: {
+        type: DataTypes.STRING(100),
         allowNull: true
     },
     direccion: {

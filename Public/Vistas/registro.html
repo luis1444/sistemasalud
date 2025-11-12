@@ -256,13 +256,18 @@
             box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
         }
 
-        button:hover {
+        button:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 8px 20px rgba(0, 119, 182, 0.4);
         }
 
         button:active {
             transform: translateY(-1px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .volver {
@@ -570,11 +575,11 @@
                 </label>
             </div>
 
-            <button type="submit">Registrarse</button>
+            <button type="submit" id="btnRegistrar">Registrarse</button>
         </form>
 
         <div class="volver">
-            <a href="#">← Volver al inicio</a>
+            <a href="index.html">← Volver al inicio</a>
         </div>
     </div>
 </div>
@@ -599,219 +604,29 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
     const countriesData = [
-        { name: "Afganistán", code: "AF", phone: "93" },
-        { name: "Albania", code: "AL", phone: "355" },
-        { name: "Alemania", code: "DE", phone: "49" },
-        { name: "Andorra", code: "AD", phone: "376" },
-        { name: "Angola", code: "AO", phone: "244" },
-        { name: "Arabia Saudita", code: "SA", phone: "966" },
-        { name: "Argelia", code: "DZ", phone: "213" },
-        { name: "Argentina", code: "AR", phone: "54" },
-        { name: "Armenia", code: "AM", phone: "374" },
-        { name: "Australia", code: "AU", phone: "61" },
-        { name: "Austria", code: "AT", phone: "43" },
-        { name: "Azerbaiyán", code: "AZ", phone: "994" },
-        { name: "Bahamas", code: "BS", phone: "1242" },
-        { name: "Bangladés", code: "BD", phone: "880" },
-        { name: "Barbados", code: "BB", phone: "1246" },
-        { name: "Baréin", code: "BH", phone: "973" },
-        { name: "Bélgica", code: "BE", phone: "32" },
-        { name: "Belice", code: "BZ", phone: "501" },
-        { name: "Benín", code: "BJ", phone: "229" },
-        { name: "Bielorrusia", code: "BY", phone: "375" },
-        { name: "Bolivia", code: "BO", phone: "591" },
-        { name: "Bosnia y Herzegovina", code: "BA", phone: "387" },
-        { name: "Botsuana", code: "BW", phone: "267" },
-        { name: "Brasil", code: "BR", phone: "55" },
-        { name: "Brunéi", code: "BN", phone: "673" },
-        { name: "Bulgaria", code: "BG", phone: "359" },
-        { name: "Burkina Faso", code: "BF", phone: "226" },
-        { name: "Burundi", code: "BI", phone: "257" },
-        { name: "Bután", code: "BT", phone: "975" },
-        { name: "Cabo Verde", code: "CV", phone: "238" },
-        { name: "Camboya", code: "KH", phone: "855" },
-        { name: "Camerún", code: "CM", phone: "237" },
-        { name: "Canadá", code: "CA", phone: "1" },
-        { name: "Catar", code: "QA", phone: "974" },
-        { name: "Chad", code: "TD", phone: "235" },
-        { name: "Chile", code: "CL", phone: "56" },
-        { name: "China", code: "CN", phone: "86" },
-        { name: "Chipre", code: "CY", phone: "357" },
         { name: "Colombia", code: "CO", phone: "57" },
-        { name: "Comoras", code: "KM", phone: "269" },
-        { name: "Corea del Norte", code: "KP", phone: "850" },
-        { name: "Corea del Sur", code: "KR", phone: "82" },
-        { name: "Costa de Marfil", code: "CI", phone: "225" },
-        { name: "Costa Rica", code: "CR", phone: "506" },
-        { name: "Croacia", code: "HR", phone: "385" },
-        { name: "Cuba", code: "CU", phone: "53" },
-        { name: "Dinamarca", code: "DK", phone: "45" },
-        { name: "Dominica", code: "DM", phone: "1767" },
+        { name: "Argentina", code: "AR", phone: "54" },
+        { name: "Brasil", code: "BR", phone: "55" },
+        { name: "Chile", code: "CL", phone: "56" },
         { name: "Ecuador", code: "EC", phone: "593" },
-        { name: "Egipto", code: "EG", phone: "20" },
-        { name: "El Salvador", code: "SV", phone: "503" },
-        { name: "Emiratos Árabes Unidos", code: "AE", phone: "971" },
-        { name: "Eritrea", code: "ER", phone: "291" },
-        { name: "Eslovaquia", code: "SK", phone: "421" },
-        { name: "Eslovenia", code: "SI", phone: "386" },
         { name: "España", code: "ES", phone: "34" },
         { name: "Estados Unidos", code: "US", phone: "1" },
-        { name: "Estonia", code: "EE", phone: "372" },
-        { name: "Etiopía", code: "ET", phone: "251" },
-        { name: "Filipinas", code: "PH", phone: "63" },
-        { name: "Finlandia", code: "FI", phone: "358" },
-        { name: "Fiyi", code: "FJ", phone: "679" },
-        { name: "Francia", code: "FR", phone: "33" },
-        { name: "Gabón", code: "GA", phone: "241" },
-        { name: "Gambia", code: "GM", phone: "220" },
-        { name: "Georgia", code: "GE", phone: "995" },
-        { name: "Ghana", code: "GH", phone: "233" },
-        { name: "Granada", code: "GD", phone: "1473" },
-        { name: "Grecia", code: "GR", phone: "30" },
-        { name: "Guatemala", code: "GT", phone: "502" },
-        { name: "Guinea", code: "GN", phone: "224" },
-        { name: "Guinea Ecuatorial", code: "GQ", phone: "240" },
-        { name: "Guinea-Bisáu", code: "GW", phone: "245" },
-        { name: "Guyana", code: "GY", phone: "592" },
-        { name: "Haití", code: "HT", phone: "509" },
-        { name: "Honduras", code: "HN", phone: "504" },
-        { name: "Hungría", code: "HU", phone: "36" },
-        { name: "India", code: "IN", phone: "91" },
-        { name: "Indonesia", code: "ID", phone: "62" },
-        { name: "Irak", code: "IQ", phone: "964" },
-        { name: "Irán", code: "IR", phone: "98" },
-        { name: "Irlanda", code: "IE", phone: "353" },
-        { name: "Islandia", code: "IS", phone: "354" },
-        { name: "Israel", code: "IL", phone: "972" },
-        { name: "Italia", code: "IT", phone: "39" },
-        { name: "Jamaica", code: "JM", phone: "1876" },
-        { name: "Japón", code: "JP", phone: "81" },
-        { name: "Jordania", code: "JO", phone: "962" },
-        { name: "Kazajistán", code: "KZ", phone: "7" },
-        { name: "Kenia", code: "KE", phone: "254" },
-        { name: "Kirguistán", code: "KG", phone: "996" },
-        { name: "Kiribati", code: "KI", phone: "686" },
-        { name: "Kuwait", code: "KW", phone: "965" },
-        { name: "Laos", code: "LA", phone: "856" },
-        { name: "Lesoto", code: "LS", phone: "266" },
-        { name: "Letonia", code: "LV", phone: "371" },
-        { name: "Líbano", code: "LB", phone: "961" },
-        { name: "Liberia", code: "LR", phone: "231" },
-        { name: "Libia", code: "LY", phone: "218" },
-        { name: "Liechtenstein", code: "LI", phone: "423" },
-        { name: "Lituania", code: "LT", phone: "370" },
-        { name: "Luxemburgo", code: "LU", phone: "352" },
-        { name: "Madagascar", code: "MG", phone: "261" },
-        { name: "Malasia", code: "MY", phone: "60" },
-        { name: "Malaui", code: "MW", phone: "265" },
-        { name: "Maldivas", code: "MV", phone: "960" },
-        { name: "Malí", code: "ML", phone: "223" },
-        { name: "Malta", code: "MT", phone: "356" },
-        { name: "Marruecos", code: "MA", phone: "212" },
-        { name: "Mauricio", code: "MU", phone: "230" },
-        { name: "Mauritania", code: "MR", phone: "222" },
         { name: "México", code: "MX", phone: "52" },
-        { name: "Micronesia", code: "FM", phone: "691" },
-        { name: "Moldavia", code: "MD", phone: "373" },
-        { name: "Mónaco", code: "MC", phone: "377" },
-        { name: "Mongolia", code: "MN", phone: "976" },
-        { name: "Montenegro", code: "ME", phone: "382" },
-        { name: "Mozambique", code: "MZ", phone: "258" },
-        { name: "Namibia", code: "NA", phone: "264" },
-        { name: "Nauru", code: "NR", phone: "674" },
-        { name: "Nepal", code: "NP", phone: "977" },
-        { name: "Nicaragua", code: "NI", phone: "505" },
-        { name: "Níger", code: "NE", phone: "227" },
-        { name: "Nigeria", code: "NG", phone: "234" },
-        { name: "Noruega", code: "NO", phone: "47" },
-        { name: "Nueva Zelanda", code: "NZ", phone: "64" },
-        { name: "Omán", code: "OM", phone: "968" },
-        { name: "Países Bajos", code: "NL", phone: "31" },
-        { name: "Pakistán", code: "PK", phone: "92" },
-        { name: "Palaos", code: "PW", phone: "680" },
-        { name: "Panamá", code: "PA", phone: "507" },
-        { name: "Papúa Nueva Guinea", code: "PG", phone: "675" },
-        { name: "Paraguay", code: "PY", phone: "595" },
         { name: "Perú", code: "PE", phone: "51" },
-        { name: "Polonia", code: "PL", phone: "48" },
-        { name: "Portugal", code: "PT", phone: "351" },
-        { name: "Puerto Rico", code: "PR", phone: "1" },
-        { name: "Reino Unido", code: "GB", phone: "44" },
-        { name: "República Centroafricana", code: "CF", phone: "236" },
-        { name: "República Checa", code: "CZ", phone: "420" },
-        { name: "República del Congo", code: "CG", phone: "242" },
-        { name: "República Democrática del Congo", code: "CD", phone: "243" },
-        { name: "República Dominicana", code: "DO", phone: "1" },
-        { name: "Ruanda", code: "RW", phone: "250" },
-        { name: "Rumanía", code: "RO", phone: "40" },
-        { name: "Rusia", code: "RU", phone: "7" },
-        { name: "Samoa", code: "WS", phone: "685" },
-        { name: "San Cristóbal y Nieves", code: "KN", phone: "1869" },
-        { name: "San Marino", code: "SM", phone: "378" },
-        { name: "San Vicente y las Granadinas", code: "VC", phone: "1784" },
-        { name: "Santa Lucía", code: "LC", phone: "1758" },
-        { name: "Santo Tomé y Príncipe", code: "ST", phone: "239" },
-        { name: "Senegal", code: "SN", phone: "221" },
-        { name: "Serbia", code: "RS", phone: "381" },
-        { name: "Seychelles", code: "SC", phone: "248" },
-        { name: "Sierra Leona", code: "SL", phone: "232" },
-        { name: "Singapur", code: "SG", phone: "65" },
-        { name: "Siria", code: "SY", phone: "963" },
-        { name: "Somalia", code: "SO", phone: "252" },
-        { name: "Sri Lanka", code: "LK", phone: "94" },
-        { name: "Suazilandia", code: "SZ", phone: "268" },
-        { name: "Sudáfrica", code: "ZA", phone: "27" },
-        { name: "Sudán", code: "SD", phone: "249" },
-        { name: "Sudán del Sur", code: "SS", phone: "211" },
-        { name: "Suecia", code: "SE", phone: "46" },
-        { name: "Suiza", code: "CH", phone: "41" },
-        { name: "Surinam", code: "SR", phone: "597" },
-        { name: "Tailandia", code: "TH", phone: "66" },
-        { name: "Tanzania", code: "TZ", phone: "255" },
-        { name: "Tayikistán", code: "TJ", phone: "992" },
-        { name: "Timor Oriental", code: "TL", phone: "670" },
-        { name: "Togo", code: "TG", phone: "228" },
-        { name: "Tonga", code: "TO", phone: "676" },
-        { name: "Trinidad y Tobago", code: "TT", phone: "1868" },
-        { name: "Túnez", code: "TN", phone: "216" },
-        { name: "Turkmenistán", code: "TM", phone: "993" },
-        { name: "Turquía", code: "TR", phone: "90" },
-        { name: "Tuvalu", code: "TV", phone: "688" },
-        { name: "Ucrania", code: "UA", phone: "380" },
-        { name: "Uganda", code: "UG", phone: "256" },
-        { name: "Uruguay", code: "UY", phone: "598" },
-        { name: "Uzbekistán", code: "UZ", phone: "998" },
-        { name: "Vanuatu", code: "VU", phone: "678" },
-        { name: "Vaticano", code: "VA", phone: "379" },
-        { name: "Venezuela", code: "VE", phone: "58" },
-        { name: "Vietnam", code: "VN", phone: "84" },
-        { name: "Yemen", code: "YE", phone: "967" },
-        { name: "Yibuti", code: "DJ", phone: "253" },
-        { name: "Zambia", code: "ZM", phone: "260" },
-        { name: "Zimbabue", code: "ZW", phone: "263" }
+        { name: "Venezuela", code: "VE", phone: "58" }
     ];
 
     function getFlagEmoji(countryCode) {
-        const codePoints = countryCode
+        return countryCode
             .toUpperCase()
             .split('')
-            .map(char => 127397 + char.charCodeAt());
-        return String.fromCodePoint(...codePoints);
+            .map(char => String.fromCodePoint(127397 + char.charCodeAt()))
+            .join('');
     }
 
     const countrySelect = document.getElementById("prefijoPais");
-
-    function getFlagEmoji(countryCode) {
-        // Convierte código ISO (ej. "CO") en emoji 🇨🇴
-        return countryCode
-            .toUpperCase()
-            .replace(/./g, char => String.fromCodePoint(127397 + char.charCodeAt()));
-    }
-
-    // Llenar el select con bandera + prefijo
     countriesData.forEach(country => {
         const option = document.createElement("option");
         const flag = getFlagEmoji(country.code);
@@ -820,15 +635,14 @@
         countrySelect.appendChild(option);
     });
 
+    // Seleccionar Colombia por defecto
+    countrySelect.value = "57";
+
     const panelDerecho = document.getElementById('panelDerecho');
     const scrollIndicator = document.getElementById('scrollIndicator');
 
     panelDerecho.addEventListener('scroll', function() {
-        if (this.scrollTop > 100) {
-            scrollIndicator.classList.add('hidden');
-        } else {
-            scrollIndicator.classList.remove('hidden');
-        }
+        scrollIndicator.classList.toggle('hidden', this.scrollTop > 100);
     });
 
     const abrirModal = document.getElementById('abrirModal');
@@ -855,14 +669,10 @@
     const nombrePadre = document.getElementById('nombrePadre');
 
     tipoIdentificacion.addEventListener('change', function() {
-        if (this.value === 'registro_civil' || this.value === 'tarjeta_identidad') {
-            verificacionPadre.style.display = 'block';
-            nombrePadre.setAttribute('required', 'required');
-        } else {
-            verificacionPadre.style.display = 'none';
-            nombrePadre.removeAttribute('required');
-            nombrePadre.value = '';
-        }
+        const requiereTutor = ['registro_civil', 'tarjeta_identidad'].includes(this.value);
+        verificacionPadre.style.display = requiereTutor ? 'block' : 'none';
+        nombrePadre.toggleAttribute('required', requiereTutor);
+        if (!requiereTutor) nombrePadre.value = '';
     });
 
     const prefijoPais = document.getElementById('prefijoPais');
@@ -872,14 +682,10 @@
     telefono.addEventListener('input', function() {
         this.value = this.value.replace(/\D/g, '');
 
-        if (prefijoPais.value === '+57') {
-            if (this.value.length !== 10 && this.value.length > 0) {
-                telefonoError.style.display = 'block';
-                this.setCustomValidity('Debe ingresar 10 dígitos para Colombia');
-            } else {
-                telefonoError.style.display = 'none';
-                this.setCustomValidity('');
-            }
+        if (prefijoPais.value === '57') {
+            const valido = this.value.length === 0 || this.value.length === 10;
+            telefonoError.style.display = valido ? 'none' : 'block';
+            this.setCustomValidity(valido ? '' : 'Debe ingresar 10 dígitos para Colombia');
         } else {
             telefonoError.style.display = 'none';
             this.setCustomValidity('');
@@ -897,13 +703,9 @@
     const correoError = document.getElementById('correoError');
 
     function validarCorreos() {
-        if (confirmarCorreo.value && correo.value !== confirmarCorreo.value) {
-            correoError.style.display = 'block';
-            confirmarCorreo.setCustomValidity('Los correos no coinciden');
-        } else {
-            correoError.style.display = 'none';
-            confirmarCorreo.setCustomValidity('');
-        }
+        const coinciden = !confirmarCorreo.value || correo.value === confirmarCorreo.value;
+        correoError.style.display = coinciden ? 'none' : 'block';
+        confirmarCorreo.setCustomValidity(coinciden ? '' : 'Los correos no coinciden');
     }
 
     correo.addEventListener('input', validarCorreos);
@@ -914,65 +716,129 @@
     const contrasenaError = document.getElementById('contrasenaError');
 
     function validarContrasenas() {
-        if (confirmarContrasena.value && contrasena.value !== confirmarContrasena.value) {
-            contrasenaError.style.display = 'block';
-            confirmarContrasena.setCustomValidity('Las contraseñas no coinciden');
-        } else {
-            contrasenaError.style.display = 'none';
-            confirmarContrasena.setCustomValidity('');
-        }
+        const coinciden = !confirmarContrasena.value || contrasena.value === confirmarContrasena.value;
+        contrasenaError.style.display = coinciden ? 'none' : 'block';
+        confirmarContrasena.setCustomValidity(coinciden ? '' : 'Las contraseñas no coinciden');
     }
 
     contrasena.addEventListener('input', validarContrasenas);
     confirmarContrasena.addEventListener('input', validarContrasenas);
 
-    document.getElementById('formRegistro').addEventListener('submit', function(e) {
+    // FUNCIÓN PRINCIPAL DE REGISTRO
+    document.getElementById('formRegistro').addEventListener('submit', async function(e) {
         e.preventDefault();
 
-        const terminos = document.getElementById('terminos');
-        if (!terminos.checked) {
-            Swal.fire({
+        // Validaciones finales
+        if (!document.getElementById('terminos').checked) {
+            return Swal.fire({
                 icon: 'warning',
-                title: 'Debe aceptar los términos y condiciones',
+                title: 'Términos y condiciones',
+                text: 'Debe aceptar los términos y condiciones',
                 confirmButtonColor: '#0077b6'
             });
-            return;
         }
 
         if (contrasena.value !== confirmarContrasena.value) {
-            Swal.fire({
+            return Swal.fire({
                 icon: 'error',
                 title: 'Las contraseñas no coinciden',
                 confirmButtonColor: '#0077b6'
             });
-            return;
         }
 
         if (correo.value !== confirmarCorreo.value) {
-            Swal.fire({
+            return Swal.fire({
                 icon: 'error',
                 title: 'Los correos no coinciden',
                 confirmButtonColor: '#0077b6'
             });
-            return;
         }
 
-        if (prefijoPais.value === '+57' && telefono.value.length !== 10) {
-            Swal.fire({
+        if (prefijoPais.value === '57' && telefono.value.length !== 10) {
+            return Swal.fire({
                 icon: 'error',
                 title: 'Teléfono inválido',
                 text: 'Para Colombia debe ingresar 10 dígitos',
                 confirmButtonColor: '#0077b6'
             });
-            return;
         }
 
-        Swal.fire({
-            icon: 'success',
-            title: 'Registro exitoso',
-            text: 'Tu cuenta ha sido creada correctamente',
-            confirmButtonColor: '#0077b6'
-        });
+        // Construir nombre completo
+        const nombreCompleto = [
+            document.getElementById('primerNombre').value.trim(),
+            document.getElementById('segundoNombre').value.trim(),
+            document.getElementById('primerApellido').value.trim(),
+            document.getElementById('segundoApellido').value.trim()
+        ].filter(Boolean).join(' ');
+
+        // Construir teléfono con prefijo
+        const telefonoCompleto = `+${prefijoPais.value}${telefono.value}`;
+
+        // Construir objeto de datos
+        const datosRegistro = {
+            correo: correo.value.trim(),
+            contrasena: contrasena.value,
+            rol: document.getElementById('rol').value,
+            nombre: nombreCompleto,
+            identificacion: document.getElementById('identificacion').value.trim(),
+            tipoIdentificacion: document.getElementById('tipoIdentificacion').value,
+            fechaNacimiento: document.getElementById('fechaNacimiento').value,
+            direccion: document.getElementById('direccion').value.trim(),
+            telefono: telefonoCompleto,
+            pais: document.getElementById('pais').value,
+            ciudad: document.getElementById('ciudad').value.trim()
+        };
+
+        // Agregar nombrePadre solo si aplica
+        if (verificacionPadre.style.display !== 'none' && nombrePadre.value.trim()) {
+            datosRegistro.nombrePadre = nombrePadre.value.trim();
+        }
+
+        const btnRegistrar = document.getElementById('btnRegistrar');
+        btnRegistrar.disabled = true;
+        btnRegistrar.textContent = 'Registrando...';
+
+        try {
+            const respuesta = await fetch('http://localhost:3000/api/usuarios/registro', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(datosRegistro)
+            });
+
+            const resultado = await respuesta.json();
+
+            if (respuesta.ok && resultado.exito) {
+                await Swal.fire({
+                    icon: 'success',
+                    title: '¡Registro exitoso!',
+                    text: 'Tu cuenta ha sido creada correctamente',
+                    confirmButtonColor: '#0077b6'
+                });
+
+                // Redirigir al login o limpiar formulario
+                window.location.href = 'login.html';
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error en el registro',
+                    text: resultado.mensaje || 'No se pudo completar el registro',
+                    confirmButtonColor: '#0077b6'
+                });
+            }
+        } catch (error) {
+            console.error('Error al registrar:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error de conexión',
+                text: 'No se pudo conectar con el servidor. Verifica tu conexión e intenta nuevamente.',
+                confirmButtonColor: '#0077b6'
+            });
+        } finally {
+            btnRegistrar.disabled = false;
+            btnRegistrar.textContent = 'Registrarse';
+        }
     });
 </script>
 

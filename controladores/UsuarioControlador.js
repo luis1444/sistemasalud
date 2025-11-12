@@ -10,7 +10,20 @@ class UsuarioControlador {
     // ============================================
     async registrar(req, res) {
         try {
-            const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = req.body;
+            const {
+                correo,
+                contrasena,
+                rol,
+                nombre,
+                identificacion,
+                tipoIdentificacion,
+                fechaNacimiento,
+                direccion,
+                telefono,
+                pais,
+                ciudad,
+                nombrePadre
+            } = req.body;
 
             if (!correo || !contrasena) {
                 return res.status(400).json({
@@ -25,9 +38,13 @@ class UsuarioControlador {
                 rol,
                 nombre,
                 identificacion,
+                tipoIdentificacion,
                 fechaNacimiento,
                 direccion,
-                telefono
+                telefono,
+                pais,
+                ciudad,
+                nombrePadre
             });
 
             res.status(201).json({
@@ -40,7 +57,6 @@ class UsuarioControlador {
             res.status(400).json({ exito: false, mensaje: error.message });
         }
     }
-
     // ============================================
     // INICIO DE SESIÓN
     // ============================================

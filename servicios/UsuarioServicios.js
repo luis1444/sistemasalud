@@ -68,7 +68,20 @@ class UsuarioServicio {
     // 🧍 REGISTRAR PACIENTE / ADMIN
     // ============================================
     async registrar(datos) {
-        const { correo, contrasena, rol, nombre, identificacion, fechaNacimiento, direccion, telefono } = datos;
+        const {
+            correo,
+            contrasena,
+            rol,
+            nombre,
+            identificacion,
+            tipoIdentificacion,  // ✅ NUEVO
+            fechaNacimiento,
+            direccion,
+            telefono,
+            pais,                // ✅ NUEVO
+            ciudad,              // ✅ NUEVO
+            nombrePadre          // ✅ NUEVO (opcional)
+        } = datos;
 
         let rolFinal = rol || 'paciente';
         if (rolFinal === 'administrador') rolFinal = 'admin';
@@ -91,9 +104,13 @@ class UsuarioServicio {
             rol: rolFinal,
             nombre: nombre || null,
             identificacion: identificacion || null,
+            tipo_identificacion: tipoIdentificacion || null,
             fecha_nacimiento: fechaNacimiento || null,
             direccion: direccion || null,
             telefono: telefono || null,
+            pais: pais || null,
+            ciudad: ciudad || null,
+            nombre_padre: nombrePadre || null,
             activo: true
         });
 
@@ -107,7 +124,6 @@ class UsuarioServicio {
 
         return { usuario: nuevoUsuario, token };
     }
-
     // ============================================
     // 🏥 CREAR PERSONAL (MÉDICO, LAB, FARMACIA)
     // ============================================
