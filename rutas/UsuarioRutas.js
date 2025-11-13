@@ -88,4 +88,40 @@ router.post(
     usuarioControlador.activarUsuario
 );
 
+// GET /api/usuarios/buscar-identificacion/:identificacion
+router.get('/buscar-identificacion/:identificacion',
+    authMiddleware.verificarToken,
+    authMiddleware.verificarRol(['doctor', 'admin']), // Solo doctores y admins pueden buscar
+    async (req, res) => {
+        try {
+            const { identificacion } = req.params;
+
+            // Buscar en el repositorio de usuarios
+            const usuario = await Usuario.findOne({
+                where: {
+                    identificacion: identificacion,
+                    rol: 'paciente' // Solo buscar pacientes
+                },
+                attributes: ['id', 'nombre', 'correo', 'telefono', 'identificacion', 'fecha_nacimiento', 'genero']
+            });
+
+            if (!usuario) {
+                return res.status(404).json({
+                    exito: false,
+                    mensaje: 'Paciente no encontrado con ese número de identificación'
+                });
+            }
+
+            res.status(200).json(usuario);
+        } catch (error) {
+            console.error('❌ Error al buscar usuario por identificación:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al buscar el paciente',
+                error: error.message
+            });
+        }
+    }
+);
+
 module.exports = router;

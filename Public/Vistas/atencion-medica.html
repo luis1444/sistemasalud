@@ -493,6 +493,17 @@
             <span>⏳ Programada</span>
         </div>
     </div>
+    <div class="panel" style="margin-top: 20px;">
+        <div class="panel-titulo">⚡ Acciones</div>
+        <div class="acciones-principales">
+            <button class="btn btn-success" onclick="iniciarCita()" id="btnIniciarCita">
+                ▶️ Iniciar Cita
+            </button>
+            <button class="btn btn-primary" onclick="finalizarCita()" id="btnFinalizarCita" style="display: none;">
+                ✅ Finalizar Cita
+            </button>
+        </div>
+
 
     <div class="grid-atencion">
         <div>
@@ -621,26 +632,63 @@
         </div>
 
         <div>
-            <div class="panel">
-                <div class="panel-titulo">📚 Historial Médico Reciente</div>
-                <div id="historialReciente">
-                    <div class="lista-vacia">
-                        <span>📋</span>
-                        <p>Cargando historial...</p>
-                    </div>
+            <div id="historialReciente">
+                <div class="lista-vacia">
+                    <span>📋</span>
+                    <p>Cargando historial...</p>
                 </div>
             </div>
 
-            <div class="panel" style="margin-top: 20px;">
-                <div class="panel-titulo">⚡ Acciones</div>
-                <div class="acciones-principales">
-                    <button class="btn btn-success" onclick="iniciarCita()" id="btnIniciarCita">
-                        ▶️ Iniciar Cita
-                    </button>
-                    <button class="btn btn-primary" onclick="finalizarCita()" id="btnFinalizarCita" style="display: none;">
-                        ✅ Finalizar Cita
-                    </button>
+            <script>
+                async function cargarHistorialMedico(idPaciente) {
+                    const contenedor = document.getElementById('historialReciente');
+                    contenedor.innerHTML = `
+        <div class="lista-vacia">
+            <span>📋</span>
+            <p>Cargando historial...</p>
+        </div>
+    `;
+
+                    try {
+                        const token = localStorage.getItem('token');
+                        const resp = await fetch(`/api/anotaciones/paciente/${idPaciente}`, {
+                            headers: { Authorization: `Bearer ${token}` }
+                        });
+                        const data = await resp.json();
+
+                        if (!data.exito || !data.datos || data.datos.length === 0) {
+                            contenedor.innerHTML = `
+                <div class="lista-vacia">
+                    <span>📋</span>
+                    <p>No hay anotaciones médicas recientes.</p>
                 </div>
+            `;
+                            return;
+                        }
+
+                        contenedor.innerHTML = data.datos.map(anot => `
+            <div class="item-historial">
+                <div class="fecha">${new Date(anot.fecha).toLocaleDateString()}</div>
+                <div class="contenido">
+                    <strong>${anot.diagnostico || 'Sin diagnóstico'}</strong><br>
+                    <em>${anot.observaciones || ''}</em>
+                </div>
+            </div>
+        `).join('');
+
+                    } catch (err) {
+                        console.error('Error cargando historial:', err);
+                        contenedor.innerHTML = `
+            <div class="lista-vacia">
+                <span>⚠️</span>
+                <p>Error al cargar el historial.</p>
+            </div>
+        `;
+                    }
+                }
+            </script>
+
+        </div>
             </div>
         </div>
     </div>
