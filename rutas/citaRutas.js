@@ -5,6 +5,7 @@ const express = require('express');
 const router = express.Router();
 const citaControlador = require('../controladores/CitaControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
+const citaServicio = require('../servicios/CitaServicio'); // ✅ Importar servicio para iniciar/finalizar citas
 
 // ============================================
 //  RUTAS DE CITAS
@@ -70,6 +71,43 @@ router.put('/:idCita/completar',
 router.put('/:idCita/notas',
     authMiddleware.verificarToken,
     citaControlador.actualizarNotas
+);
+
+// ============================================
+// ✅ NUEVAS RUTAS DE ATENCIÓN MÉDICA
+// ============================================
+
+// Iniciar una cita (estado = 'en-curso')
+// PUT /api/citas/:idCita/iniciar
+router.put('/:idCita/iniciar',
+    authMiddleware.verificarToken,
+    async (req, res) => {
+        try {
+            const { idCita } = req.params;
+            await citaServicio.iniciarCita(idCita);
+            res.status(200).json({ mensaje: 'Cita iniciada correctamente' });
+        } catch (error) {
+            console.error('❌ Error en PUT /api/citas/:idCita/iniciar:', error);
+            res.status(400).json({ mensaje: error.message || 'Error al iniciar la cita' });
+        }
+    }
+);
+
+// Finalizar una cita (estado = 'completada')
+// PUT /api/citas/:idCita/finalizar
+router.put('/:idCita/finalizar',
+    authMiddleware.verificarToken,
+    async (req, res) => {
+        try {
+            const { idCita } = req.params;
+            const { notas } = req.body || {}; // Permite enviar notas opcionalmente
+            await citaServicio.completarCita(idCita, notas);
+            res.status(200).json({ mensaje: 'Cita finalizada correctamente' });
+        } catch (error) {
+            console.error('❌ Error en PUT /api/citas/:idCita/finalizar:', error);
+            res.status(400).json({ mensaje: error.message || 'Error desconocido al finalizar la cita' });
+        }
+    }
 );
 
 module.exports = router;

@@ -202,9 +202,79 @@
             </form>
         </div>
     </div>
+    <!-- SECCIÓN LISTAR -->
+    <div id="section-listar" class="content-section">
+        <div class="lista-personal">
+            <h3 style="color: #0077b6; margin-bottom: 20px;">Personal Registrado</h3>
 
-    <!-- SECCIÓN LISTAR Y ESTADÍSTICAS -->
-    <!-- (Se mantiene igual, sin cambios) -->
+            <div class="filtros">
+                <select id="filtroRol" onchange="cargarPersonal()">
+                    <option value="">Todos los roles</option>
+                    <option value="doctor">Médicos</option>
+                    <option value="laboratorio">Laboratoristas</option>
+                    <option value="farmacia">Farmacéuticos</option>
+                </select>
+
+                <select id="filtroEstado" onchange="cargarPersonal()">
+                    <option value="">Todos los estados</option>
+                    <option value="true">Activos</option>
+                    <option value="false">Inactivos</option>
+                </select>
+
+                <input type="text" id="buscarPersonal" placeholder="Buscar por nombre o identificación..." onkeyup="buscarEnTabla()">
+            </div>
+
+            <div class="tabla-wrapper">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Identificación</th>
+                        <th>Rol</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                        <th>Especialidad/Área</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablaPersonal">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 40px;">
+                            Cargando personal...
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN ESTADÍSTICAS -->
+    <div id="section-estadisticas" class="content-section">
+        <div class="lista-personal">
+            <h3 style="color: #0077b6; margin-bottom: 20px;">Estadísticas del Personal</h3>
+
+            <div class="stats-mini">
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="totalMedicos">0</div>
+                    <div class="stat-mini-label">Médicos</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="totalLaboratoristas">0</div>
+                    <div class="stat-mini-label">Laboratoristas</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="totalFarmaceuticos">0</div>
+                    <div class="stat-mini-label">Farmacéuticos</div>
+                </div>
+                <div class="stat-mini">
+                    <div class="stat-mini-number" id="totalActivos">0</div>
+                    <div class="stat-mini-label">Personal Activo</div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Scripts -->
