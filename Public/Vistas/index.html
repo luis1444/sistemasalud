@@ -16,6 +16,11 @@
             flex-direction: column;
         }
 
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
         /* NAVBAR */
         .navbar {
             display: flex;
@@ -247,13 +252,13 @@
             text-align: left;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border-left: 5px solid #0077b6;
-            height: 100%; /* Asegura que todas tengan la misma altura */
+            height: 100%;
             display: flex;
             flex-direction: column;
         }
 
         .services-section .service-card {
-            background: #ffffff; /* Las tarjetas de servicios son blancas */
+            background: #ffffff;
         }
 
         .service-card:hover {
@@ -272,7 +277,7 @@
         .service-card ul {
             list-style: none;
             padding-left: 0;
-            margin-top: auto; /* Empuja la lista hacia abajo */
+            margin-top: auto;
         }
 
         .service-card ul li {
@@ -291,7 +296,7 @@
             font-size: 1.1em;
         }
 
-        /* Features Container (Similar a services pero con diseño diferente) */
+        /* Features Container */
         .features-container {
             display: flex;
             gap: 40px;
@@ -328,6 +333,170 @@
             color: #5a6c7d;
             font-size: 1.1em;
             line-height: 1.6;
+        }
+
+        /* NOSOTROS SECTION */
+        .nosotros-section {
+            background: linear-gradient(135deg, #ffffff 0%, #f0f8ff 100%);
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .nosotros-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: left;
+        }
+
+        .nosotros-intro {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.08);
+            margin-bottom: 40px;
+            border-left: 5px solid #0077b6;
+        }
+
+        .nosotros-intro h3 {
+            font-size: 1.8em;
+            color: #0077b6;
+            margin-bottom: 20px;
+        }
+
+        .nosotros-intro p {
+            color: #5a6c7d;
+            font-size: 1.15em;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .valores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .valor-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.08);
+            transition: all 0.3s ease;
+            border-top: 4px solid #00b4d8;
+        }
+
+        .valor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 119, 182, 0.15);
+        }
+
+        .valor-card h4 {
+            font-size: 1.4em;
+            color: #0077b6;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .valor-card h4 span {
+            font-size: 1.5em;
+        }
+
+        .valor-card p {
+            color: #5a6c7d;
+            line-height: 1.6;
+        }
+
+        /* BLOG SECTION */
+        .blog-section {
+            background: #ffffff;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .blog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .blog-card {
+            background: linear-gradient(135deg, #f0f8ff 0%, #ffffff 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 119, 182, 0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 15px 45px rgba(0, 119, 182, 0.2);
+        }
+
+        .blog-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 3px solid #00b4d8;
+        }
+
+        .blog-content {
+            padding: 25px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .blog-date {
+            color: #00b4d8;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .blog-card h3 {
+            font-size: 1.5em;
+            color: #0077b6;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        .blog-card p {
+            color: #5a6c7d;
+            line-height: 1.7;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .blog-link {
+            display: inline-block;
+            color: #0077b6;
+            font-weight: 600;
+            text-decoration: none;
+            padding: 10px 0;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .blog-link:hover {
+            border-bottom: 2px solid #0077b6;
+        }
+
+        .blog-link::after {
+            content: ' →';
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+
+        .blog-link:hover::after {
+            transform: translateX(5px);
         }
 
         /* FOOTER */
@@ -374,31 +543,28 @@
 
 <body>
 <header class="navbar">
-    <div class="logo" onclick="window.location.href='index.html'">
+    <div class="logo" onclick="window.location.href='#inicio'">
         <img src="images/logo.png" alt="VITAL+ Logo"
              onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
         <h1>VITAL+</h1>
     </div>
     <nav>
-        <a href="/Vistas/index.html">Inicio</a>
-        <a href="nosotros">Nosotros</a>
+        <a href="#inicio">Inicio</a>
+        <a href="#nosotros">Nosotros</a>
         <a href="#servicios">Servicios</a>
         <a href="#caracteristicas">Características</a>
-        <a href="blog">Blog</a>
-
+        <a href="#blog">Blog</a>
     </nav>
     <div class="actions">
         <button class="btn-secondary" onclick="window.location.href='/Vistas/registro.html'">Registrarse</button>
         <button class="btn-primary" onclick="window.location.href='/login.html'">Iniciar Sesión</button>
-
     </div>
 </header>
 
-<main class="hero">
+<main class="hero" id="inicio">
     <div class="hero-text">
         <h2>Conectando la <span>Salud</span>, Unificando tu <span>Historial</span></h2>
         <p>VITAL+ es la plataforma segura que revoluciona la gestión de la salud al unificar la información médica y administrativa. <strong>Acceso, control y eficiencia en tiempo real</strong> para pacientes y profesionales.</p>
-
     </div>
 
     <div class="hero-image">
@@ -406,6 +572,58 @@
              alt="Profesional médico consultando datos">
     </div>
 </main>
+
+<section class="nosotros-section section-padding" id="nosotros">
+    <h2>Sobre Nosotros</h2>
+    <div class="nosotros-content">
+
+        <div class="nosotros-intro">
+            <h3>Nuestra Misión</h3>
+            <p>En <strong>VITAL+</strong>, trabajamos por transformar la gestión de la salud en Colombia mediante la implementación de un sistema integrado e interoperable que conecta a pacientes, profesionales de la salud e instituciones médicas en un ecosistema digital seguro y eficiente.</p>
+
+            <p>Creemos que cada persona tiene derecho a acceder de manera sencilla a su información médica completa, sin importar dónde haya recibido atención. Por eso, hemos desarrollado una plataforma que elimina las barreras entre instituciones y facilita la continuidad de la atención médica.</p>
+
+            <p>Nuestro compromiso es con la <strong>innovación tecnológica</strong>, la <strong>seguridad de datos</strong> y el <strong>bienestar de las personas</strong>, posicionándonos como líderes en la digitalización del sector salud.</p>
+        </div>
+
+        <h3 style="text-align: center; color: #0077b6; margin-bottom: 30px; font-size: 2em;">Nuestros Valores</h3>
+
+        <div class="valores-grid">
+
+            <div class="valor-card">
+                <h4><span>🔒</span> Seguridad</h4>
+                <p>Protegemos la privacidad de tu información médica con los más altos estándares de ciberseguridad y cumplimiento normativo. Tu confianza es nuestra prioridad.</p>
+            </div>
+
+            <div class="valor-card">
+                <h4><span>🤝</span> Interoperabilidad</h4>
+                <p>Conectamos sistemas diversos para que la información fluya sin obstáculos entre hospitales, clínicas, laboratorios y farmacias, mejorando la calidad de atención.</p>
+            </div>
+
+            <div class="valor-card">
+                <h4><span>💡</span> Innovación</h4>
+                <p>Adoptamos las últimas tecnologías en salud digital para ofrecer soluciones modernas, intuitivas y escalables que anticipan las necesidades del sector.</p>
+            </div>
+
+            <div class="valor-card">
+                <h4><span>👥</span> Enfoque Humano</h4>
+                <p>Diseñamos cada funcionalidad pensando en las personas: pacientes que buscan autonomía y profesionales que necesitan herramientas eficientes para salvar vidas.</p>
+            </div>
+
+            <div class="valor-card">
+                <h4><span>⚡</span> Eficiencia</h4>
+                <p>Optimizamos procesos administrativos y clínicos para reducir tiempos de espera, minimizar errores y permitir que los profesionales se enfoquen en lo más importante: cuidar.</p>
+            </div>
+
+            <div class="valor-card">
+                <h4><span>🌎</span> Accesibilidad</h4>
+                <p>Garantizamos que nuestra plataforma sea accesible desde cualquier dispositivo y lugar, democratizando el acceso a servicios de salud de calidad.</p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
 
 <section class="services-section section-padding" id="servicios">
     <h2>Servicios Centrales de VITAL+ (SOA)</h2>
@@ -459,6 +677,73 @@
         <div class="feature-item">
             <h3><span role="img" aria-label="emoji-doctor">👨‍⚕️</span> Como Médico o Profesional:</h3>
             <p>Obtén una <strong>vista 360° del historial del paciente</strong> al instante, coordina <strong>agendas</strong> de manera eficiente entre distintas instituciones y agiliza el proceso de <strong>prescripción</strong> con validaciones en línea. <strong>Mejora la calidad y la rapidez de la atención.</strong></p>
+        </div>
+
+    </div>
+</section>
+
+<section class="blog-section section-padding" id="blog">
+    <h2>Blog y Recursos</h2>
+    <div class="blog-grid">
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Interoperabilidad en salud" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 10 de Noviembre, 2025</div>
+                <h3>¿Qué es la Interoperabilidad en Salud Digital?</h3>
+                <p>La interoperabilidad permite que diferentes sistemas de salud compartan información de forma segura y eficiente. Descubre cómo VITAL+ está liderando esta transformación en Colombia y mejorando la experiencia de pacientes y profesionales.</p>
+            </div>
+        </div>
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Seguridad de datos médicos" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 5 de Noviembre, 2025</div>
+                <h3>Ciberseguridad en Datos Médicos: Tu Salud Está Protegida</h3>
+                <p>Conoce los protocolos de seguridad que implementamos en VITAL+ para garantizar que tu información clínica esté siempre protegida mediante cifrado de extremo a extremo, autenticación multifactor y auditorías constantes.</p>
+            </div>
+        </div>
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/8460157/pexels-photo-8460157.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Ventajas del historial clínico electrónico" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 28 de Octubre, 2025</div>
+                <h3>5 Ventajas del Historial Clínico Electrónico Unificado</h3>
+                <p>Un historial clínico unificado reduce errores médicos, acelera diagnósticos y empodera a los pacientes. Exploramos cómo esta innovación está cambiando el panorama de la atención médica en el país.</p>
+            </div>
+        </div>
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/5327584/pexels-photo-5327584.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Telemedicina y salud digital" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 20 de Octubre, 2025</div>
+                <h3>El Futuro de la Telemedicina en Colombia</h3>
+                <p>La telemedicina llegó para quedarse. Analizamos las tendencias, beneficios y desafíos de la atención médica remota, y cómo VITAL+ facilita consultas virtuales integradas con el historial del paciente.</p>
+            </div>
+        </div>
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/8460064/pexels-photo-8460064.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Inteligencia artificial en salud" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 15 de Octubre, 2025</div>
+                <h3>Inteligencia Artificial: Aliada de los Profesionales de Salud</h3>
+                <p>Descubre cómo la IA está apoyando el diagnóstico médico, la interpretación de imágenes y la personalización de tratamientos. VITAL+ integra herramientas inteligentes para optimizar la toma de decisiones clínicas.</p>
+            </div>
+        </div>
+
+        <div class="blog-card">
+            <img src="https://images.pexels.com/photos/4386467/pexels-photo-4386467.jpeg?auto=compress&cs=tinysrgb&w=600"
+                 alt="Derechos del paciente digital" class="blog-image">
+            <div class="blog-content">
+                <div class="blog-date">📅 8 de Octubre, 2025</div>
+                <h3>Tus Derechos como Paciente en la Era Digital</h3>
+                <p>Como usuario de servicios de salud digitales, tienes derechos específicos sobre tus datos. Te explicamos qué protecciones legales existen y cómo VITAL+ garantiza el cumplimiento de la normativa vigente.</p>
+            </div>
         </div>
 
     </div>
