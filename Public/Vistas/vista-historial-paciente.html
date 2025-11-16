@@ -42,6 +42,11 @@
             font-size: 1.8em;
         }
 
+        .header-actions {
+            display: flex;
+            gap: 15px;
+        }
+
         .btn-volver {
             background: rgba(255, 255, 255, 0.2);
             border: 2px solid white;
@@ -57,6 +62,35 @@
         .btn-volver:hover {
             background: white;
             color: #0077b6;
+        }
+
+        .btn-descargar-pdf {
+            background: #28a745;
+            border: 2px solid #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-descargar-pdf:hover {
+            background: #218838;
+            border-color: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-descargar-pdf:disabled {
+            background: #6c757d;
+            border-color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .container {
@@ -344,34 +378,34 @@
             font-size: 1.1em;
         }
 
-        .btn-accion {
-            background: #0077b6;
-            color: white;
-            border: none;
-            padding: 8px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.9em;
+        /* Loader para descarga */
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #0077b6;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
         }
 
-        .btn-accion:hover {
-            background: #005a8d;
-            transform: translateY(-2px);
-        }
-
-        .btn-accion.completado {
-            background: #28a745;
-        }
-
-        .btn-accion.completado:hover {
-            background: #218838;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         @media (max-width: 768px) {
             .container {
                 padding: 0 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: center;
             }
 
             .tabs {
@@ -399,7 +433,13 @@
         <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
         <h1>VITAL+</h1>
     </div>
-    <a href="/Vistas/dashboard-paciente.html" class="btn-volver">← Volver al Dashboard</a>
+    <div class="header-actions">
+        <button class="btn-descargar-pdf" onclick="descargarHistorialPDF()" id="btnDescargarPDF">
+            <span>📄</span>
+            <span>Descargar Historial en PDF</span>
+        </button>
+        <a href="/Vistas/dashboard-paciente.html" class="btn-volver">← Volver al Dashboard</a>
+    </div>
 </div>
 
 <div class="container">
@@ -516,7 +556,6 @@
         try {
             console.log('📋 Cargando historial del paciente...');
 
-            // ✅ CORREGIDO: Usar la ruta correcta
             const response = await fetch('http://localhost:3000/api/citas/mis-citas', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -564,6 +603,73 @@
                 title: 'Error',
                 text: 'No se pudo cargar el historial médico: ' + error.message
             });
+        }
+    }
+
+    async function descargarHistorialPDF() {
+        const token = localStorage.getItem('token');
+        const btnDescargar = document.getElementById('btnDescargarPDF');
+
+        try {
+            // Deshabilitar botón y mostrar loader
+            btnDescargar.disabled = true;
+            const textoOriginal = btnDescargar.innerHTML;
+            btnDescargar.innerHTML = '<div class="loader"></div><span>Generando PDF...</span>';
+
+            console.log('📄 Iniciando descarga de PDF...');
+
+            const response = await fetch('http://localhost:3000/api/citas/historial/descargar-pdf', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Error al generar el PDF');
+            }
+
+            // Obtener el blob del PDF
+            const blob = await response.blob();
+
+            // Crear URL temporal para descarga
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+
+            // Obtener nombre del usuario para el archivo
+            const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+            const nombreArchivo = `historial-medico-${usuario.nombre.replace(/\s+/g, '-')}.pdf`;
+
+            a.download = nombreArchivo;
+            document.body.appendChild(a);
+            a.click();
+
+            // Limpiar
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+
+            console.log('✅ PDF descargado exitosamente');
+
+            Swal.fire({
+                icon: 'success',
+                title: '¡Descarga exitosa!',
+                text: 'Tu historial médico ha sido descargado en formato PDF',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+        } catch (error) {
+            console.error('❌ Error al descargar PDF:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo descargar el historial en PDF: ' + error.message
+            });
+        } finally {
+            // Restaurar botón
+            btnDescargar.disabled = false;
+            btnDescargar.innerHTML = '<span>📄</span><span>Descargar Historial en PDF</span>';
         }
     }
 
@@ -773,7 +879,7 @@
             </div>
             <div class="fecha-receta">
                 <p><strong>Recetado por:</strong> ${med.medico} el ${med.fecha}</p>
-                </div>
+            </div>
         </div>
     `).join('');
     }
@@ -866,7 +972,7 @@
                 <p><strong>Prioridad:</strong> ${ex.prioridad}</p>
                 ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
                 <p><strong>Solicitado por:</strong> ${ex.medico} el ${ex.fecha}</p>
-                </div>
+            </div>
         </div>
     `).join('');
     }
@@ -877,56 +983,6 @@
 
         event.target.classList.add('active');
         document.getElementById(`tab-${tab}`).classList.add('active');
-    }
-
-    // Funciones de cambio de estado ya no se necesitan para el paciente,
-    // pero se mantienen para no romper el resto del script que depende de ellas
-    // (aunque el botón ya no las llama).
-
-    function cambiarEstadoMedicamento(medicamentoId, estadoActual) {
-        // Lógica de cambio de estado eliminada o desactivada para el paciente
-        // Ya que el botón fue removido.
-        console.warn('Función cambiarEstadoMedicamento desactivada para pacientes.');
-        /*
-        const nuevoEstado = estadoActual === 'entregado' ? 'pendiente' : 'entregado';
-        medicamentosEstado[medicamentoId] = nuevoEstado;
-
-        localStorage.setItem('medicamentosEstado', JSON.stringify(medicamentosEstado));
-
-        procesarEstadisticas();
-        renderizarMedicamentos();
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Estado actualizado',
-            text: `Medicamento marcado como ${nuevoEstado}`,
-            timer: 1500,
-            showConfirmButton: false
-        });
-        */
-    }
-
-    function cambiarEstadoExamen(examenId, estadoActual) {
-        // Lógica de cambio de estado eliminada o desactivada para el paciente
-        // Ya que el botón fue removido.
-        console.warn('Función cambiarEstadoExamen desactivada para pacientes.');
-        /*
-        const nuevoEstado = estadoActual === 'realizado' ? 'pendiente' : 'realizado';
-        examenesEstado[examenId] = nuevoEstado;
-
-        localStorage.setItem('examenesEstado', JSON.stringify(examenesEstado));
-
-        procesarEstadisticas();
-        renderizarExamenes();
-
-        Swal.fire({
-            icon: 'success',
-            title: 'Estado actualizado',
-            text: `Examen marcado como ${nuevoEstado}`,
-            timer: 1500,
-            showConfirmButton: false
-        });
-        */
     }
 
     function cargarEstadosMedicamentos() {

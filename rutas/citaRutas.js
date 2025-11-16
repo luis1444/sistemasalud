@@ -116,5 +116,12 @@ router.put('/:idCita/finalizar',
         }
     }
 );
+const historialPDFControlador = require('../controladores/HistorialPDFControlador');
+
+// Agregar esta ruta ANTES de las rutas con parámetros dinámicos
+router.get('/historial/descargar-pdf',
+    authMiddleware.verificarToken,
+    historialPDFControlador.generarHistorialPDF
+);
 
 module.exports = router;
