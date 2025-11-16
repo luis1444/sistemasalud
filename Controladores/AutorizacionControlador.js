@@ -1,5 +1,5 @@
 // ============================================
-// 📄 controladores/AutorizacionControlador.js
+// 📄 Controladores/AutorizacionControlador.js
 // ============================================
 const autorizacionServicio = require('../Servicios/AutorizacionServicio');
 
@@ -190,4 +190,5 @@ class AutorizacionControlador {
     }
 }
 
+// IMPORTANTE: Exportar una INSTANCIA de la clase
 module.exports = new AutorizacionControlador();

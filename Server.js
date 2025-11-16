@@ -46,6 +46,8 @@ app.use('/api/citas', citaRutas);
 const usuarioRutas = require('./rutas/UsuarioRutas');
 app.use('/api/usuarios', usuarioRutas);
 
+const autorizacionRutas = require('./rutas/autorizacionRutas');
+app.use('/api/autorizaciones', autorizacionRutas);
 // ============================================
 // 🏠 Rutas del Frontend
 // ============================================

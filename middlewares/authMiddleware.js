@@ -1,10 +1,10 @@
 // ============================================
-// 📄 middleware/authMiddleware.js (UNIFICADO)
+// 📄 middleware/authMiddleware.js (COMPLETO)
 // ============================================
 const jwt = require('jsonwebtoken');
 
 class AuthMiddleware {
-    // ✅ Versión mejorada y compatible de verificarToken/autenticar
+    // ✅ Verificar token JWT
     verificarToken(req, res, next) {
         try {
             const authHeader = req.headers.authorization;
@@ -57,9 +57,66 @@ class AuthMiddleware {
         }
     }
 
-    // ✅ Versión clásica (compatible con tus rutas viejas)
+    // ✅ Verificar si es administrador
+    esAdministrador(req, res, next) {
+        if (!req.usuario) {
+            return res.status(401).json({
+                exito: false,
+                mensaje: 'Usuario no autenticado'
+            });
+        }
+
+        if (req.usuario.rol !== 'administrador' && req.usuario.rol !== 'admin') {
+            return res.status(403).json({
+                exito: false,
+                mensaje: 'Acceso denegado. Se requiere rol de administrador.'
+            });
+        }
+
+        next();
+    }
+
+    // ✅ Verificar si es médico
+    esMedico(req, res, next) {
+        if (!req.usuario) {
+            return res.status(401).json({
+                exito: false,
+                mensaje: 'Usuario no autenticado'
+            });
+        }
+
+        if (req.usuario.rol !== 'medico') {
+            return res.status(403).json({
+                exito: false,
+                mensaje: 'Acceso denegado. Se requiere rol de médico.'
+            });
+        }
+
+        next();
+    }
+
+    // ✅ Verificar si es paciente
+    esPaciente(req, res, next) {
+        if (!req.usuario) {
+            return res.status(401).json({
+                exito: false,
+                mensaje: 'Usuario no autenticado'
+            });
+        }
+
+        if (req.usuario.rol !== 'paciente') {
+            return res.status(403).json({
+                exito: false,
+                mensaje: 'Acceso denegado. Se requiere rol de paciente.'
+            });
+        }
+
+        next();
+    }
+
+    // ✅ Versión clásica (compatible con rutas viejas)
     esAdmin(req, res, next) {
-        if (!req.usuario || req.usuario.rol !== 'admin') {
+        if (!req.usuario || (req.usuario.rol !== 'admin' && req.usuario.rol !== 'administrador')) {
             return res.status(403).json({
                 exito: false,
                 mensaje: 'No autorizado (solo administradores)'
@@ -68,7 +125,7 @@ class AuthMiddleware {
         next();
     }
 
-    // ✅ Versión nueva (compatible con verificarRol(['admin']))
+    // ✅ Versión flexible con array de roles
     verificarRol(roles = []) {
         return (req, res, next) => {
             if (!req.usuario) {
@@ -90,10 +147,22 @@ class AuthMiddleware {
     }
 }
 
-// Exportar instancia y también versión directa del middleware
+// Crear instancia
 const auth = new AuthMiddleware();
 
-// ✅ Para compatibilidad con ambas versiones:
-module.exports = auth;                   // → Para usar: authMiddleware.verificarToken
-module.exports.autenticar = auth.verificarToken.bind(auth);  // → Para usar: autenticar
-module.exports.verificarRol = auth.verificarRol.bind(auth);  // → Para usar: verificarRol
+// ✅ Exportar todos los métodos correctamente vinculados
+module.exports = {
+    // Métodos principales
+    verificarToken: auth.verificarToken.bind(auth),
+    esAdministrador: auth.esAdministrador.bind(auth),
+    esMedico: auth.esMedico.bind(auth),
+    esPaciente: auth.esPaciente.bind(auth),
+    esAdmin: auth.esAdmin.bind(auth),
+
+    // Métodos adicionales (compatibilidad)
+    autenticar: auth.verificarToken.bind(auth),
+    verificarRol: auth.verificarRol.bind(auth)
+};
+
+// Log de carga
+console.log('✅ authMiddleware cargado correctamente con todos los métodos');

@@ -58,16 +58,16 @@ router.get('/:idAutorizacion',
 );
 
 // Aprobar una autorización (administradores)
-// PUT /api/autorizaciones/:idAutorizacion/aprobar
-router.put('/:idAutorizacion/aprobar',
+// POST /api/autorizaciones/:idAutorizacion/aprobar
+router.post('/:idAutorizacion/aprobar',
     authMiddleware.verificarToken,
     authMiddleware.esAdministrador,
     autorizacionControlador.aprobarAutorizacion
 );
 
 // Rechazar una autorización (administradores)
-// PUT /api/autorizaciones/:idAutorizacion/rechazar
-router.put('/:idAutorizacion/rechazar',
+// POST /api/autorizaciones/:idAutorizacion/rechazar
+router.post('/:idAutorizacion/rechazar',
     authMiddleware.verificarToken,
     authMiddleware.esAdministrador,
     autorizacionControlador.rechazarAutorizacion

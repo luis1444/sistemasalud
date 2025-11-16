@@ -1,8 +1,8 @@
 // ============================================
-//  entidades/Autorizacion.js
+// 📄 entidades/Autorizacion.js
 // ============================================
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { sequelize } = require('../config/database'); // ⬅️ IMPORTANTE: Desestructurar
 
 const Autorizacion = sequelize.define('Autorizacion', {
     id: {

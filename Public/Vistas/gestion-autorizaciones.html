@@ -6,7 +6,6 @@
     <title>Gestión de Autorizaciones | VITAL+</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* ESTILOS CSS DE VITAL+ */
         * {
             margin: 0;
             padding: 0;
@@ -15,170 +14,283 @@
         }
 
         body {
-            /* Usando el mismo fondo degradado */
             background: linear-gradient(135deg, #e0f7fa, #ffffff);
             min-height: 100vh;
         }
 
-        .container {
+        /* HEADER VITAL+ */
+        .header {
+            background: linear-gradient(135deg, #0077b6, #023e8a);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.2);
+        }
+
+        .header-content {
             max-width: 1400px;
-            margin: 20px auto;
+            margin: 0 auto;
             padding: 0 40px;
-        }
-
-        /* Equivalente a .mb-6 */
-        .margin-bottom-20 {
-            margin-bottom: 20px;
-        }
-
-        /* Equivalente a .text-3xl .font-bold .text-gray-800 */
-        .titulo-pagina {
-            color: #0077b6;
-            font-size: 1.8em;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-
-        /* Equivalente a .text-gray-600 */
-        .subtitulo-pagina {
-            color: #52796f;
-            margin-bottom: 25px;
-        }
-
-        /* --- Estadísticas --- */
-        .estadisticas-grid {
-            /* Adaptado del estilo 'estadisticas' */
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .stat-card-custom {
-            /* Estilos específicos de cada tarjeta stat */
-            padding: 20px;
-            border-radius: 10px;
-            text-align: left;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        .stat-card-custom:hover {
-            transform: translateY(-2px);
-        }
-
-        .stat-card-yellow {
-            background: #fffbe6;
-            border: 1px solid #fde68a;
-        }
-
-        .stat-card-green {
-            background: #ecfdf5;
-            border: 1px solid #a7f3d0;
-        }
-
-        .stat-card-red {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-        }
-
-        .stat-card-blue {
-            background: #eff6ff;
-            border: 1px solid #bfdbfe;
-        }
-
-        .stat-label {
-            font-size: 0.9em;
-            font-weight: 600;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .stat-number {
-            font-size: 2em;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px; /* Espacio entre el logo y el texto */
+            font-size: 1.8em;
             font-weight: 700;
         }
 
-        .stat-icon {
-            font-size: 2.2em;
+        /* ESTILO PARA EL LOGO IMAGEN Y EL TEXTO */
+        .logo-img {
+            height: 60px; /* Hago el logo más grande */
+            width: auto;
+        }
+        .logo span {
+            font-size: 1em; /* Ajusta el tamaño del texto "VITAL+" */
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
         }
 
-        /* Colores de texto para estadísticas */
-        .text-yellow { color: #b45309; } /* Darker yellow/orange for readability */
-        .text-green { color: #065f46; }
-        .text-red { color: #b91c1c; }
-        .text-blue { color: #1e40af; }
-        .icon-yellow { color: #f59e0b; }
-        .icon-green { color: #10b981; }
-        .icon-red { color: #ef4444; }
-        .icon-blue { color: #3b82f6; }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
 
-
-        /* --- Panel de Filtros y Busqueda --- */
-        .panel {
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
             background: white;
-            padding: 20px; /* Reducido un poco del original para este panel */
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
-            margin-bottom: 20px;
+            color: #0077b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3em;
+            font-weight: 700;
         }
 
-        .busqueda-form-flex {
+        .user-details {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 1em;
+        }
+
+        .user-role {
+            font-size: 0.85em;
+            opacity: 0.9;
+        }
+
+        /* ELIMINADO: .btn-logout styles */
+
+        /* NAVIGATION */
+        .nav-tabs {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 40;
+        }
+
+        .nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 5px;
+        }
+
+        .nav-tab {
+            padding: 15px 25px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #52796f;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-tab:hover {
+            color: #0077b6;
+            background: #e0f7fa;
+        }
+
+        .nav-tab.active {
+            color: #0077b6;
+            border-bottom-color: #0077b6;
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 40px;
+        }
+
+        .page-header {
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            color: #0077b6;
+            font-size: 2em;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .page-subtitle {
+            color: #52796f;
+            font-size: 1.1em;
+        }
+
+        /* ESTADÍSTICAS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 119, 182, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.15);
+        }
+
+        .stat-info h3 {
+            font-size: 0.95em;
+            color: #6c757d;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .stat-info p {
+            font-size: 2.5em;
+            font-weight: 700;
+            line-height: 1;
+        }
+
+        .stat-icon {
+            font-size: 3em;
+            opacity: 0.8;
+        }
+
+        .stat-yellow { border-left: 4px solid #f59e0b; }
+        .stat-yellow .stat-info p { color: #b45309; }
+        .stat-yellow .stat-icon { color: #f59e0b; }
+
+        .stat-green { border-left: 4px solid #10b981; }
+        .stat-green .stat-info p { color: #065f46; }
+        .stat-green .stat-icon { color: #10b981; }
+
+        .stat-red { border-left: 4px solid #ef4444; }
+        .stat-red .stat-info p { color: #b91c1c; }
+        .stat-red .stat-icon { color: #ef4444; }
+
+        .stat-blue { border-left: 4px solid #3b82f6; }
+        .stat-blue .stat-info p { color: #1e40af; }
+        .stat-blue .stat-icon { color: #3b82f6; }
+
+        /* PANEL DE FILTROS */
+        .filter-panel {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 119, 182, 0.1);
+            margin-bottom: 25px;
+        }
+
+        .filter-form {
             display: flex;
             gap: 15px;
             align-items: center;
+            flex-wrap: wrap;
         }
 
-        .form-group-flex-1 {
+        .search-group {
             flex: 1;
+            min-width: 300px;
             position: relative;
         }
 
-        .input-icon {
+        .search-icon {
             position: absolute;
-            left: 10px;
+            left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #ccc; /* Gris claro */
+            color: #0077b6;
+            font-size: 1.1em;
         }
 
-        .input-custom {
+        .search-input {
             width: 100%;
-            padding: 12px 12px 12px 40px; /* Espacio para el icono */
+            padding: 14px 14px 14px 45px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            transition: all 0.3s ease;
         }
 
-        .input-custom:focus {
+        .search-input:focus {
             outline: none;
             border-color: #0077b6;
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
         }
 
-        .select-custom {
-            padding: 12px;
+        .filter-select {
+            padding: 14px 16px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
+            border-radius: 10px;
             font-size: 1em;
-            transition: border-color 0.3s ease;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .select-custom:focus {
+        .filter-select:focus {
             outline: none;
             border-color: #0077b6;
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
         }
 
-        /* --- Loading, Error, Sin Resultados --- */
-        .loading-spinner {
-            border: 3px solid #e0e0e0;
-            border-top: 3px solid #0077b6;
+        /* LOADING */
+        .loading-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 60px;
+        }
+
+        .spinner {
+            border: 4px solid #e0f7fa;
+            border-top: 4px solid #0077b6;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
         }
 
@@ -187,14 +299,15 @@
             100% { transform: rotate(360deg); }
         }
 
+        /* ALERTAS */
         .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
+            padding: 16px 20px;
+            border-radius: 10px;
             margin-bottom: 20px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: 600;
+            gap: 12px;
+            font-weight: 500;
         }
 
         .alert-error {
@@ -207,302 +320,402 @@
             display: none !important;
         }
 
-        .lista-vacia-custom {
-            /* Similar a lista-vacia pero adaptado */
-            background: #f8f9fa;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 60px 20px;
-            text-align: center;
-            color: #52796f;
-        }
-
-        .lista-vacia-custom span {
-            font-size: 4em;
-            display: block;
-            margin-bottom: 15px;
-            opacity: 0.5;
-            color: #ccc;
-        }
-
-        .lista-vacia-custom p {
-            font-size: 1.1em;
-        }
-
-        /* --- Lista de Autorizaciones --- */
-        .space-y-4 > * + * {
-            margin-top: 16px;
-        }
-
-        .autorizacion-item {
+        /* SIN RESULTADOS */
+        .empty-state {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0, 119, 182, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .autorizacion-item:hover {
-            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.15);
-        }
-
-        .flex-start-between {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-        }
-
-        .flex-gap-4 {
-            display: flex;
-            gap: 16px;
-            flex: 1;
-        }
-
-        .p-3-rounded-bg-blue {
-            padding: 12px;
-            border-radius: 8px;
-            background: #e0f7fa; /* bg-blue-100 */
-            color: #0077b6;
-        }
-
-        .p-3-rounded-bg-purple {
-            padding: 12px;
-            border-radius: 8px;
-            background: #f3e5f5; /* bg-purple-100 */
-            color: #6a1b9a;
-        }
-
-        .flex-col-1 {
-            flex: 1;
-        }
-
-        .flex-center-gap-2 {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .titulo-autorizacion {
-            font-size: 1.15em;
-            font-weight: 600;
-            color: #0077b6;
-            margin-bottom: 5px;
-        }
-
-        .descripcion-autorizacion {
-            color: #52796f;
-            font-weight: 500;
-            margin-bottom: 10px;
-        }
-
-        .datos-grid-min {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            font-size: 0.9em;
+            border: 2px dashed #e0e0e0;
+            border-radius: 12px;
+            padding: 80px 20px;
+            text-align: center;
             color: #6c757d;
         }
 
-        .datos-grid-min strong {
-            color: #0077b6;
-            font-weight: 600;
+        .empty-state i {
+            font-size: 5em;
+            color: #e0e0e0;
+            margin-bottom: 20px;
         }
 
-        .ml-4-flex-gap-2 {
-            margin-left: 16px;
+        .empty-state p {
+            font-size: 1.2em;
+        }
+
+        /* LISTA DE AUTORIZACIONES */
+        .auth-list {
             display: flex;
-            gap: 8px;
-            align-items: center;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        /* Botones de acción */
+        .auth-card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 119, 182, 0.08);
+            transition: all 0.3s ease;
+            border-left: 4px solid transparent;
+        }
+
+        .auth-card:hover {
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.12);
+            transform: translateY(-2px);
+        }
+
+        .auth-card.urgente { border-left-color: #ef4444; }
+        .auth-card.alta { border-left-color: #f59e0b; }
+        .auth-card.media { border-left-color: #fbbf24; }
+        .auth-card.baja { border-left-color: #10b981; }
+
+        .auth-header {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .auth-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            flex-shrink: 0;
+        }
+
+        .icon-medicamento {
+            background: linear-gradient(135deg, #f3e5f5, #e1bee7);
+            color: #6a1b9a;
+        }
+
+        .icon-examen {
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2);
+            color: #0077b6;
+        }
+
+        .auth-info {
+            flex: 1;
+        }
+
+        .auth-title-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .auth-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #0077b6;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-urgente {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+        .badge-alta {
+            background: #fff7ed;
+            color: #9a3412;
+            border: 1px solid #fed7aa;
+        }
+
+        .badge-media {
+            background: #fefce8;
+            color: #854d0e;
+            border: 1px solid #fde047;
+        }
+
+        .badge-baja {
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+        .auth-description {
+            color: #52796f;
+            font-size: 1.05em;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .auth-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            font-size: 0.95em;
+            color: #6c757d;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .detail-item i {
+            color: #0077b6;
+            width: 18px;
+        }
+
+        .detail-item strong {
+            color: #0077b6;
+        }
+
+        .auth-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
         .btn {
-            padding: 10px 18px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 0.95em;
             display: flex;
             align-items: center;
-            gap: 5px;
-            text-decoration: none;
+            gap: 8px;
+            font-size: 0.95em;
         }
 
         .btn-icon {
-            padding: 10px;
-            color: #0077b6;
-            background: none;
-            border-radius: 8px;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
             transition: all 0.3s ease;
+            background: #e0f7fa;
+            color: #0077b6;
+            border: none;
         }
 
         .btn-icon:hover {
-            background: #e0f7fa;
+            background: #0077b6;
+            color: white;
+            transform: scale(1.05);
         }
 
-        .btn-green {
-            background: #28a745;
+        .btn-approve {
+            background: linear-gradient(135deg, #10b981, #059669);
             color: white;
         }
 
-        .btn-green:hover {
-            background: #1e7e34;
-            transform: translateY(-1px);
+        .btn-approve:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
         }
 
-        .btn-red {
-            background: #dc3545;
+        .btn-reject {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: white;
         }
 
-        .btn-red:hover {
-            background: #bd2130;
-            transform: translateY(-1px);
+        .btn-reject:hover {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
         }
 
-        /* Badge de Prioridad */
-        .badge {
-            padding: 4px 8px;
-            border-radius: 9999px;
-            font-size: 0.75em;
-            font-weight: 600;
-            border: 1px solid;
-            display: inline-block;
-        }
-
-        .badge-urgente { background-color: #fef2f2; color: #991b1b; border-color: #fecaca; }
-        .badge-alta { background-color: #fff7ed; color: #9a3412; border-color: #fed7aa; }
-        .badge-media { background-color: #fefce8; color: #854d0e; border-color: #fde047; }
-        .badge-baja { background-color: #f0fdf4; color: #166534; border-color: #bbf7d0; }
-
-        /* --- Modales --- */
+        /* MODALES */
         .modal {
             display: none;
             position: fixed;
-            z-index: 50;
+            z-index: 1000;
             left: 0;
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
         }
 
         .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
+            animation: fadeIn 0.3s ease;
         }
 
-        .modal-content-lg {
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
             background: white;
             border-radius: 15px;
-            max-width: 800px;
             width: 90%;
-            margin: 20px;
+            max-width: 900px;
             max-height: 90vh;
             overflow-y: auto;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         }
 
         .modal-content-sm {
-            background: white;
-            border-radius: 15px;
-            max-width: 500px;
-            width: 90%;
-            margin: 20px;
-            box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+            max-width: 550px;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
 
         .modal-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 15px;
+            padding: 25px 30px;
+            border-bottom: 2px solid #e0f7fa;
         }
 
-        .modal-titulo {
-            font-size: 1.5em;
+        .modal-title {
+            font-size: 1.6em;
             font-weight: 700;
             color: #0077b6;
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        .modal-close-btn {
-            color: #ccc;
-            font-size: 1.2em;
-            transition: color 0.3s ease;
-        }
-
-        .modal-close-btn:hover {
+        .modal-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background: #e0f7fa;
             color: #0077b6;
+            font-size: 1.3em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .detalle-seccion {
+        .modal-close:hover {
+            background: #0077b6;
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
+        .detail-section {
+            margin-bottom: 25px;
+            padding-bottom: 25px;
             border-bottom: 1px solid #e0e0e0;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
         }
 
-        .detalle-seccion:last-child {
+        .detail-section:last-child {
             border-bottom: none;
             margin-bottom: 0;
             padding-bottom: 0;
         }
 
-        .detalle-seccion-titulo {
-            font-weight: 600;
+        .section-title {
+            font-size: 1.2em;
+            font-weight: 700;
             color: #0077b6;
-            margin-bottom: 10px;
-            font-size: 1.1em;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
-        .detalle-grid-2 {
+        .detail-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
             gap: 15px;
-            font-size: 0.9em;
         }
 
-        .detalle-item {
-            color: #52796f;
+        .detail-field {
+            margin-bottom: 12px;
         }
 
-        .detalle-item-label {
+        .detail-label {
+            font-size: 0.85em;
             color: #6c757d;
-            margin-bottom: 3px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .detalle-item-value {
-            font-weight: 500;
-            color: #000;
-        }
-
-        .detalle-item-value.capitalize {
-            text-transform: capitalize;
-        }
-
-        .detalle-espacio-y-1 > * + * {
-            margin-top: 5px;
-        }
-
-        /* Textarea y Botones del Modal Acción */
-        .textarea-custom {
-            width: 100%;
-            padding: 10px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
+        .detail-value {
             font-size: 1em;
-            transition: border-color 0.3s ease;
-            resize: vertical;
+            color: #2c3e50;
+            font-weight: 500;
         }
 
-        .textarea-custom:focus {
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .required {
+            color: #ef4444;
+        }
+
+        .form-textarea {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        .form-textarea:focus {
             outline: none;
             border-color: #0077b6;
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            padding: 20px 30px;
+            border-top: 1px solid #e0e0e0;
         }
 
         .btn-secondary {
@@ -514,127 +727,151 @@
             background: #ced4da;
         }
 
-        .btn-confirm-green {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-confirm-green:hover {
-            background: #1e7e34;
-        }
-
-        .btn-confirm-red {
-            background: #dc3545;
-            color: white;
-        }
-
-        .btn-confirm-red:hover {
-            background: #bd2130;
-        }
-
-        /* Media Queries (adaptación) */
+        /* RESPONSIVE */
         @media (max-width: 768px) {
+            .header-content,
+            .nav-content,
             .container {
                 padding: 0 20px;
             }
 
-            .estadisticas-grid {
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
 
-            .busqueda-form-flex {
+            .filter-form {
                 flex-direction: column;
-                align-items: stretch;
             }
 
-            .busqueda-form-flex .select-custom {
+            .search-group {
+                min-width: 100%;
+            }
+
+            .filter-select {
                 width: 100%;
             }
 
-            .flex-start-between {
+            .auth-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .auth-details {
+                grid-template-columns: 1fr;
+            }
+
+            .auth-actions {
                 flex-direction: column;
             }
 
-            .ml-4-flex-gap-2 {
-                margin-left: 0;
-                margin-top: 15px;
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .ml-4-flex-gap-2 .btn {
+            .btn {
                 width: 100%;
                 justify-content: center;
             }
 
-            .datos-grid-min {
+            .detail-grid {
                 grid-template-columns: 1fr;
             }
 
-            .detalle-grid-2 {
-                grid-template-columns: 1fr;
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+
+            .user-info {
+                flex-direction: row;
+                align-items: center;
             }
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body>
+<header class="header">
+    <div class="header-content">
+        <div class="logo">
+            <img src="/images/logoblanco.png" alt="Logo VITAL+" class="logo-img">
+            <span>VITAL+</span>
+        </div>
+        <div class="user-info">
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="user-details">
+                <div class="user-name" id="userName">Administrador</div>
+                <div class="user-role" id="userRole">Sistema de Salud</div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<nav class="nav-tabs">
+    <div class="nav-content">
+        <button class="nav-tab" onclick="location.href='dashboard-admin.html'">
+            <i class="fas fa-home"></i> Dashboard
+        </button>
+        <button class="nav-tab active">
+            <i class="fas fa-file-medical"></i> Autorizaciones
+        </button>
+    </div>
+</nav>
+
 <div class="container">
-    <div class="margin-bottom-20">
-        <h1 class="titulo-pagina">
-            <i class="fas fa-file-medical mr-2"></i>
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-file-medical"></i>
             Gestión de Autorizaciones
         </h1>
-        <p class="subtitulo-pagina">Administra solicitudes de medicamentos y exámenes médicos</p>
+        <p class="page-subtitle">Administra solicitudes de medicamentos y exámenes médicos</p>
     </div>
 
-    <div id="estadisticas" class="estadisticas-grid">
-        <div class="stat-card-custom stat-card-yellow">
-            <div>
-                <p class="stat-label text-yellow">Pendientes</p>
-                <p class="stat-number text-yellow" id="stat-pendientes">0</p>
+    <div class="stats-grid">
+        <div class="stat-card stat-yellow">
+            <div class="stat-info">
+                <h3>Pendientes</h3>
+                <p id="stat-pendientes">0</p>
             </div>
-            <i class="fas fa-clock stat-icon icon-yellow"></i>
+            <i class="fas fa-clock stat-icon"></i>
         </div>
-        <div class="stat-card-custom stat-card-green">
-            <div>
-                <p class="stat-label text-green">Aprobadas</p>
-                <p class="stat-number text-green" id="stat-aprobadas">0</p>
+        <div class="stat-card stat-green">
+            <div class="stat-info">
+                <h3>Aprobadas</h3>
+                <p id="stat-aprobadas">0</p>
             </div>
-            <i class="fas fa-check-circle stat-icon icon-green"></i>
+            <i class="fas fa-check-circle stat-icon"></i>
         </div>
-        <div class="stat-card-custom stat-card-red">
-            <div>
-                <p class="stat-label text-red">Rechazadas</p>
-                <p class="stat-number text-red" id="stat-rechazadas">0</p>
+        <div class="stat-card stat-red">
+            <div class="stat-info">
+                <h3>Rechazadas</h3>
+                <p id="stat-rechazadas">0</p>
             </div>
-            <i class="fas fa-times-circle stat-icon icon-red"></i>
+            <i class="fas fa-times-circle stat-icon"></i>
         </div>
-        <div class="stat-card-custom stat-card-blue">
-            <div>
-                <p class="stat-label text-blue">Total</p>
-                <p class="stat-number text-blue" id="stat-total">0</p>
+        <div class="stat-card stat-blue">
+            <div class="stat-info">
+                <h3>Total</h3>
+                <p id="stat-total">0</p>
             </div>
-            <i class="fas fa-chart-line stat-icon icon-blue"></i>
+            <i class="fas fa-chart-line stat-icon"></i>
         </div>
     </div>
 
-    <div class="panel">
-        <div class="busqueda-form-flex">
-            <div class="form-group-flex-1">
-                <i class="fas fa-search input-icon"></i>
+    <div class="filter-panel">
+        <div class="filter-form">
+            <div class="search-group">
+                <i class="fas fa-search search-icon"></i>
                 <input
                         type="text"
                         id="busqueda"
+                        class="search-input"
                         placeholder="Buscar por paciente, médico, cédula o descripción..."
-                        class="input-custom"
                 />
             </div>
-            <select id="filtroTipo" class="select-custom">
+            <select id="filtroTipo" class="filter-select">
                 <option value="todas">Todos los tipos</option>
                 <option value="medicamento">Medicamentos</option>
                 <option value="examen">Exámenes</option>
             </select>
-            <select id="filtroPrioridad" class="select-custom">
+            <select id="filtroPrioridad" class="filter-select">
                 <option value="todas">Todas las prioridades</option>
                 <option value="urgente">Urgente</option>
                 <option value="alta">Alta</option>
@@ -644,89 +881,116 @@
         </div>
     </div>
 
-    <div id="loading" class="flex justify-center items-center py-16">
-        <div class="loading-spinner"></div>
+    <div id="loading" class="loading-container hidden">
+        <div class="spinner"></div>
     </div>
 
-    <div id="error" class="hidden alert alert-error">
+    <div id="error" class="alert alert-error hidden">
         <i class="fas fa-exclamation-triangle"></i>
         <span id="error-message"></span>
     </div>
 
-    <div id="sin-resultados" class="hidden lista-vacia-custom">
-        <span class="fas fa-inbox"></span>
+    <div id="sin-resultados" class="empty-state hidden">
+        <i class="fas fa-inbox"></i>
         <p>No hay autorizaciones pendientes</p>
     </div>
 
-    <div id="lista-autorizaciones" class="space-y-4"></div>
+    <div id="lista-autorizaciones" class="auth-list"></div>
 </div>
 
 <div id="modalDetalle" class="modal">
-    <div class="modal-content-lg">
-        <div class="p-6">
-            <div class="modal-header">
-                <h2 class="modal-titulo">Detalles de la Autorización</h2>
-                <button onclick="cerrarModalDetalle()" class="modal-close-btn">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div id="contenido-detalle"></div>
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 class="modal-title">
+                <i class="fas fa-file-medical"></i>
+                Detalles de la Autorización
+            </h2>
+            <button class="modal-close" onclick="cerrarModalDetalle()">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
+        <div class="modal-body" id="contenido-detalle"></div>
     </div>
 </div>
 
 <div id="modalAccion" class="modal">
-    <div class="modal-content-sm">
-        <div class="p-6">
-            <h2 id="tituloAccion" class="modal-titulo mb-4"></h2>
-            <div id="contenido-accion" class="mb-4"></div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                    Observaciones <span id="observaciones-required" class="text-red-500"></span>
+    <div class="modal-content modal-content-sm">
+        <div class="modal-header">
+            <h2 class="modal-title" id="tituloAccion"></h2>
+            <button class="modal-close" onclick="cerrarModalAccion()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-body">
+            <div id="contenido-accion" style="margin-bottom: 20px;"></div>
+            <div class="form-group">
+                <label class="form-label">
+                    Observaciones <span id="observaciones-required" class="required"></span>
                 </label>
                 <textarea
                         id="observaciones"
-                        class="textarea-custom"
+                        class="form-textarea"
                         rows="4"
-                        placeholder="Ingrese observaciones"
+                        placeholder="Ingrese observaciones..."
                 ></textarea>
             </div>
-            <div class="flex-center-gap-2">
-                <button
-                        onclick="cerrarModalAccion()"
-                        class="btn btn-secondary flex-1"
-                >
-                    Cancelar
-                </button>
-                <button
-                        id="btnConfirmarAccion"
-                        class="btn flex-1"
-                >
-                    Confirmar
-                </button>
-            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="cerrarModalAccion()">
+                <i class="fas fa-times"></i>
+                Cancelar
+            </button>
+            <button id="btnConfirmarAccion" class="btn">
+                Confirmar
+            </button>
         </div>
     </div>
 </div>
-
 <script>
-    // --- COMIENZO DEL CÓDIGO JAVASCRIPT ORIGINAL ---
-
     const API_URL = 'http://localhost:3000/api';
     let autorizaciones = [];
     let autorizacionActual = null;
     let accionActual = null;
 
-    // Cargar datos al iniciar
+    // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
+        verificarAutenticacion();
+        cargarDatosUsuario();
         cargarAutorizaciones();
         cargarEstadisticas();
 
-        // Event listeners para filtros
+        // Event listeners
         document.getElementById('busqueda').addEventListener('input', aplicarFiltros);
         document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
         document.getElementById('filtroPrioridad').addEventListener('change', aplicarFiltros);
     });
+
+    // Verificar autenticación
+    function verificarAutenticacion() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+    }
+
+    // Cargar datos del usuario
+    function cargarDatosUsuario() {
+        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+        if (usuario.nombre) {
+            document.getElementById('userName').textContent = usuario.nombre;
+            document.getElementById('userRole').textContent = usuario.rol || 'Administrador';
+        }
+    }
+
+    // Cerrar sesión
+    function cerrarSesion() {
+        if (confirm('¿Está seguro de que desea cerrar sesión?')) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('usuario');
+            window.location.href = 'login.html';
+        }
+    }
 
     // Cargar autorizaciones
     async function cargarAutorizaciones() {
@@ -818,68 +1082,64 @@
         }
 
         sinResultados.classList.add('hidden');
-        container.innerHTML = lista.map(autorizacion => `
-                <div class="autorizacion-item">
-                    <div class="p-5">
-                        <div class="flex-start-between">
-                            <div class="flex-gap-4">
-                                <div class="${autorizacion.tipo === 'medicamento' ? 'p-3-rounded-bg-purple' : 'p-3-rounded-bg-blue'}">
-                                    <i class="fas ${autorizacion.tipo === 'medicamento' ? 'fa-pills' : 'fa-file-medical'} text-xl"></i>
-                                </div>
-                                <div class="flex-col-1">
-                                    <div class="flex-center-gap-2 mb-2">
-                                        <h3 class="titulo-autorizacion">
-                                            ${autorizacion.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}
-                                        </h3>
-                                        <span class="badge badge-${autorizacion.prioridad}">
-                                            ${autorizacion.prioridad.toUpperCase()}
-                                        </span>
-                                    </div>
-                                    <p class="descripcion-autorizacion">${autorizacion.descripcion}</p>
-                                    <div class="datos-grid-min">
-                                        <div class="flex-center-gap-2">
-                                            <i class="fas fa-user"></i>
-                                            <span><strong>Paciente:</strong> ${autorizacion.paciente?.nombre || 'N/A'}</span>
-                                        </div>
-                                        <div class="flex-center-gap-2">
-                                            <i class="fas fa-user-md"></i>
-                                            <span><strong>Médico:</strong> ${autorizacion.medico?.nombre || 'N/A'}</span>
-                                        </div>
-                                        <div class="flex-center-gap-2">
-                                            <i class="fas fa-calendar"></i>
-                                            <span><strong>Cita:</strong> ${formatearFecha(autorizacion.cita?.fecha)}</span>
-                                        </div>
-                                        <div class="flex-center-gap-2">
-                                            <i class="fas fa-clock"></i>
-                                            <span><strong>Solicitado:</strong> ${formatearFechaHora(autorizacion.fechaSolicitud)}</span>
-                                        </div>
-                                    </div>
-                                </div>
+        container.innerHTML = lista.map(auth => `
+                <div class="auth-card ${auth.prioridad}">
+                    <div class="auth-header">
+                        <div class="auth-icon ${auth.tipo === 'medicamento' ? 'icon-medicamento' : 'icon-examen'}">
+                            <i class="fas ${auth.tipo === 'medicamento' ? 'fa-pills' : 'fa-file-medical'}"></i>
+                        </div>
+                        <div class="auth-info">
+                            <div class="auth-title-row">
+                                <h3 class="auth-title">
+                                    ${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}
+                                </h3>
+                                <span class="badge badge-${auth.prioridad}">
+                                    ${auth.prioridad}
+                                </span>
                             </div>
-                            <div class="ml-4-flex-gap-2">
-                                <button
-                                    onclick="verDetalle(${autorizacion.id})"
-                                    class="btn-icon"
-                                    title="Ver detalles"
-                                >
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button
-                                    onclick="abrirModalAprobar(${autorizacion.id})"
-                                    class="btn btn-green"
-                                >
-                                    <i class="fas fa-check-circle"></i>
-                                    Aprobar
-                                </button>
-                                <button
-                                    onclick="abrirModalRechazar(${autorizacion.id})"
-                                    class="btn btn-red"
-                                >
-                                    <i class="fas fa-times-circle"></i>
-                                    Rechazar
-                                </button>
+                            <p class="auth-description">${auth.descripcion}</p>
+                            <div class="auth-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-user"></i>
+                                    <span><strong>Paciente:</strong> ${auth.paciente?.nombre || 'N/A'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-user-md"></i>
+                                    <span><strong>Médico:</strong> ${auth.medico?.nombre || 'N/A'}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span><strong>Cita:</strong> ${formatearFecha(auth.cita?.fecha)}</span>
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span><strong>Solicitado:</strong> ${formatearFechaHora(auth.fechaSolicitud)}</span>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="auth-actions">
+                        <button
+                            class="btn-icon"
+                            onclick="verDetalle(${auth.id})"
+                            title="Ver detalles"
+                        >
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button
+                            class="btn btn-approve"
+                            onclick="abrirModalAprobar(${auth.id})"
+                        >
+                            <i class="fas fa-check-circle"></i>
+                            Aprobar
+                        </button>
+                        <button
+                            class="btn btn-reject"
+                            onclick="abrirModalRechazar(${auth.id})"
+                        >
+                            <i class="fas fa-times-circle"></i>
+                            Rechazar
+                        </button>
                     </div>
                 </div>
             `).join('');
@@ -898,142 +1158,200 @@
             if (!response.ok) throw new Error('Error al cargar detalles');
 
             const data = await response.json();
-            const autorizacion = data.datos;
+            const auth = data.datos;
 
             document.getElementById('contenido-detalle').innerHTML = `
-                    <div class="space-y-4">
-                        <div class="detalle-seccion">
-                            <h3 class="detalle-seccion-titulo">Información General</h3>
-                            <div class="detalle-grid-2">
-                                <div class="detalle-item">
-                                    <p class="detalle-item-label">Tipo</p>
-                                    <p class="detalle-item-value">${autorizacion.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}</p>
-                                </div>
-                                <div class="detalle-item">
-                                    <p class="detalle-item-label">Prioridad</p>
-                                    <p class="detalle-item-value capitalize">${autorizacion.prioridad}</p>
-                                </div>
-                                <div class="detalle-item">
-                                    <p class="detalle-item-label">Estado</p>
-                                    <p class="detalle-item-value capitalize">${autorizacion.estado}</p>
-                                </div>
-                                <div class="detalle-item">
-                                    <p class="detalle-item-label">Fecha de Solicitud</p>
-                                    <p class="detalle-item-value">${formatearFechaHora(autorizacion.fechaSolicitud)}</p>
-                                </div>
+                    <div class="detail-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            Información General
+                        </h3>
+                        <div class="detail-grid">
+                            <div class="detail-field">
+                                <div class="detail-label">Tipo</div>
+                                <div class="detail-value">${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}</div>
                             </div>
-                        </div>
-
-                        <div class="detalle-seccion">
-                            <h3 class="detalle-seccion-titulo">Descripción</h3>
-                            <p class="detalle-item-value">${autorizacion.descripcion}</p>
-                        </div>
-
-                        ${autorizacion.justificacion ? `
-                            <div class="detalle-seccion">
-                                <h3 class="detalle-seccion-titulo">Justificación Médica</h3>
-                                <p class="detalle-item-value">${autorizacion.justificacion}</p>
+                            <div class="detail-field">
+                                <div class="detail-label">Prioridad</div>
+                                <div class="detail-value" style="text-transform: capitalize;">${auth.prioridad}</div>
                             </div>
-                        ` : ''}
-
-                        ${autorizacion.cantidad ? `
-                            <div class="detalle-seccion">
-                                <h3 class="detalle-seccion-titulo">Cantidad</h3>
-                                <p class="detalle-item-value">${autorizacion.cantidad}</p>
+                            <div class="detail-field">
+                                <div class="detail-label">Estado</div>
+                                <div class="detail-value" style="text-transform: capitalize;">${auth.estado}</div>
                             </div>
-                        ` : ''}
-
-                        ${autorizacion.duracionTratamiento ? `
-                            <div class="detalle-seccion">
-                                <h3 class="detalle-seccion-titulo">Duración del Tratamiento</h3>
-                                <p class="detalle-item-value">${autorizacion.duracionTratamiento}</p>
-                            </div>
-                        ` : ''}
-
-                        <div class="detalle-seccion">
-                            <h3 class="detalle-seccion-titulo">Paciente</h3>
-                            <div class="detalle-espacio-y-1">
-                                <p class="detalle-item"><strong>Nombre:</strong> ${autorizacion.paciente?.nombre}</p>
-                                <p class="detalle-item"><strong>Cédula:</strong> ${autorizacion.paciente?.cedula || 'N/A'}</p>
-                                <p class="detalle-item"><strong>Teléfono:</strong> ${autorizacion.paciente?.telefono || 'N/A'}</p>
-                                <p class="detalle-item"><strong>Correo:</strong> ${autorizacion.paciente?.correo || 'N/A'}</p>
-                            </div>
-                        </div>
-
-                        <div class="detalle-seccion">
-                            <h3 class="detalle-seccion-titulo">Médico Solicitante</h3>
-                            <div class="detalle-espacio-y-1">
-                                <p class="detalle-item"><strong>Nombre:</strong> ${autorizacion.medico?.nombre}</p>
-                                <p class="detalle-item"><strong>Especialidad:</strong> ${autorizacion.medico?.especialidad || 'N/A'}</p>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="detalle-seccion-titulo">Información de la Cita</h3>
-                            <div class="detalle-espacio-y-1">
-                                <p class="detalle-item"><strong>Fecha:</strong> ${formatearFecha(autorizacion.cita?.fecha)}</p>
-                                <p class="detalle-item"><strong>Hora:</strong> ${autorizacion.cita?.hora || 'N/A'}</p>
-                                ${autorizacion.cita?.motivo ? `<p class="detalle-item"><strong>Motivo:</strong> ${autorizacion.cita.motivo}</p>` : ''}
+                            <div class="detail-field">
+                                <div class="detail-label">Fecha de Solicitud</div>
+                                <div class="detail-value">${formatearFechaHora(auth.fechaSolicitud)}</div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="mt-6 flex justify-end">
-                        <button
-                            onclick="cerrarModalDetalle()"
-                            class="btn btn-secondary"
-                        >
-                            Cerrar
-                        </button>
+                    <div class="detail-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-file-alt"></i>
+                            Descripción
+                        </h3>
+                        <div class="detail-value">${auth.descripcion}</div>
+                    </div>
+
+                    ${auth.justificacion ? `
+                        <div class="detail-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-notes-medical"></i>
+                                Justificación Médica
+                            </h3>
+                            <div class="detail-value">${auth.justificacion}</div>
+                        </div>
+                    ` : ''}
+
+                    ${auth.cantidad ? `
+                        <div class="detail-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-hashtag"></i>
+                                Cantidad
+                            </h3>
+                            <div class="detail-value">${auth.cantidad}</div>
+                        </div>
+                    ` : ''}
+
+                    ${auth.duracionTratamiento ? `
+                        <div class="detail-section">
+                            <h3 class="section-title">
+                                <i class="fas fa-calendar-check"></i>
+                                Duración del Tratamiento
+                            </h3>
+                            <div class="detail-value">${auth.duracionTratamiento}</div>
+                        </div>
+                    ` : ''}
+
+                    <div class="detail-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-user"></i>
+                            Paciente
+                        </h3>
+                        <div class="detail-grid">
+                            <div class="detail-field">
+                                <div class="detail-label">Nombre</div>
+                                <div class="detail-value">${auth.paciente?.nombre || 'N/A'}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Cédula</div>
+                                <div class="detail-value">${auth.paciente?.cedula || 'N/A'}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Teléfono</div>
+                                <div class="detail-value">${auth.paciente?.telefono || 'N/A'}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Correo</div>
+                                <div class="detail-value">${auth.paciente?.correo || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-user-md"></i>
+                            Médico Solicitante
+                        </h3>
+                        <div class="detail-grid">
+                            <div class="detail-field">
+                                <div class="detail-label">Nombre</div>
+                                <div class="detail-value">${auth.medico?.nombre || 'N/A'}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Especialidad</div>
+                                <div class="detail-value">${auth.medico?.especialidad || 'N/A'}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3 class="section-title">
+                            <i class="fas fa-calendar-alt"></i>
+                            Información de la Cita
+                        </h3>
+                        <div class="detail-grid">
+                            <div class="detail-field">
+                                <div class="detail-label">Fecha</div>
+                                <div class="detail-value">${formatearFecha(auth.cita?.fecha)}</div>
+                            </div>
+                            <div class="detail-field">
+                                <div class="detail-label">Hora</div>
+                                <div class="detail-value">${auth.cita?.hora || 'N/A'}</div>
+                            </div>
+                            ${auth.cita?.motivo ? `
+                                <div class="detail-field" style="grid-column: 1 / -1;">
+                                    <div class="detail-label">Motivo</div>
+                                    <div class="detail-value">${auth.cita.motivo}</div>
+                                </div>
+                            ` : ''}
+                        </div>
                     </div>
                 `;
 
             document.getElementById('modalDetalle').classList.add('show');
         } catch (error) {
             mostrarError('No se pudieron cargar los detalles de la autorización.');
-            console.error('Error al ver detalle:', error);
+            console.error('Error:', error);
         }
     }
 
-    // Abrir modal de acción (Aprobar)
+    // Abrir modal aprobar
     function abrirModalAprobar(id) {
         autorizacionActual = autorizaciones.find(a => a.id === id);
         accionActual = 'aprobar';
-        document.getElementById('tituloAccion').textContent = 'Aprobar Autorización';
+
+        document.getElementById('tituloAccion').innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                Aprobar Autorización
+            `;
         document.getElementById('contenido-accion').innerHTML = `
-                <p>¿Está seguro de que desea **aprobar** la solicitud de **${autorizacionActual.descripcion}** para el paciente **${autorizacionActual.paciente?.nombre || 'N/A'}**?</p>
+                <p style="color: #52796f; font-size: 1.05em;">
+                    ¿Está seguro de que desea <strong style="color: #10b981;">aprobar</strong> la solicitud de
+                    <strong>${autorizacionActual.descripcion}</strong> para el paciente
+                    <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
+                </p>
             `;
         document.getElementById('observaciones-required').textContent = '';
         document.getElementById('observaciones').value = '';
 
         const btnConfirmar = document.getElementById('btnConfirmarAccion');
-        btnConfirmar.className = 'btn btn-confirm-green flex-1';
-        btnConfirmar.textContent = 'Aprobar';
+        btnConfirmar.className = 'btn btn-approve';
+        btnConfirmar.innerHTML = '<i class="fas fa-check-circle"></i> Aprobar';
         btnConfirmar.onclick = () => procesarAccion();
 
         document.getElementById('modalAccion').classList.add('show');
     }
 
-    // Abrir modal de acción (Rechazar)
+    // Abrir modal rechazar
     function abrirModalRechazar(id) {
         autorizacionActual = autorizaciones.find(a => a.id === id);
         accionActual = 'rechazar';
-        document.getElementById('tituloAccion').textContent = 'Rechazar Autorización';
-        document.getElementById('contenido-accion').innerHTML = `
-                <p>¿Está seguro de que desea **rechazar** la solicitud de **${autorizacionActual.descripcion}** para el paciente **${autorizacionActual.paciente?.nombre || 'N/A'}**?</p>
+
+        document.getElementById('tituloAccion').innerHTML = `
+                <i class="fas fa-times-circle"></i>
+                Rechazar Autorización
             `;
-        document.getElementById('observaciones-required').textContent = '* (Requerido)';
+        document.getElementById('contenido-accion').innerHTML = `
+                <p style="color: #52796f; font-size: 1.05em;">
+                    ¿Está seguro de que desea <strong style="color: #ef4444;">rechazar</strong> la solicitud de
+                    <strong>${autorizacionActual.descripcion}</strong> para el paciente
+                    <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
+                </p>
+            `;
+        document.getElementById('observaciones-required').textContent = '(Requerido)';
         document.getElementById('observaciones').value = '';
 
         const btnConfirmar = document.getElementById('btnConfirmarAccion');
-        btnConfirmar.className = 'btn btn-confirm-red flex-1';
-        btnConfirmar.textContent = 'Rechazar';
+        btnConfirmar.className = 'btn btn-reject';
+        btnConfirmar.innerHTML = '<i class="fas fa-times-circle"></i> Rechazar';
         btnConfirmar.onclick = () => procesarAccion();
 
         document.getElementById('modalAccion').classList.add('show');
     }
 
-    // Procesar acción (Aprobar/Rechazar)
+    // Procesar acción
     async function procesarAccion() {
         const observaciones = document.getElementById('observaciones').value.trim();
 
@@ -1055,19 +1373,21 @@
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({ observaciones: observaciones })
+                body: JSON.stringify({ observaciones })
             });
 
             if (!response.ok) throw new Error(`Error al ${accionActual} la autorización`);
 
-            // Recargar datos y cerrar modal
             cerrarModalAccion();
             await cargarAutorizaciones();
             await cargarEstadisticas();
-            alert(`Autorización ${accionActual === 'aprobar' ? 'aprobada' : 'rechazada'} con éxito.`);
+
+            // Mostrar mensaje de éxito
+            const mensaje = accionActual === 'aprobar' ? 'aprobada' : 'rechazada';
+            mostrarMensajeExito(`Autorización ${mensaje} correctamente`);
         } catch (error) {
             mostrarError(`Fallo al procesar la acción: ${error.message}`);
-            console.error('Error al procesar acción:', error);
+            console.error('Error:', error);
         }
     }
 
@@ -1086,7 +1406,6 @@
     // Helpers UI
     function mostrarLoading(mostrar) {
         document.getElementById('loading').classList.toggle('hidden', !mostrar);
-        document.getElementById('lista-autorizaciones').classList.toggle('hidden', mostrar);
     }
 
     function mostrarError(mensaje) {
@@ -1099,10 +1418,32 @@
         }
     }
 
+    function mostrarMensajeExito(mensaje) {
+        // Crear elemento temporal para mostrar éxito
+        const div = document.createElement('div');
+        div.className = 'alert';
+        div.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; background: #10b981; color: white; border-left: 4px solid #059669;';
+        div.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <span>${mensaje}</span>
+            `;
+        document.body.appendChild(div);
+
+        setTimeout(() => {
+            div.style.opacity = '0';
+            div.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => div.remove(), 300);
+        }, 3000);
+    }
+
     function formatearFecha(fechaStr) {
         if (!fechaStr) return 'N/A';
         const date = new Date(fechaStr);
-        return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'short', year: 'numeric' });
+        return date.toLocaleDateString('es-ES', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
     }
 
     function formatearFechaHora(fechaStr) {
@@ -1115,6 +1456,19 @@
             hour: '2-digit',
             minute: '2-digit'
         });
+    }
+
+    // Cerrar modales al hacer clic fuera
+    window.onclick = function(event) {
+        const modalDetalle = document.getElementById('modalDetalle');
+        const modalAccion = document.getElementById('modalAccion');
+
+        if (event.target === modalDetalle) {
+            cerrarModalDetalle();
+        }
+        if (event.target === modalAccion) {
+            cerrarModalAccion();
+        }
     }
 </script>
 </body>
