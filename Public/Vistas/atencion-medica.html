@@ -1247,12 +1247,26 @@ OBSERVACIONES: ${observaciones}`;
         examenes = examenes.filter(e => e.id !== id);
         renderizarExamenes();
     }
+    // ============================================
+    // ✅ FUNCIÓN MEJORADA: finalizarCita con creación de autorizaciones
+    // ============================================
+    // ============================================
+    // ✅ FUNCIÓN COMPLETA: finalizarCita con creación de autorizaciones
+    // Reemplaza TODA la función finalizarCita() en tu archivo atencion-medica.html
+    // ============================================
 
     async function finalizarCita() {
-        if (!citaActual) return;
+        if (!citaActual) {
+            await mostrarSelectorCitas();
+            return;
+        }
 
         if (citaActual.estado !== 'en-curso') {
-            Swal.fire({ icon: 'info', title: 'No se puede finalizar', text: 'La cita no está en curso.' });
+            Swal.fire({
+                icon: 'info',
+                title: 'No se puede finalizar',
+                text: 'La cita no está en curso.'
+            });
             return;
         }
 
@@ -1268,7 +1282,20 @@ OBSERVACIONES: ${observaciones}`;
             return;
         }
 
+        // Mostrar loading
+        Swal.fire({
+            title: 'Procesando...',
+            html: 'Guardando información y creando autorizaciones',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
         try {
+            const token = localStorage.getItem('token');
+
+            // PASO 1: Guardar anotaciones
             console.log('🔄 PASO 1: Guardando anotaciones...');
             const guardadoExitoso = await guardarAnotaciones();
 
@@ -1281,11 +1308,102 @@ OBSERVACIONES: ${observaciones}`;
                 return;
             }
 
-            await new Promise(resolve => setTimeout(resolve, 500));
+            // PASO 2: Crear autorizaciones para medicamentos
+            console.log('🔄 PASO 2: Creando autorizaciones de medicamentos...');
+            let autorizacionesCreadas = 0;
 
-            console.log('🔄 PASO 2: Finalizando cita...');
-            const token = localStorage.getItem('token');
+            for (const med of medicamentos) {
+                try {
+                    const response = await fetch('http://localhost:3000/api/autorizaciones', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            id_cita: citaActual.id,
+                            id_paciente: citaActual.pacienteId,
+                            tipo: 'medicamento',
+                            descripcion: med.nombre,
+                            justificacion: `Dosis: ${med.dosis} | Frecuencia: ${med.frecuencia}${med.duracion ? ' | Duración: ' + med.duracion : ''}${med.indicaciones ? ' | Indicaciones: ' + med.indicaciones : ''}`,
+                            prioridad: 'media',
+                            cantidad: med.dosis,
+                            duracion_tratamiento: med.duracion || null
+                        })
+                    });
 
+                    if (response.ok) {
+                        autorizacionesCreadas++;
+                        console.log(`✅ Autorización creada para medicamento: ${med.nombre}`);
+                    } else {
+                        const errorData = await response.json();
+                        console.error(`❌ ERROR ${response.status} al crear autorización para ${med.nombre}:`, errorData);
+                    }
+                } catch (error) {
+                    console.error(`❌ Error al crear autorización para ${med.nombre}:`, error);
+                }
+            }
+
+            // PASO 3: Crear autorizaciones para exámenes
+            // PASO 3: Crear autorizaciones para exámenes
+            console.log('🔄 PASO 3: Creando autorizaciones de exámenes...');
+            console.log('📋 Exámenes a procesar:', examenes); // DEBUG
+
+            for (const ex of examenes) {
+                try {
+                    // 🔍 Validar que el examen tenga nombre
+                    if (!ex.nombre || ex.nombre.trim() === '') {
+                        console.warn('⚠️ Examen sin nombre, se omite:', ex);
+                        continue;
+                    }
+
+                    // Construir descripción robusta
+                    let descripcion = ex.nombre.trim();
+                    if (ex.tipo && ex.tipo.trim() !== '') {
+                        descripcion += ` (${ex.tipo.trim()})`;
+                    }
+
+                    // Construir el body de la petición
+                    const bodyExamen = {
+                        id_cita: citaActual.id,
+                        id_paciente: citaActual.pacienteId,
+                        tipo: 'examen',
+                        descripcion: descripcion,
+                        justificacion: (ex.indicaciones && ex.indicaciones.trim() !== '')
+                            ? ex.indicaciones.trim()
+                            : 'Examen solicitado durante la consulta',
+                        prioridad: ex.prioridad || 'media'
+                    };
+
+                    // 🔍 DEBUG: Ver qué se está enviando
+                    console.log('📤 Enviando examen:', bodyExamen);
+
+                    const response = await fetch('http://localhost:3000/api/autorizaciones', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(bodyExamen)
+                    });
+
+                    if (response.ok) {
+                        autorizacionesCreadas++;
+                        console.log(`✅ Autorización creada para examen: ${ex.nombre}`);
+                    } else {
+                        const errorData = await response.json();
+                        console.error(`❌ Error al crear autorización para ${ex.nombre}:`, {
+                            status: response.status,
+                            error: errorData,
+                            bodyEnviado: bodyExamen
+                        });
+                    }
+                } catch (error) {
+                    console.error(`❌ Error al crear autorización para ${ex.nombre}:`, error);
+                }
+            }
+            // PASO 4: Finalizar la cita
+            console.log('🔄 PASO 4: Finalizando cita...');
             const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/completar`, {
                 method: 'PUT',
                 headers: {
@@ -1302,12 +1420,26 @@ OBSERVACIONES: ${observaciones}`;
                 localStorage.removeItem('citaActual');
                 actualizarEstadoCita('completada');
 
+                // Limpiar arrays
+                medicamentos = [];
+                examenes = [];
+                renderizarMedicamentos();
+                renderizarExamenes();
+
+                // Mostrar resumen
+                let mensaje = '✅ Se ha registrado la atención médica correctamente.';
+                if (autorizacionesCreadas > 0) {
+                    mensaje += `<br><br>📋 Se crearon <strong>${autorizacionesCreadas} autorizaciones</strong> pendientes de aprobación administrativa.`;
+                } else {
+                    mensaje += '<br><br>ℹ️ No se crearon autorizaciones (sin medicamentos ni exámenes).';
+                }
+
                 Swal.fire({
                     icon: 'success',
-                    title: 'Cita Finalizada',
-                    text: 'Se ha registrado la atención médica correctamente.',
+                    title: '✨ Cita Finalizada',
+                    html: mensaje,
                     showConfirmButton: true,
-                    confirmButtonText: 'Ir a la Agenda'
+                    confirmButtonText: '👉 Ir a la Agenda'
                 }).then(() => {
                     window.location.href = '/Vistas/agenda-medico.html';
                 });
@@ -1326,6 +1458,7 @@ OBSERVACIONES: ${observaciones}`;
             });
         }
     }
+
 </script>
 </body>
 </html>

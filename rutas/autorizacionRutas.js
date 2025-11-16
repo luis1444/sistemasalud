@@ -14,6 +14,15 @@ const authMiddleware = require('../middlewares/authMiddleware');
 // POST /api/autorizaciones
 router.post('/',
     authMiddleware.verificarToken,
+    (req, res, next) => {
+        // 🔍 DEBUG: Ver quién está intentando crear
+        console.log('🔐 Intentando crear autorización:', {
+            usuario: req.usuario?.nombre,
+            rol: req.usuario?.rol,
+            id: req.usuario?.id
+        });
+        next();
+    },
     authMiddleware.esMedico,
     autorizacionControlador.crearAutorizacion
 );

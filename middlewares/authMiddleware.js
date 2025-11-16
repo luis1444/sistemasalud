@@ -1,5 +1,5 @@
 // ============================================
-// 📄 middleware/authMiddleware.js (COMPLETO)
+// 📄 middleware/authMiddleware.js (CORREGIDO)
 // ============================================
 const jwt = require('jsonwebtoken');
 
@@ -31,6 +31,12 @@ class AuthMiddleware {
 
             // Guardar los datos del usuario autenticado
             req.usuario = decoded;
+
+            console.log('✅ Token verificado:', {
+                id: decoded.id,
+                nombre: decoded.nombre,
+                rol: decoded.rol
+            });
 
             next();
         } catch (error) {
@@ -66,7 +72,11 @@ class AuthMiddleware {
             });
         }
 
-        if (req.usuario.rol !== 'administrador' && req.usuario.rol !== 'admin') {
+        const rol = req.usuario.rol;
+        console.log('🔍 Verificando administrador:', { rol });
+
+        // ✅ CORRECCIÓN: Aceptar 'admin' y 'administrador'
+        if (rol !== 'administrador' && rol !== 'admin') {
             return res.status(403).json({
                 exito: false,
                 mensaje: 'Acceso denegado. Se requiere rol de administrador.'
@@ -85,7 +95,15 @@ class AuthMiddleware {
             });
         }
 
-        if (req.usuario.rol !== 'medico') {
+        const rol = req.usuario.rol;
+        console.log('🔍 Verificando médico:', {
+            rol,
+            esDoctor: rol === 'doctor',
+            esMedico: rol === 'medico'
+        });
+
+        // ✅ CORRECCIÓN CRÍTICA: Aceptar tanto 'doctor' como 'medico'
+        if (rol !== 'doctor' && rol !== 'medico') {
             return res.status(403).json({
                 exito: false,
                 mensaje: 'Acceso denegado. Se requiere rol de médico.'
@@ -104,7 +122,10 @@ class AuthMiddleware {
             });
         }
 
-        if (req.usuario.rol !== 'paciente') {
+        const rol = req.usuario.rol;
+        console.log('🔍 Verificando paciente:', { rol });
+
+        if (rol !== 'paciente') {
             return res.status(403).json({
                 exito: false,
                 mensaje: 'Acceso denegado. Se requiere rol de paciente.'
@@ -122,6 +143,29 @@ class AuthMiddleware {
                 mensaje: 'No autorizado (solo administradores)'
             });
         }
+        next();
+    }
+
+    // ✅ Verificar si es médico O administrador (útil para algunas rutas)
+    esMedicoOAdministrador(req, res, next) {
+        if (!req.usuario) {
+            return res.status(401).json({
+                exito: false,
+                mensaje: 'Usuario no autenticado'
+            });
+        }
+
+        const rol = req.usuario.rol;
+        const esDoctor = rol === 'doctor' || rol === 'medico';
+        const esAdmin = rol === 'admin' || rol === 'administrador';
+
+        if (!esDoctor && !esAdmin) {
+            return res.status(403).json({
+                exito: false,
+                mensaje: 'Acceso denegado. Se requiere rol de médico o administrador.'
+            });
+        }
+
         next();
     }
 
@@ -158,6 +202,7 @@ module.exports = {
     esMedico: auth.esMedico.bind(auth),
     esPaciente: auth.esPaciente.bind(auth),
     esAdmin: auth.esAdmin.bind(auth),
+    esMedicoOAdministrador: auth.esMedicoOAdministrador.bind(auth),
 
     // Métodos adicionales (compatibilidad)
     autenticar: auth.verificarToken.bind(auth),

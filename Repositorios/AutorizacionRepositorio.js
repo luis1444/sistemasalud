@@ -29,7 +29,8 @@ class AutorizacionRepositorio {
                     {
                         model: Usuario,
                         as: 'paciente',
-                        attributes: ['id', 'nombre', 'correo', 'telefono', 'cedula']
+                        // ✅ REMOVIDO 'cedula' porque no existe en la tabla usuarios
+                        attributes: ['id', 'nombre', 'correo', 'telefono']
                     },
                     {
                         model: Cita,
@@ -57,7 +58,8 @@ class AutorizacionRepositorio {
                     {
                         model: Usuario,
                         as: 'paciente',
-                        attributes: ['id', 'nombre', 'correo', 'telefono', 'cedula']
+                        // ✅ REMOVIDO 'cedula' porque no existe en la tabla usuarios
+                        attributes: ['id', 'nombre', 'correo', 'telefono']
                     },
                     {
                         model: Cita,
@@ -94,7 +96,8 @@ class AutorizacionRepositorio {
                     {
                         model: Usuario,
                         as: 'paciente',
-                        attributes: ['id', 'nombre', 'correo', 'telefono', 'cedula']
+                        // ✅ REMOVIDO 'cedula' porque no existe en la tabla usuarios
+                        attributes: ['id', 'nombre', 'correo', 'telefono']
                     },
                     {
                         model: Cita,

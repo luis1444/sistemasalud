@@ -947,6 +947,10 @@
     </div>
 </div>
 <script>
+    // ============================================
+    // SCRIPT CORREGIDO PARA gestion-autorizaciones.html
+    // ============================================
+
     const API_URL = 'http://localhost:3000/api';
     let autorizaciones = [];
     let autorizacionActual = null;
@@ -954,12 +958,13 @@
 
     // Inicializar
     document.addEventListener('DOMContentLoaded', () => {
+        console.log('🚀 Iniciando Gestión de Autorizaciones...');
         verificarAutenticacion();
         cargarDatosUsuario();
         cargarAutorizaciones();
         cargarEstadisticas();
 
-        // Event listeners
+        // Event listeners para filtros en tiempo real
         document.getElementById('busqueda').addEventListener('input', aplicarFiltros);
         document.getElementById('filtroTipo').addEventListener('change', aplicarFiltros);
         document.getElementById('filtroPrioridad').addEventListener('change', aplicarFiltros);
@@ -983,18 +988,10 @@
         }
     }
 
-    // Cerrar sesión
-    function cerrarSesion() {
-        if (confirm('¿Está seguro de que desea cerrar sesión?')) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('usuario');
-            window.location.href = 'login.html';
-        }
-    }
-
     // Cargar autorizaciones
     async function cargarAutorizaciones() {
         try {
+            console.log('📥 Cargando autorizaciones...');
             mostrarLoading(true);
             const token = localStorage.getItem('token');
 
@@ -1004,15 +1001,21 @@
                 }
             });
 
-            if (!response.ok) throw new Error('Error al cargar autorizaciones');
+            if (!response.ok) {
+                throw new Error('Error al cargar autorizaciones');
+            }
 
             const data = await response.json();
+            console.log('✅ Datos recibidos:', data);
+
             autorizaciones = data.datos || [];
+            console.log(`📋 Total autorizaciones: ${autorizaciones.length}`);
+
             aplicarFiltros();
             mostrarError(null);
         } catch (error) {
+            console.error('❌ Error al cargar autorizaciones:', error);
             mostrarError(error.message);
-            console.error('Error:', error);
         } finally {
             mostrarLoading(false);
         }
@@ -1038,7 +1041,7 @@
                     (stats.pendientes || 0) + (stats.aprobadas || 0) + (stats.rechazadas || 0);
             }
         } catch (error) {
-            console.error('Error cargando estadísticas:', error);
+            console.error('❌ Error cargando estadísticas:', error);
         }
     }
 
@@ -1047,6 +1050,8 @@
         const busqueda = document.getElementById('busqueda').value.toLowerCase();
         const tipo = document.getElementById('filtroTipo').value;
         const prioridad = document.getElementById('filtroPrioridad').value;
+
+        console.log('🔍 Aplicando filtros:', { busqueda, tipo, prioridad });
 
         let filtradas = [...autorizaciones];
 
@@ -1059,14 +1064,18 @@
         }
 
         if (busqueda.trim()) {
-            filtradas = filtradas.filter(a =>
-                a.paciente?.nombre.toLowerCase().includes(busqueda) ||
-                a.medico?.nombre.toLowerCase().includes(busqueda) ||
-                a.descripcion.toLowerCase().includes(busqueda) ||
-                a.paciente?.cedula?.includes(busqueda)
-            );
+            filtradas = filtradas.filter(a => {
+                const nombrePaciente = a.paciente?.nombre?.toLowerCase() || '';
+                const nombreMedico = a.medico?.nombre?.toLowerCase() || '';
+                const descripcion = a.descripcion?.toLowerCase() || '';
+
+                return nombrePaciente.includes(busqueda) ||
+                    nombreMedico.includes(busqueda) ||
+                    descripcion.includes(busqueda);
+            });
         }
 
+        console.log(`✅ Autorizaciones filtradas: ${filtradas.length}`);
         renderizarAutorizaciones(filtradas);
     }
 
@@ -1074,6 +1083,8 @@
     function renderizarAutorizaciones(lista) {
         const container = document.getElementById('lista-autorizaciones');
         const sinResultados = document.getElementById('sin-resultados');
+
+        console.log('🎨 Renderizando autorizaciones:', lista.length);
 
         if (lista.length === 0) {
             container.innerHTML = '';
@@ -1083,66 +1094,66 @@
 
         sinResultados.classList.add('hidden');
         container.innerHTML = lista.map(auth => `
-                <div class="auth-card ${auth.prioridad}">
-                    <div class="auth-header">
-                        <div class="auth-icon ${auth.tipo === 'medicamento' ? 'icon-medicamento' : 'icon-examen'}">
-                            <i class="fas ${auth.tipo === 'medicamento' ? 'fa-pills' : 'fa-file-medical'}"></i>
-                        </div>
-                        <div class="auth-info">
-                            <div class="auth-title-row">
-                                <h3 class="auth-title">
-                                    ${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}
-                                </h3>
-                                <span class="badge badge-${auth.prioridad}">
-                                    ${auth.prioridad}
-                                </span>
-                            </div>
-                            <p class="auth-description">${auth.descripcion}</p>
-                            <div class="auth-details">
-                                <div class="detail-item">
-                                    <i class="fas fa-user"></i>
-                                    <span><strong>Paciente:</strong> ${auth.paciente?.nombre || 'N/A'}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-user-md"></i>
-                                    <span><strong>Médico:</strong> ${auth.medico?.nombre || 'N/A'}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-calendar"></i>
-                                    <span><strong>Cita:</strong> ${formatearFecha(auth.cita?.fecha)}</span>
-                                </div>
-                                <div class="detail-item">
-                                    <i class="fas fa-clock"></i>
-                                    <span><strong>Solicitado:</strong> ${formatearFechaHora(auth.fechaSolicitud)}</span>
-                                </div>
-                            </div>
-                        </div>
+        <div class="auth-card ${auth.prioridad}">
+            <div class="auth-header">
+                <div class="auth-icon ${auth.tipo === 'medicamento' ? 'icon-medicamento' : 'icon-examen'}">
+                    <i class="fas ${auth.tipo === 'medicamento' ? 'fa-pills' : 'fa-file-medical'}"></i>
+                </div>
+                <div class="auth-info">
+                    <div class="auth-title-row">
+                        <h3 class="auth-title">
+                            ${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}
+                        </h3>
+                        <span class="badge badge-${auth.prioridad}">
+                            ${auth.prioridad}
+                        </span>
                     </div>
-                    <div class="auth-actions">
-                        <button
-                            class="btn-icon"
-                            onclick="verDetalle(${auth.id})"
-                            title="Ver detalles"
-                        >
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button
-                            class="btn btn-approve"
-                            onclick="abrirModalAprobar(${auth.id})"
-                        >
-                            <i class="fas fa-check-circle"></i>
-                            Aprobar
-                        </button>
-                        <button
-                            class="btn btn-reject"
-                            onclick="abrirModalRechazar(${auth.id})"
-                        >
-                            <i class="fas fa-times-circle"></i>
-                            Rechazar
-                        </button>
+                    <p class="auth-description">${auth.descripcion}</p>
+                    <div class="auth-details">
+                        <div class="detail-item">
+                            <i class="fas fa-user"></i>
+                            <span><strong>Paciente:</strong> ${auth.paciente?.nombre || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-user-md"></i>
+                            <span><strong>Médico:</strong> ${auth.medico?.nombre || 'N/A'}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-calendar"></i>
+                            <span><strong>Cita:</strong> ${formatearFecha(auth.cita?.fecha)}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="fas fa-clock"></i>
+                            <span><strong>Solicitado:</strong> ${formatearFechaHora(auth.fechaSolicitud)}</span>
+                        </div>
                     </div>
                 </div>
-            `).join('');
+            </div>
+            <div class="auth-actions">
+                <button
+                    class="btn-icon"
+                    onclick="verDetalle(${auth.id})"
+                    title="Ver detalles"
+                >
+                    <i class="fas fa-eye"></i>
+                </button>
+                <button
+                    class="btn btn-approve"
+                    onclick="abrirModalAprobar(${auth.id})"
+                >
+                    <i class="fas fa-check-circle"></i>
+                    Aprobar
+                </button>
+                <button
+                    class="btn btn-reject"
+                    onclick="abrirModalRechazar(${auth.id})"
+                >
+                    <i class="fas fa-times-circle"></i>
+                    Rechazar
+                </button>
+            </div>
+        </div>
+    `).join('');
     }
 
     // Ver detalle
@@ -1161,134 +1172,130 @@
             const auth = data.datos;
 
             document.getElementById('contenido-detalle').innerHTML = `
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-info-circle"></i>
-                            Información General
-                        </h3>
-                        <div class="detail-grid">
-                            <div class="detail-field">
-                                <div class="detail-label">Tipo</div>
-                                <div class="detail-value">${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Prioridad</div>
-                                <div class="detail-value" style="text-transform: capitalize;">${auth.prioridad}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Estado</div>
-                                <div class="detail-value" style="text-transform: capitalize;">${auth.estado}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Fecha de Solicitud</div>
-                                <div class="detail-value">${formatearFechaHora(auth.fechaSolicitud)}</div>
-                            </div>
-                        </div>
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Información General
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <div class="detail-label">Tipo</div>
+                        <div class="detail-value">${auth.tipo === 'medicamento' ? 'Medicamento' : 'Examen Médico'}</div>
                     </div>
-
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-file-alt"></i>
-                            Descripción
-                        </h3>
-                        <div class="detail-value">${auth.descripcion}</div>
+                    <div class="detail-field">
+                        <div class="detail-label">Prioridad</div>
+                        <div class="detail-value" style="text-transform: capitalize;">${auth.prioridad}</div>
                     </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Estado</div>
+                        <div class="detail-value" style="text-transform: capitalize;">${auth.estado}</div>
+                    </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Fecha de Solicitud</div>
+                        <div class="detail-value">${formatearFechaHora(auth.fechaSolicitud)}</div>
+                    </div>
+                </div>
+            </div>
 
-                    ${auth.justificacion ? `
-                        <div class="detail-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-notes-medical"></i>
-                                Justificación Médica
-                            </h3>
-                            <div class="detail-value">${auth.justificacion}</div>
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-file-alt"></i>
+                    Descripción
+                </h3>
+                <div class="detail-value">${auth.descripcion}</div>
+            </div>
+
+            ${auth.justificacion ? `
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-notes-medical"></i>
+                        Justificación Médica
+                    </h3>
+                    <div class="detail-value">${auth.justificacion}</div>
+                </div>
+            ` : ''}
+
+            ${auth.cantidad ? `
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-hashtag"></i>
+                        Cantidad
+                    </h3>
+                    <div class="detail-value">${auth.cantidad}</div>
+                </div>
+            ` : ''}
+
+            ${auth.duracionTratamiento ? `
+                <div class="detail-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-calendar-check"></i>
+                        Duración del Tratamiento
+                    </h3>
+                    <div class="detail-value">${auth.duracionTratamiento}</div>
+                </div>
+            ` : ''}
+
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user"></i>
+                    Paciente
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <div class="detail-label">Nombre</div>
+                        <div class="detail-value">${auth.paciente?.nombre || 'N/A'}</div>
+                    </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Teléfono</div>
+                        <div class="detail-value">${auth.paciente?.telefono || 'N/A'}</div>
+                    </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Correo</div>
+                        <div class="detail-value">${auth.paciente?.correo || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-user-md"></i>
+                    Médico Solicitante
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <div class="detail-label">Nombre</div>
+                        <div class="detail-value">${auth.medico?.nombre || 'N/A'}</div>
+                    </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Especialidad</div>
+                        <div class="detail-value">${auth.medico?.especialidad || 'N/A'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h3 class="section-title">
+                    <i class="fas fa-calendar-alt"></i>
+                    Información de la Cita
+                </h3>
+                <div class="detail-grid">
+                    <div class="detail-field">
+                        <div class="detail-label">Fecha</div>
+                        <div class="detail-value">${formatearFecha(auth.cita?.fecha)}</div>
+                    </div>
+                    <div class="detail-field">
+                        <div class="detail-label">Hora</div>
+                        <div class="detail-value">${auth.cita?.hora || 'N/A'}</div>
+                    </div>
+                    ${auth.cita?.motivo ? `
+                        <div class="detail-field" style="grid-column: 1 / -1;">
+                            <div class="detail-label">Motivo</div>
+                            <div class="detail-value">${auth.cita.motivo}</div>
                         </div>
                     ` : ''}
-
-                    ${auth.cantidad ? `
-                        <div class="detail-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-hashtag"></i>
-                                Cantidad
-                            </h3>
-                            <div class="detail-value">${auth.cantidad}</div>
-                        </div>
-                    ` : ''}
-
-                    ${auth.duracionTratamiento ? `
-                        <div class="detail-section">
-                            <h3 class="section-title">
-                                <i class="fas fa-calendar-check"></i>
-                                Duración del Tratamiento
-                            </h3>
-                            <div class="detail-value">${auth.duracionTratamiento}</div>
-                        </div>
-                    ` : ''}
-
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-user"></i>
-                            Paciente
-                        </h3>
-                        <div class="detail-grid">
-                            <div class="detail-field">
-                                <div class="detail-label">Nombre</div>
-                                <div class="detail-value">${auth.paciente?.nombre || 'N/A'}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Cédula</div>
-                                <div class="detail-value">${auth.paciente?.cedula || 'N/A'}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Teléfono</div>
-                                <div class="detail-value">${auth.paciente?.telefono || 'N/A'}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Correo</div>
-                                <div class="detail-value">${auth.paciente?.correo || 'N/A'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-user-md"></i>
-                            Médico Solicitante
-                        </h3>
-                        <div class="detail-grid">
-                            <div class="detail-field">
-                                <div class="detail-label">Nombre</div>
-                                <div class="detail-value">${auth.medico?.nombre || 'N/A'}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Especialidad</div>
-                                <div class="detail-value">${auth.medico?.especialidad || 'N/A'}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="detail-section">
-                        <h3 class="section-title">
-                            <i class="fas fa-calendar-alt"></i>
-                            Información de la Cita
-                        </h3>
-                        <div class="detail-grid">
-                            <div class="detail-field">
-                                <div class="detail-label">Fecha</div>
-                                <div class="detail-value">${formatearFecha(auth.cita?.fecha)}</div>
-                            </div>
-                            <div class="detail-field">
-                                <div class="detail-label">Hora</div>
-                                <div class="detail-value">${auth.cita?.hora || 'N/A'}</div>
-                            </div>
-                            ${auth.cita?.motivo ? `
-                                <div class="detail-field" style="grid-column: 1 / -1;">
-                                    <div class="detail-label">Motivo</div>
-                                    <div class="detail-value">${auth.cita.motivo}</div>
-                                </div>
-                            ` : ''}
-                        </div>
-                    </div>
-                `;
+                </div>
+            </div>
+        `;
 
             document.getElementById('modalDetalle').classList.add('show');
         } catch (error) {
@@ -1303,16 +1310,16 @@
         accionActual = 'aprobar';
 
         document.getElementById('tituloAccion').innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                Aprobar Autorización
-            `;
+        <i class="fas fa-check-circle"></i>
+        Aprobar Autorización
+    `;
         document.getElementById('contenido-accion').innerHTML = `
-                <p style="color: #52796f; font-size: 1.05em;">
-                    ¿Está seguro de que desea <strong style="color: #10b981;">aprobar</strong> la solicitud de
-                    <strong>${autorizacionActual.descripcion}</strong> para el paciente
-                    <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
-                </p>
-            `;
+        <p style="color: #52796f; font-size: 1.05em;">
+            ¿Está seguro de que desea <strong style="color: #10b981;">aprobar</strong> la solicitud de
+            <strong>${autorizacionActual.descripcion}</strong> para el paciente
+            <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
+        </p>
+    `;
         document.getElementById('observaciones-required').textContent = '';
         document.getElementById('observaciones').value = '';
 
@@ -1330,16 +1337,16 @@
         accionActual = 'rechazar';
 
         document.getElementById('tituloAccion').innerHTML = `
-                <i class="fas fa-times-circle"></i>
-                Rechazar Autorización
-            `;
+        <i class="fas fa-times-circle"></i>
+        Rechazar Autorización
+    `;
         document.getElementById('contenido-accion').innerHTML = `
-                <p style="color: #52796f; font-size: 1.05em;">
-                    ¿Está seguro de que desea <strong style="color: #ef4444;">rechazar</strong> la solicitud de
-                    <strong>${autorizacionActual.descripcion}</strong> para el paciente
-                    <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
-                </p>
-            `;
+        <p style="color: #52796f; font-size: 1.05em;">
+            ¿Está seguro de que desea <strong style="color: #ef4444;">rechazar</strong> la solicitud de
+            <strong>${autorizacionActual.descripcion}</strong> para el paciente
+            <strong>${autorizacionActual.paciente?.nombre || 'N/A'}</strong>?
+        </p>
+    `;
         document.getElementById('observaciones-required').textContent = '(Requerido)';
         document.getElementById('observaciones').value = '';
 
@@ -1419,14 +1426,13 @@
     }
 
     function mostrarMensajeExito(mensaje) {
-        // Crear elemento temporal para mostrar éxito
         const div = document.createElement('div');
         div.className = 'alert';
         div.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; background: #10b981; color: white; border-left: 4px solid #059669;';
         div.innerHTML = `
-                <i class="fas fa-check-circle"></i>
-                <span>${mensaje}</span>
-            `;
+        <i class="fas fa-check-circle"></i>
+        <span>${mensaje}</span>
+    `;
         document.body.appendChild(div);
 
         setTimeout(() => {

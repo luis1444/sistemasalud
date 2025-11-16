@@ -1,8 +1,8 @@
 // ============================================
-// 📄 entidades/Autorizacion.js
+// 📄 entidades/Autorizacion.js (CORREGIDO)
 // ============================================
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/database'); // ⬅️ IMPORTANTE: Desestructurar
+const { sequelize } = require('../config/database');
 
 const Autorizacion = sequelize.define('Autorizacion', {
     id: {
@@ -16,7 +16,9 @@ const Autorizacion = sequelize.define('Autorizacion', {
         references: {
             model: 'citas',
             key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     },
     id_medico: {
         type: DataTypes.INTEGER,
@@ -24,7 +26,9 @@ const Autorizacion = sequelize.define('Autorizacion', {
         references: {
             model: 'usuarios',
             key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     },
     id_paciente: {
         type: DataTypes.INTEGER,
@@ -32,7 +36,9 @@ const Autorizacion = sequelize.define('Autorizacion', {
         references: {
             model: 'usuarios',
             key: 'id'
-        }
+        },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
     },
     tipo: {
         type: DataTypes.ENUM('medicamento', 'examen'),
@@ -75,6 +81,8 @@ const Autorizacion = sequelize.define('Autorizacion', {
             model: 'usuarios',
             key: 'id'
         },
+        onDelete: 'SET NULL',
+        onUpdate: 'CASCADE',
         comment: 'ID del administrador que aprobó/rechazó'
     },
     observaciones: {
@@ -96,7 +104,10 @@ const Autorizacion = sequelize.define('Autorizacion', {
     tableName: 'autorizaciones',
     timestamps: true,
     createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    updatedAt: 'updated_at',
+    // 🔧 OPCIONES CRÍTICAS PARA SINCRONIZACIÓN
+    freezeTableName: true, // No pluralizar el nombre
+    underscored: true      // Usar snake_case
 });
 
 module.exports = Autorizacion;

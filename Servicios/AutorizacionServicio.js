@@ -144,7 +144,7 @@ class AutorizacionServicio {
             fechaRespuesta: autorizacionJSON.fecha_respuesta,
             observaciones: autorizacionJSON.observaciones,
             cantidad: autorizacionJSON.cantidad,
-            duracionTratamiento: autorizacionJSON.duracion_tratamiento,
+            duracionTratamiento: autorizacionJSON.duracion_tratamiento, // ✅ CORREGIDO: era autorizacionJson
             medico: autorizacionJSON.medico ? {
                 id: autorizacionJSON.medico.id,
                 nombre: autorizacionJSON.medico.nombre,
@@ -154,8 +154,7 @@ class AutorizacionServicio {
                 id: autorizacionJSON.paciente.id,
                 nombre: autorizacionJSON.paciente.nombre,
                 correo: autorizacionJSON.paciente.correo,
-                telefono: autorizacionJSON.paciente.telefono,
-                cedula: autorizacionJSON.paciente.cedula
+                telefono: autorizacionJSON.paciente.telefono
             } : null,
             cita: autorizacionJSON.cita ? {
                 id: autorizacionJSON.cita.id,
