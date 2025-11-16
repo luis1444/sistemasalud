@@ -1,10 +1,646 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Laboratorio | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            /* Mismo degradado de fondo */
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        /* Header - Mantenemos los colores corporativos */
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+            position: relative;
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+            letter-spacing: 1px;
+        }
+
+        .saludo-usuario {
+            flex: 1;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 600;
+        }
+
+        .perfil-menu {
+            position: relative;
+        }
+
+        .perfil-icono {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: white;
+            color: #0077b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .perfil-icono:hover {
+            transform: scale(1.1);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Sidebar de perfil - Mantenemos el estilo */
+        .sidebar-perfil {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 25px rgba(0, 0, 0, 0.2);
+            transition: right 0.4s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar-perfil.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .sidebar-header .perfil-avatar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: white;
+            color: #0077b6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            font-weight: 700;
+            margin: 0 auto 20px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-header p {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .sidebar-content {
+            padding: 30px;
+        }
+
+        .perfil-seccion {
+            margin-bottom: 30px;
+        }
+
+        .perfil-seccion h3 {
+            color: #0077b6;
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e0f7fa;
+        }
+
+        .perfil-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .perfil-item-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+
+        .perfil-item-content {
+            flex: 1;
+        }
+
+        .perfil-item-label {
+            font-size: 0.85em;
+            color: #52796f;
+            margin-bottom: 5px;
+        }
+
+        .perfil-item-value {
+            font-size: 1.05em;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        .btn-cerrar-sidebar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn-cerrar-sidebar:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .btn-cerrar-sesion {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 20px;
+        }
+
+        .btn-cerrar-sesion:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.3);
+        }
+
+        /* Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 40px auto;
+            padding: 0 40px;
+        }
+
+        /* Welcome Section */
+        .welcome {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .welcome h2 {
+            color: #0077b6;
+            font-size: 2em;
+            margin-bottom: 10px;
+        }
+
+        .welcome p {
+            color: #52796f;
+            font-size: 1.1em;
+        }
+
+        /* Cards Grid */
+        .cards-grid {
+            display: grid;
+            /* Se ajusta a 3 columnas si no hay gestión de insumos para una mejor estética */
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Aseguramos que solo haya 4 o 6 cards en la cuadrícula si es posible */
+        @media (min-width: 900px) {
+            .cards-grid:has(.card:nth-last-child(4)):not(:has(.card:nth-last-child(5))) {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            transition: all 0.3s ease;
+            border-left: 5px solid #00b4d8;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 119, 182, 0.2);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .card-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            color: white;
+        }
+
+        .card h3 {
+            color: #0077b6;
+            font-size: 1.3em;
+        }
+
+        .card p {
+            color: #52796f;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn-card {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+                text-align: center;
+            }
+
+            .usuario-info {
+                flex-direction: column;
+            }
+
+            .container {
+                padding: 0 20px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
+
+<div class="header">
+    <div class="logo-header">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <div class="saludo-usuario">
+        <span id="saludoUsuario">Hola, Cargando...</span>
+    </div>
+    <div class="perfil-menu">
+        <div class="perfil-icono" onclick="toggleSidebar()" id="perfilIcono">
+            <span id="inicialUsuario">?</span>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar-perfil" id="sidebarPerfil">
+    <button class="btn-cerrar-sidebar" onclick="toggleSidebar()">✕</button>
+    <div class="sidebar-header">
+        <div class="perfil-avatar">
+            <span id="avatarInicial">?</span>
+        </div>
+        <h2 id="nombreCompleto">Nombre del Técnico</h2>
+        <p>Personal de Laboratorio</p>
+    </div>
+    <div class="sidebar-content">
+        <div class="perfil-seccion">
+            <h3>Mi Perfil</h3>
+
+            <div class="perfil-item">
+                <div class="perfil-item-icon">👤</div>
+                <div class="perfil-item-content">
+                    <div class="perfil-item-label">Nombre completo</div>
+                    <div class="perfil-item-value" id="perfilNombre">-</div>
+                </div>
+            </div>
+
+            <div class="perfil-item">
+                <div class="perfil-item-icon">📧</div>
+                <div class="perfil-item-content">
+                    <div class="perfil-item-label">Correo electrónico</div>
+                    <div class="perfil-item-value" id="perfilCorreo">-</div>
+                </div>
+            </div>
+
+            <div class="perfil-item">
+                <div class="perfil-item-icon">📅</div>
+                <div class="perfil-item-content">
+                    <div class="perfil-item-label">Fecha de registro</div>
+                    <div class="perfil-item-value" id="perfilFechaRegistro">-</div>
+                </div>
+            </div>
+
+            <div class="perfil-item">
+                <div class="perfil-item-icon">🔐</div>
+                <div class="perfil-item-content">
+                    <div class="perfil-item-label">Rol</div>
+                    <div class="perfil-item-value">Laboratorio</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn-cerrar-sesion" onclick="cerrarSesion()">
+            🚪 Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+<div class="container">
+    <div class="welcome">
+        <h2>¡Bienvenido al Panel de Laboratorio!</h2>
+        <p>Aquí puede gestionar las solicitudes de exámenes, registrar resultados y mantener el control de procesos.</p>
+    </div>
+
+    <div class="cards-grid">
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">✅</div>
+                <h3>Órdenes Aprobadas</h3>
+            </div>
+            <p>Consulta la lista de órdenes de exámenes aprobadas y listas para la toma de muestra/procesamiento.</p>
+            <button class="btn-card" onclick="irAOrdenesAprobadas()">Ver Pendientes</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">🔬</div>
+                <h3>Registro de Exámenes</h3>
+            </div>
+            <p>Registra la toma de muestras, procesa los análisis y carga los resultados finales de los pacientes.</p>
+            <button class="btn-card" onclick="irARegistroExamenes()">Registrar Resultados</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">📄</div>
+                <h3>Consulta de Resultados</h3>
+            </div>
+            <p>Accede y revisa los resultados de exámenes que han sido completados o están en proceso.</p>
+            <button class="btn-card" onclick="irAConsultaResultados()">Consultar Historial</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">👤</div>
+                <h3>Mi Perfil</h3>
+            </div>
+            <p>Actualiza tu información personal y verifica tus datos de acceso al sistema.</p>
+            <button class="btn-card" onclick="irAPerfil()">Editar Perfil</button>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="card-icon">❓</div>
+                <h3>Ayuda y Soporte</h3>
+            </div>
+            <p>¿Necesitas asistencia? Accede a guías rápidas o contacta al equipo de soporte técnico.</p>
+            <button class="btn-card" onclick="irAAyuda()">Obtener Ayuda</button>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    // Variables globales
+    let usuarioData = null;
+
+    // Verificar autenticación y ROL
+    window.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('token');
+        const usuario = localStorage.getItem('usuario');
+        const ROL_ESPERADO = 'laboratorio';
+
+        if (!token || !usuario) {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        usuarioData = JSON.parse(usuario);
+
+        // Verificar que sea personal de laboratorio
+        if (usuarioData.rol !== ROL_ESPERADO) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Acceso denegado',
+                text: 'No tienes permisos para acceder a esta página. Tu rol es: ' + usuarioData.rol,
+                confirmButtonColor: '#0077b6'
+            }).then(() => {
+                window.location.href = '/login.html';
+            });
+            return;
+        }
+
+        // Cargar información del usuario
+        cargarDatosUsuario();
+    });
+
+    function cargarDatosUsuario() {
+        // --- LÓGICA DE NOMBRE CORREGIDA ---
+        // 1. Intentar usar una propiedad 'nombreCompleto' o 'nombre' del objeto usuario
+        let nombreUsuario = usuarioData.nombreCompleto || usuarioData.nombre || 'Personal de Laboratorio';
+
+        // 2. Si el nombre sigue siendo el valor por defecto (no encontrado), usamos el correo
+        if (nombreUsuario === 'Personal de Laboratorio' && usuarioData.correo) {
+            // Extraer parte del correo (antes del @) si no hay nombre completo
+            nombreUsuario = usuarioData.correo.split('@')[0];
+        }
+
+        // Si se extrajo del correo, lo capitalizamos, si ya era un nombre completo, lo dejamos como está.
+        const nombreParaSaludo = nombreUsuario.includes('@') ? nombreUsuario.split('@')[0] : nombreUsuario;
+
+        // Usar la inicial del nombre para los iconos
+        const inicial = nombreParaSaludo.charAt(0).toUpperCase();
+
+        // Actualizar saludo en header
+        document.getElementById('saludoUsuario').textContent = `Hola, ${nombreParaSaludo}`;
+
+        // Actualizar iniciales
+        document.getElementById('inicialUsuario').textContent = inicial;
+        document.getElementById('avatarInicial').textContent = inicial;
+
+        // Actualizar sidebar (usamos el nombreUsuario completo/limpio en el perfil)
+        document.getElementById('nombreCompleto').textContent = nombreUsuario;
+        document.getElementById('perfilNombre').textContent = nombreUsuario;
+        document.getElementById('perfilCorreo').textContent = usuarioData.correo || 'No disponible';
+
+        // Formatear fecha de registro
+        const fechaRegistro = usuarioData.fecha_creacion
+            ? new Date(usuarioData.fecha_creacion).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            })
+            : 'No disponible';
+
+        document.getElementById('perfilFechaRegistro').textContent = fechaRegistro;
+    }
+
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebarPerfil');
+        const overlay = document.getElementById('overlay');
+
+        sidebar.classList.toggle('active');
+        overlay.classList.toggle('active');
+    }
+
+    // Funciones de navegación (adaptadas al rol de laboratorio)
+
+    function irAOrdenesAprobadas() {
+        // Enlace simulado a la vista de órdenes pendientes
+        window.location.href = '/Vistas/vista-ordenes-laboratorio.html';
+    }
+
+    function irARegistroExamenes() {
+        // Enlace simulado a la vista de toma de muestras/registro de resultados
+        window.location.href = '/Vistas/vista-registro-examenes.html';
+    }
+
+    function irAConsultaResultados() {
+        // Enlace simulado a la vista de consulta de resultados (historial interno)
+        window.location.href = '/Vistas/vista-consulta-resultados-laboratorio.html';
+    }
+
+    // --- FUNCIÓN ELIMINADA: irAGestionInsumos() ---
+
+    function irAPerfil() {
+        toggleSidebar();
+    }
+
+    function irAAyuda() {
+        Swal.fire({
+            icon: 'info',
+            title: 'Soporte Laboratorio',
+            text: 'Contacta al administrador del sistema para obtener soporte técnico o capacitaciones.',
+            confirmButtonColor: '#0077b6'
+        });
+    }
+
+    function cerrarSesion() {
+        Swal.fire({
+            title: '¿Cerrar sesión?',
+            text: '¿Estás seguro de que deseas salir?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0077b6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('usuario');
+                localStorage.removeItem('recordarSesion');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Sesión cerrada',
+                    text: 'Hasta pronto',
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = '/login.html';
+                });
+            }
+        });
+    }
+</script>
 
 </body>
 </html>
