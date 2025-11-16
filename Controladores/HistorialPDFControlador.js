@@ -1,8 +1,10 @@
 // ============================================
-// 📄 controladores/HistorialPDFControlador.js (CORREGIDO - Tablas)
+// 📄 controladores/HistorialPDFControlador.js (CORREGIDO - V8: DATOS REALES)
 // ============================================
 const PDFDocument = require('pdfkit');
 const citaServicio = require('../servicios/CitaServicio');
+const path = require('path');
+const fs = require('fs');
 
 // ============================================
 // FUNCIONES AUXILIARES
@@ -14,13 +16,13 @@ function extraerDatosConsulta(notas) {
     let observaciones = 'No especificado';
 
     const sintomasMatch = notas.match(/SÍNTOMAS:\s*([\s\S]*?)(?=\n\nDIAGNÓSTICO:|$)/i);
-    if (sintomasMatch) sintomas = sintomasMatch[1].trim();
+    if (sintomasMatch) sintomas = (sintomasMatch[1] || '').trim();
 
     const diagnosticoMatch = notas.match(/DIAGNÓSTICO:\s*([\s\S]*?)(?=\n\nOBSERVACIONES:|$)/i);
-    if (diagnosticoMatch) diagnostico = diagnosticoMatch[1].trim();
+    if (diagnosticoMatch) diagnostico = (diagnosticoMatch[1] || '').trim();
 
     const observacionesMatch = notas.match(/OBSERVACIONES:\s*([\s\S]*?)(?=\n\n---|$)/i);
-    if (observacionesMatch) observaciones = observacionesMatch[1].trim();
+    if (observacionesMatch) observaciones = (observacionesMatch[1] || '').trim();
 
     return { sintomas, diagnostico, observaciones };
 }
@@ -58,34 +60,50 @@ function extraerMedicamentos(citas) {
     citas.forEach(cita => {
         const notas = cita.notas || '';
         const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         });
 
         if (notas.includes('--- MEDICAMENTOS RECETADOS ---')) {
             const medicamentosMatch = notas.match(/--- MEDICAMENTOS RECETADOS ---\n([\s\S]*?)(?=\n\n---|$)/);
             if (medicamentosMatch) {
-                const medicamentosArray = medicamentosMatch[1].trim().split(/\n(?=\d+\.)/);
+                const medicamentosTexto = medicamentosMatch[1].trim();
+                const lineas = medicamentosTexto.split('\n');
 
-                medicamentosArray.forEach(medTexto => {
-                    const nombreMatch = medTexto.match(/^\d+\.\s*(.+)/);
-                    const nombre = nombreMatch ? nombreMatch[1].trim() : 'Medicamento';
-                    const dosis = (medTexto.match(/Dosis:\s*(.+)/) || [])[1] || 'N/A';
-                    const frecuencia = (medTexto.match(/Frecuencia:\s*(.+)/) || [])[1] || 'N/A';
-                    const duracion = (medTexto.match(/Duración:\s*(.+)/) || [])[1] || 'N/A';
-                    const indicaciones = (medTexto.match(/Indicaciones:\s*(.+)/) || [])[1] || 'N/A';
+                let medicamentoActual = null;
 
-                    medicamentos.push({
-                        nombre,
-                        dosis,
-                        frecuencia,
-                        duracion,
-                        indicaciones,
-                        fecha,
-                        medico: cita.medicoNombre || 'No registrado'
-                    });
+                lineas.forEach(linea => {
+                    const nombreMatch = linea.match(/^\d+\.\s*(.+)/);
+                    if (nombreMatch) {
+                        if (medicamentoActual) {
+                            medicamentos.push(medicamentoActual);
+                        }
+                        medicamentoActual = {
+                            nombre: nombreMatch[1].trim(),
+                            dosis: '',
+                            frecuencia: '',
+                            duracion: '',
+                            indicaciones: '',
+                            fecha,
+                            medico: cita.medicoNombre || 'No registrado'
+                        };
+                    } else if (medicamentoActual) {
+                        if (linea.includes('Dosis:')) {
+                            medicamentoActual.dosis = linea.replace('Dosis:', '').trim();
+                        } else if (linea.includes('Frecuencia:')) {
+                            medicamentoActual.frecuencia = linea.replace('Frecuencia:', '').trim();
+                        } else if (linea.includes('Duración:')) {
+                            medicamentoActual.duracion = linea.replace('Duración:', '').trim();
+                        } else if (linea.includes('Indicaciones:')) {
+                            medicamentoActual.indicaciones = linea.replace('Indicaciones:', '').trim();
+                        }
+                    }
                 });
+
+                if (medicamentoActual) {
+                    medicamentos.push(medicamentoActual);
+                }
             }
         }
     });
@@ -97,120 +115,53 @@ function extraerExamenes(citas) {
     citas.forEach(cita => {
         const notas = cita.notas || '';
         const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric'
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric'
         });
 
         if (notas.includes('--- EXÁMENES SOLICITADOS ---')) {
             const examenesMatch = notas.match(/--- EXÁMENES SOLICITADOS ---\n([\s\S]*?)$/);
             if (examenesMatch) {
-                const examenesArray = examenesMatch[1].trim().split(/\n(?=\d+\.)/);
+                const examenesTexto = examenesMatch[1].trim();
+                const lineas = examenesTexto.split('\n');
 
-                examenesArray.forEach(exTexto => {
-                    const nombreMatch = exTexto.match(/^\d+\.\s*(.+)/);
-                    const nombreCompleto = nombreMatch ? nombreMatch[1].trim() : 'Examen';
-                    const nombreTipoMatch = nombreCompleto.match(/^(.+?)\s*\((.+?)\)/);
-                    const nombre = nombreTipoMatch ? nombreTipoMatch[1].trim() : nombreCompleto;
-                    const tipo = nombreTipoMatch ? nombreTipoMatch[2].trim() : '';
-                    const prioridad = (exTexto.match(/Prioridad:\s*(.+)/) || [])[1] || 'Normal';
-                    const indicaciones = (exTexto.match(/Indicaciones:\s*(.+)/) || [])[1] || 'N/A';
+                let examenActual = null;
 
-                    examenes.push({
-                        nombre,
-                        tipo,
-                        prioridad,
-                        indicaciones,
-                        fecha,
-                        medico: cita.medicoNombre || 'No registrado'
-                    });
+                lineas.forEach(linea => {
+                    const nombreMatch = linea.match(/^\d+\.\s*(.+)/);
+                    if (nombreMatch) {
+                        if (examenActual) {
+                            examenes.push(examenActual);
+                        }
+
+                        const nombreCompleto = nombreMatch[1].trim();
+                        const nombreTipoMatch = nombreCompleto.match(/^(.+?)\s*\((.+?)\)/);
+
+                        examenActual = {
+                            nombre: nombreTipoMatch ? nombreTipoMatch[1].trim() : nombreCompleto,
+                            tipo: nombreTipoMatch ? nombreTipoMatch[2].trim() : '',
+                            prioridad: '',
+                            indicaciones: '',
+                            fecha,
+                            medico: cita.medicoNombre || 'No registrado'
+                        };
+                    } else if (examenActual) {
+                        if (linea.includes('Prioridad:')) {
+                            examenActual.prioridad = linea.replace('Prioridad:', '').trim();
+                        } else if (linea.includes('Indicaciones:')) {
+                            examenActual.indicaciones = linea.replace('Indicaciones:', '').trim();
+                        }
+                    }
                 });
+
+                if (examenActual) {
+                    examenes.push(examenActual);
+                }
             }
         }
     });
     return examenes;
-}
-
-/**
- * Función para dibujar una tabla simple (simulación de tabla con PDFKit)
- * @param {PDFDocument} doc
- * @param {Array<string>} headers
- * @param {Array<Array<string>>} data
- * @param {number} y
- * @param {Array<number>} widths
- * @param {number} headerFillColor
- */
-function drawTable(doc, headers, data, y, widths, headerFillColor = '#0077b6') {
-    const startX = doc.page.margins.left;
-    const rowHeight = 20;
-    const headerRowHeight = 25;
-    let currentY = y;
-
-    // Dibujar encabezados
-    doc.fillColor(headerFillColor)
-        .font('Helvetica-Bold')
-        .fontSize(10);
-
-    for (let i = 0; i < headers.length; i++) {
-        doc.rect(startX + widths.slice(0, i).reduce((a, b) => a + b, 0), currentY, widths[i], headerRowHeight)
-            .fill(headerFillColor);
-
-        doc.fillColor('white')
-            .text(headers[i], startX + widths.slice(0, i).reduce((a, b) => a + b, 0) + 5, currentY + 8, {
-                width: widths[i] - 10,
-                align: 'left'
-            });
-    }
-
-    currentY += headerRowHeight;
-
-    // Dibujar filas de datos
-    doc.font('Helvetica').fontSize(9);
-
-    data.forEach((row, rowIndex) => {
-        const rowColor = rowIndex % 2 === 0 ? '#f0f0f0' : '#ffffff';
-
-        // Verificar salto de página para datos
-        if (currentY + rowHeight > doc.page.height - doc.page.margins.bottom) {
-            doc.addPage();
-            currentY = doc.page.margins.top;
-
-            // Redibujar encabezados en la nueva página
-            doc.fillColor(headerFillColor)
-                .font('Helvetica-Bold')
-                .fontSize(10);
-
-            for (let i = 0; i < headers.length; i++) {
-                doc.rect(startX + widths.slice(0, i).reduce((a, b) => a + b, 0), currentY, widths[i], headerRowHeight)
-                    .fill(headerFillColor);
-
-                doc.fillColor('white')
-                    .text(headers[i], startX + widths.slice(0, i).reduce((a, b) => a + b, 0) + 5, currentY + 8, {
-                        width: widths[i] - 10,
-                        align: 'left'
-                    });
-            }
-            currentY += headerRowHeight;
-            doc.font('Helvetica').fontSize(9);
-        }
-
-        doc.fillColor(rowColor)
-            .rect(startX, currentY, widths.reduce((a, b) => a + b, 0), rowHeight)
-            .fill(rowColor);
-
-        doc.fillColor('#333');
-        for (let i = 0; i < row.length; i++) {
-            doc.text(row[i], startX + widths.slice(0, i).reduce((a, b) => a + b, 0) + 5, currentY + 7, {
-                width: widths[i] - 10,
-                align: 'left',
-                ellipsis: true,
-            });
-        }
-        currentY += rowHeight;
-    });
-
-    // Devolver la posición Y final después de la tabla
-    return currentY;
 }
 
 // ============================================
@@ -224,266 +175,536 @@ class HistorialPDFControlador {
         let doc;
 
         try {
-            const idPaciente = req.usuario.id;
-            const paciente = req.usuario;
+            // ============================================
+            // OBTENER DATOS DEL PACIENTE (USANDO PATRON DE CitaServicio)
+            // ============================================
+            const usuarioRaw = req.usuario;
 
-            // Acceso seguro a los datos del paciente desde el objeto req.usuario
-            const identificacion = paciente.identificacion || 'No registrada';
-            const tipoIdentificacion = paciente.tipo_identificacion ? `(${paciente.tipo_identificacion.toUpperCase()})` : '';
-            const telefono = paciente.telefono || 'No registrado';
-            const fechaNacimiento = paciente.fecha_nacimiento ?
-                new Date(paciente.fecha_nacimiento).toLocaleDateString('es-ES') : 'No registrada';
-            const edad = paciente.fecha_nacimiento ?
-                new Date(new Date() - new Date(paciente.fecha_nacimiento)).getFullYear() - 1970 : 'N/A';
-            const ubicacion = `${paciente.ciudad || 'N/A'}, ${paciente.pais || 'N/A'}`;
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🔍 DEBUG - req.usuario COMPLETO:');
+            console.log(JSON.stringify(usuarioRaw, null, 2));
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            console.log(`📄 Generando PDF del historial del paciente ID: ${idPaciente}`);
+            // Convertir a JSON si es modelo Sequelize (igual que en CitaServicio)
+            const usuarioJSON = usuarioRaw.toJSON ? usuarioRaw.toJSON() : usuarioRaw;
 
-            // Obtener todas las citas del paciente
+            console.log('📋 Usuario convertido a JSON:');
+            console.log(JSON.stringify(usuarioJSON, null, 2));
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+            // Extraer datos usando el patrón del servicio: usuarioJSON.campo ? usuarioJSON.campo : 'default'
+            const idPaciente = usuarioJSON.id;
+            const nombre = usuarioJSON.nombre ? usuarioJSON.nombre : 'No registrado';
+            const identificacion = usuarioJSON.identificacion ? usuarioJSON.identificacion : 'No registrada';
+            const tipoIdRaw = usuarioJSON.tipo_identificacion ? usuarioJSON.tipo_identificacion : '';
+            const tipoIdentificacion = tipoIdRaw ? tipoIdRaw.replace(/_/g, ' ').toUpperCase() : 'No especificado';
+            const correo = usuarioJSON.correo ? usuarioJSON.correo : 'No registrado';
+            const telefono = usuarioJSON.telefono ? usuarioJSON.telefono : 'No registrado';
+            const direccion = usuarioJSON.direccion ? usuarioJSON.direccion : 'No registrada';
+            const pais = usuarioJSON.pais ? usuarioJSON.pais : 'No especificado';
+            const ciudad = usuarioJSON.ciudad ? usuarioJSON.ciudad : 'No especificada';
+
+            let fechaNacimiento = 'No registrada';
+            let edad = 'N/A';
+
+            if (usuarioJSON.fecha_nacimiento) {
+                try {
+                    const fechaNac = new Date(usuarioJSON.fecha_nacimiento);
+                    fechaNacimiento = fechaNac.toLocaleDateString('es-ES');
+
+                    const hoy = new Date();
+                    let edadCalculada = hoy.getFullYear() - fechaNac.getFullYear();
+                    const mes = hoy.getMonth() - fechaNac.getMonth();
+                    if (mes < 0 || (mes === 0 && hoy.getDate() < fechaNac.getDate())) {
+                        edadCalculada--;
+                    }
+                    edad = edadCalculada.toString() + ' años';
+                } catch (error) {
+                    console.warn('⚠️ Error al procesar fecha de nacimiento:', error);
+                }
+            }
+
+            console.log('✅ DATOS EXTRAÍDOS PARA PDF:');
+            console.log({
+                idPaciente,
+                nombre,
+                identificacion,
+                tipoIdentificacion,
+                correo,
+                telefono,
+                direccion,
+                pais,
+                ciudad,
+                fechaNacimiento,
+                edad
+            });
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
+            if (!idPaciente) {
+                throw new Error('ID del paciente no encontrado.');
+            }
+
+            // Obtener citas
             const citas = await citaServicio.obtenerCitasPorPaciente(idPaciente);
             const citasCompletadas = citas.filter(c => c.estado === 'completada');
 
             console.log(`📋 Total citas completadas: ${citasCompletadas.length}`);
 
-            // Crear documento PDF
+            // ============================================
+            // CREAR DOCUMENTO PDF
+            // ============================================
             doc = new PDFDocument({
                 size: 'LETTER',
-                margins: { top: 50, bottom: 50, left: 50, right: 50 }
+                margins: { top: 60, bottom: 60, left: 50, right: 50 }
             });
 
-            // Configurar headers para descarga
+            // Configurar headers
             res.setHeader('Content-Type', 'application/pdf');
-            res.setHeader('Content-Disposition', `attachment; filename=historial-medico-${paciente.nombre.replace(/\s+/g, '-')}.pdf`);
+            res.setHeader('Content-Disposition', `attachment; filename=historial-medico-${nombre.replace(/\s+/g, '-')}.pdf`);
 
-            // Pipe del PDF a la respuesta
             doc.pipe(res);
-            pdfStarted = true; // Marcamos que el pipe ha comenzado
+            pdfStarted = true;
 
             // ============================================
-            // ENCABEZADO DEL DOCUMENTO
+            // ENCABEZADO CON LOGO
             // ============================================
-            doc.fontSize(24)
+            const logoPath = path.join(__dirname, '..', 'Public', 'images', 'logo.png');
+
+            if (fs.existsSync(logoPath)) {
+                try {
+                    doc.image(logoPath, 50, 50, { width: 60 });
+                    console.log('✅ Logo cargado correctamente');
+                } catch (logoError) {
+                    console.warn('⚠️ No se pudo cargar el logo:', logoError);
+                }
+            } else {
+                console.warn('⚠️ Logo no encontrado en:', logoPath);
+            }
+
+            doc.fontSize(26)
                 .fillColor('#0077b6')
-                .text('HISTORIAL MÉDICO', { align: 'center' })
-                .moveDown(0.5);
+                .font('Helvetica-Bold')
+                .text('HISTORIAL MÉDICO', 130, 60, { align: 'left' });
 
             doc.fontSize(12)
-                .fillColor('#333')
-                .text('VITAL+ Sistema de Gestión Médica', { align: 'center' })
-                .moveDown(2);
+                .fillColor('#666')
+                .font('Helvetica')
+                .text('VITAL+ Sistema de Gestión Médica', 130, 90, { align: 'left' })
+                .moveDown(3);
 
             // ============================================
-            // INFORMACIÓN DEL PACIENTE (EN TABLA)
+            // INFORMACIÓN DEL PACIENTE (3 COLUMNAS)
             // ============================================
             doc.fontSize(14)
                 .fillColor('#0077b6')
-                .text('INFORMACIÓN DEL PACIENTE', { underline: true })
+                .font('Helvetica-Bold')
+                .text('INFORMACIÓN DEL PACIENTE', 50, doc.y)
                 .moveDown(0.5);
 
-            const infoHeaders = ['Dato', 'Valor', 'Dato', 'Valor'];
-            const infoData = [
-                ['Nombre', paciente.nombre || 'N/A', 'ID / Tipo', `${identificacion} ${tipoIdentificacion}`],
-                ['Correo', paciente.correo || 'N/A', 'Teléfono', telefono],
-                ['F. Nacimiento', fechaNacimiento, 'Edad', edad.toString()],
-                ['Ubicación', ubicacion, 'F. Generación', new Date().toLocaleDateString('es-ES')]
-            ];
+            const infoBoxY = doc.y;
+            doc.rect(50, infoBoxY, 512, 160)
+                .fillAndStroke('#f0f7fb', '#0077b6');
 
-            const infoWidths = [100, 181, 100, 181]; // Total width 562 (50+512+50)
-            let currentY = drawTable(doc, infoHeaders, infoData, doc.y, infoWidths);
-            doc.y = currentY + 20; // Espacio después de la tabla
+            console.log('📝 Escribiendo en PDF - Nombre:', nombre);
+            console.log('📝 Escribiendo en PDF - Identificación:', identificacion);
+            console.log('📝 Escribiendo en PDF - Correo:', correo);
+
+            doc.fontSize(9)
+                .fillColor('#333')
+                .font('Helvetica');
+
+            let currentY = infoBoxY + 15;
+            const col1 = 65;
+            const col2 = 235;
+            const col3 = 405;
+
+            // FILA 1
+            doc.font('Helvetica-Bold').text('Nombre:', col1, currentY);
+            doc.font('Helvetica').text(nombre, col1, currentY + 12, { width: 160, lineBreak: false, ellipsis: true });
+
+            doc.font('Helvetica-Bold').text('Identificación:', col2, currentY);
+            doc.font('Helvetica').text(identificacion, col2, currentY + 12, { width: 160 });
+
+            doc.font('Helvetica-Bold').text('Tipo ID:', col3, currentY);
+            doc.font('Helvetica').text(tipoIdentificacion, col3, currentY + 12, { width: 145 });
+
+            // FILA 2
+            currentY += 35;
+            doc.font('Helvetica-Bold').text('Correo:', col1, currentY);
+            doc.font('Helvetica').text(correo, col1, currentY + 12, { width: 160, lineBreak: false, ellipsis: true });
+
+            doc.font('Helvetica-Bold').text('Teléfono:', col2, currentY);
+            doc.font('Helvetica').text(telefono, col2, currentY + 12, { width: 160 });
+
+            doc.font('Helvetica-Bold').text('F. Nacimiento:', col3, currentY);
+            doc.font('Helvetica').text(fechaNacimiento, col3, currentY + 12, { width: 145 });
+
+            // FILA 3
+            currentY += 35;
+            doc.font('Helvetica-Bold').text('País:', col1, currentY);
+            doc.font('Helvetica').text(pais, col1, currentY + 12, { width: 160 });
+
+            doc.font('Helvetica-Bold').text('Ciudad:', col2, currentY);
+            doc.font('Helvetica').text(ciudad, col2, currentY + 12, { width: 160 });
+
+            doc.font('Helvetica-Bold').text('Edad:', col3, currentY);
+            doc.font('Helvetica').text(edad, col3, currentY + 12, { width: 145 });
+
+            // FILA 4
+            currentY += 35;
+            doc.font('Helvetica-Bold').text('Dirección:', col1, currentY);
+            doc.font('Helvetica').text(direccion, col1, currentY + 12, { width: 480, lineBreak: true });
+
+            console.log('✅ Información del paciente escrita en el PDF');
+
+            doc.y = infoBoxY + 170;
+            doc.moveDown(1);
 
             // ============================================
-            // RESUMEN ESTADÍSTICO (EN TABLA)
+            // ESTADÍSTICAS
             // ============================================
             const totalMedicamentos = contarMedicamentos(citasCompletadas);
             const totalExamenes = contarExamenes(citasCompletadas);
 
             doc.fontSize(14)
                 .fillColor('#0077b6')
-                .text('RESUMEN ESTADÍSTICO', { underline: true })
+                .font('Helvetica-Bold')
+                .text('RESUMEN ESTADÍSTICO', 50, doc.y)
                 .moveDown(0.5);
 
-            const statsHeaders = ['Métrica', 'Total', 'Métrica', 'Total'];
-            const statsData = [
-                ['Consultas Completadas', citasCompletadas.length.toString(), 'Medicamentos Recetados', totalMedicamentos.toString()],
-                ['Exámenes Solicitados', totalExamenes.toString(), 'Documento Generado', new Date().toLocaleDateString('es-ES')]
-            ];
+            const statsY = doc.y;
+            const statsBoxWidth = 128;
+            const statsStartX = 50;
 
-            const statsWidths = [150, 131, 150, 131];
-            currentY = drawTable(doc, statsHeaders, statsData, doc.y, statsWidths);
-            doc.y = currentY + 20;
+            // Tarjeta 1
+            doc.rect(statsStartX, statsY, statsBoxWidth, 60)
+                .fillAndStroke('#e3f2fd', '#0077b6');
+            doc.fontSize(24).fillColor('#0077b6').font('Helvetica-Bold')
+                .text(citasCompletadas.length.toString(), statsStartX, statsY + 10, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+            doc.fontSize(10).fillColor('#333').font('Helvetica')
+                .text('Consultas', statsStartX, statsY + 40, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+
+            // Tarjeta 2
+            const card2X = statsStartX + statsBoxWidth;
+            doc.rect(card2X, statsY, statsBoxWidth, 60)
+                .fillAndStroke('#e8f5e9', '#0077b6');
+            doc.fontSize(24).fillColor('#0077b6').font('Helvetica-Bold')
+                .text(totalMedicamentos.toString(), card2X, statsY + 10, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+            doc.fontSize(10).fillColor('#333').font('Helvetica')
+                .text('Medicamentos', card2X, statsY + 40, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+
+            // Tarjeta 3
+            const card3X = card2X + statsBoxWidth;
+            doc.rect(card3X, statsY, statsBoxWidth, 60)
+                .fillAndStroke('#fff3e0', '#0077b6');
+            doc.fontSize(24).fillColor('#0077b6').font('Helvetica-Bold')
+                .text(totalExamenes.toString(), card3X, statsY + 10, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+            doc.fontSize(10).fillColor('#333').font('Helvetica')
+                .text('Exámenes', card3X, statsY + 40, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+
+            // Tarjeta 4
+            const card4X = card3X + statsBoxWidth;
+            doc.rect(card4X, statsY, statsBoxWidth, 60)
+                .fillAndStroke('#fce4ec', '#0077b6');
+            doc.fontSize(10).fillColor('#0077b6').font('Helvetica-Bold')
+                .text('Generado', card4X, statsY + 10, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+            doc.fontSize(9).fillColor('#333').font('Helvetica')
+                .text(new Date().toLocaleDateString('es-ES'), card4X, statsY + 30, {
+                    width: statsBoxWidth,
+                    align: 'center'
+                });
+
+            doc.y = statsY + 70;
+            doc.moveDown(2);
 
             // ============================================
-            // HISTORIAL DE CONSULTAS (DETALLADO)
+            // HISTORIAL DE CONSULTAS
             // ============================================
             if (citasCompletadas.length > 0) {
                 doc.addPage();
+
                 doc.fontSize(16)
                     .fillColor('#0077b6')
-                    .text('HISTORIAL DE CONSULTAS MÉDICAS', { align: 'center', underline: true })
-                    .moveDown(1);
+                    .font('Helvetica-Bold')
+                    .text('HISTORIAL DE CONSULTAS', { align: 'center' })
+                    .moveDown(1.5);
 
                 citasCompletadas.forEach((cita, index) => {
-                    // Verificar si necesitamos una nueva página antes de dibujar el encabezado
-                    if (doc.y > 650) {
+                    if (doc.y > 620) {
                         doc.addPage();
                     }
 
                     const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
-                        year: 'numeric',
+                        day: '2-digit',
                         month: 'long',
-                        day: 'numeric'
+                        year: 'numeric'
                     });
 
                     const notas = cita.notas || '';
                     const { sintomas, diagnostico, observaciones } = extraerDatosConsulta(notas);
 
-                    // Título de la consulta
+                    const consultaY = doc.y;
+                    doc.rect(50, consultaY, 512, 30)
+                        .fillAndStroke('#0077b6', '#0077b6');
+
                     doc.fontSize(12)
-                        .fillColor('#333')
+                        .fillColor('white')
                         .font('Helvetica-Bold')
-                        .text(`CONSULTA ${index + 1} - ${fecha} (${cita.especialidad || 'N/A'})`, { underline: false })
-                        .moveDown(0.5);
+                        .text(`CONSULTA ${index + 1} - ${fecha}`, 60, consultaY + 10);
 
-                    // Tabla de Resumen de la Consulta
-                    const consultaHeaders = ['Médico', 'Motivo de Consulta'];
-                    const consultaData = [
-                        [cita.medicoNombre || 'No registrado', cita.motivo_consulta || 'No especificado']
-                    ];
-                    const consultaWidths = [180, 382];
-                    currentY = drawTable(doc, consultaHeaders, consultaData, doc.y, consultaWidths, '#e0e0e0');
-                    doc.y = currentY + 10;
+                    doc.y = consultaY + 35;
 
-                    // Contenido detallado (No se usa tabla para bloques grandes de texto)
                     doc.fontSize(10)
                         .fillColor('#333')
                         .font('Helvetica-Bold')
-                        .text('Síntomas:', doc.page.margins.left)
+                        .text('Médico: ', 60, doc.y, { continued: true })
                         .font('Helvetica')
-                        .text(sintomas, { indent: 15, width: 500 })
-                        .moveDown(0.3);
+                        .text(cita.medicoNombre || 'No registrado');
 
                     doc.font('Helvetica-Bold')
-                        .text('Diagnóstico:')
+                        .text('Especialidad: ', 60, doc.y, { continued: true })
                         .font('Helvetica')
-                        .text(diagnostico, { indent: 15, width: 500 })
-                        .moveDown(0.3);
+                        .text(cita.especialidad || 'No especificada');
 
                     doc.font('Helvetica-Bold')
-                        .text('Observaciones / Plan:')
+                        .text('Motivo: ', 60, doc.y, { continued: true })
                         .font('Helvetica')
-                        .text(observaciones, { indent: 15, width: 500 })
-                        .moveDown(1);
+                        .text(cita.motivo_consulta || 'No especificado', {
+                            width: 450
+                        });
 
-                    // Línea separadora
+                    doc.moveDown(0.5);
+
+                    doc.font('Helvetica-Bold')
+                        .fillColor('#0077b6')
+                        .text('Síntomas:', 60, doc.y);
+                    doc.font('Helvetica')
+                        .fillColor('#333')
+                        .text(sintomas, 70, doc.y, {
+                            width: 480,
+                            align: 'justify'
+                        });
+                    doc.moveDown(0.5);
+
+                    doc.font('Helvetica-Bold')
+                        .fillColor('#0077b6')
+                        .text('Diagnóstico:', 60, doc.y);
+                    doc.font('Helvetica')
+                        .fillColor('#333')
+                        .text(diagnostico, 70, doc.y, {
+                            width: 480,
+                            align: 'justify'
+                        });
+                    doc.moveDown(0.5);
+
+                    doc.font('Helvetica-Bold')
+                        .fillColor('#0077b6')
+                        .text('Observaciones / Tratamiento:', 60, doc.y);
+                    doc.font('Helvetica')
+                        .fillColor('#333')
+                        .text(observaciones, 70, doc.y, {
+                            width: 480,
+                            align: 'justify'
+                        });
+
+                    doc.moveDown(1);
+
                     doc.strokeColor('#e0e0e0')
                         .lineWidth(1)
                         .moveTo(50, doc.y)
                         .lineTo(562, doc.y)
-                        .stroke()
-                        .moveDown(1);
+                        .stroke();
+
+                    doc.moveDown(1.5);
                 });
             }
 
             // ============================================
-            // MEDICAMENTOS RECETADOS (EN TABLA)
+            // MEDICAMENTOS
             // ============================================
             const medicamentos = extraerMedicamentos(citasCompletadas);
             if (medicamentos.length > 0) {
                 doc.addPage();
+
                 doc.fontSize(16)
                     .fillColor('#0077b6')
-                    .text('REGISTRO DE MEDICAMENTOS RECETADOS', { align: 'center', underline: true })
-                    .moveDown(1);
+                    .font('Helvetica-Bold')
+                    .text('MEDICAMENTOS RECETADOS', { align: 'center' })
+                    .moveDown(1.5);
 
-                const medHeaders = ['Fecha', 'Medicamento', 'Dosis/Frecuencia', 'Duración', 'Médico'];
-                const medData = medicamentos.map(m => [
-                    m.fecha,
-                    m.nombre,
-                    `${m.dosis} / ${m.frecuencia}`,
-                    m.duracion,
-                    m.medico
-                ]);
-                const medWidths = [60, 160, 140, 80, 122];
+                medicamentos.forEach((med, index) => {
+                    if (doc.y > 620) {
+                        doc.addPage();
+                    }
 
-                currentY = drawTable(doc, medHeaders, medData, doc.y, medWidths);
-                doc.y = currentY + 20;
+                    const medY = doc.y;
+                    doc.rect(50, medY, 512, 25)
+                        .fillAndStroke('#28a745', '#28a745');
 
-                // Nota sobre indicaciones
-                doc.fontSize(9).fillColor('#666').text('* Las indicaciones completas se encuentran en el registro de la consulta correspondiente.');
+                    doc.fontSize(11)
+                        .fillColor('white')
+                        .font('Helvetica-Bold')
+                        .text(`💊 ${index + 1}. ${med.nombre}`, 60, medY + 7);
+
+                    doc.y = medY + 30;
+
+                    doc.fontSize(10)
+                        .fillColor('#333')
+                        .font('Helvetica-Bold')
+                        .text('Dosis: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(med.dosis || 'No especificada');
+
+                    doc.font('Helvetica-Bold')
+                        .text('Frecuencia: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(med.frecuencia || 'No especificada');
+
+                    doc.font('Helvetica-Bold')
+                        .text('Duración: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(med.duracion || 'No especificada');
+
+                    doc.font('Helvetica-Bold')
+                        .text('Indicaciones: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(med.indicaciones || 'No especificadas', {
+                            width: 450
+                        });
+
+                    doc.fontSize(9)
+                        .fillColor('#666')
+                        .font('Helvetica')
+                        .text(`Recetado por: ${med.medico} el ${med.fecha}`, 60, doc.y);
+
+                    doc.moveDown(1);
+
+                    doc.strokeColor('#e0e0e0')
+                        .lineWidth(1)
+                        .moveTo(50, doc.y)
+                        .lineTo(562, doc.y)
+                        .stroke();
+
+                    doc.moveDown(1);
+                });
             }
 
             // ============================================
-            // EXÁMENES SOLICITADOS (EN TABLA)
+            // EXÁMENES
             // ============================================
             const examenes = extraerExamenes(citasCompletadas);
             if (examenes.length > 0) {
                 doc.addPage();
+
                 doc.fontSize(16)
                     .fillColor('#0077b6')
-                    .text('REGISTRO DE EXÁMENES SOLICITADOS', { align: 'center', underline: true })
-                    .moveDown(1);
+                    .font('Helvetica-Bold')
+                    .text('EXÁMENES SOLICITADOS', { align: 'center' })
+                    .moveDown(1.5);
 
-                const exHeaders = ['Fecha', 'Examen', 'Tipo', 'Prioridad', 'Médico'];
-                const exData = examenes.map(e => [
-                    e.fecha,
-                    e.nombre,
-                    e.tipo || 'N/A',
-                    e.prioridad,
-                    e.medico
-                ]);
-                const exWidths = [60, 180, 100, 80, 142];
+                examenes.forEach((ex, index) => {
+                    if (doc.y > 620) {
+                        doc.addPage();
+                    }
 
-                currentY = drawTable(doc, exHeaders, exData, doc.y, exWidths);
-                doc.y = currentY + 20;
+                    const exY = doc.y;
+                    doc.rect(50, exY, 512, 25)
+                        .fillAndStroke('#ffc107', '#ffc107');
 
-                // Nota sobre indicaciones
-                doc.fontSize(9).fillColor('#666').text('* Las indicaciones completas se encuentran en el registro de la consulta correspondiente.');
+                    doc.fontSize(11)
+                        .fillColor('#333')
+                        .font('Helvetica-Bold')
+                        .text(`🔬 ${index + 1}. ${ex.nombre}${ex.tipo ? ` (${ex.tipo})` : ''}`, 60, exY + 7);
+
+                    doc.y = exY + 30;
+
+                    doc.fontSize(10)
+                        .fillColor('#333')
+                        .font('Helvetica-Bold')
+                        .text('Prioridad: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(ex.prioridad || 'Normal');
+
+                    doc.font('Helvetica-Bold')
+                        .text('Indicaciones: ', 60, doc.y, { continued: true })
+                        .font('Helvetica')
+                        .text(ex.indicaciones || 'No especificadas', {
+                            width: 450
+                        });
+
+                    doc.fontSize(9)
+                        .fillColor('#666')
+                        .font('Helvetica')
+                        .text(`Solicitado por: ${ex.medico} el ${ex.fecha}`, 60, doc.y);
+
+                    doc.moveDown(1);
+
+                    doc.strokeColor('#e0e0e0')
+                        .lineWidth(1)
+                        .moveTo(50, doc.y)
+                        .lineTo(562, doc.y)
+                        .stroke();
+
+                    doc.moveDown(1);
+                });
             }
 
             // ============================================
             // PIE DE PÁGINA
             // ============================================
-
-            // Forzar la escritura de todas las páginas al buffer interno.
-            doc.flushPages();
-
-            // Usar la propiedad de índice de página para obtener el total.
-            const totalPaginas = doc.page.index + 1;
-
-            for (let i = 0; i < totalPaginas; i++) {
-                doc.switchToPage(i);
+            doc.on('pageAdded', () => {
+                const pageNumber = doc._pageBuffer.length;
                 doc.fontSize(8)
                     .fillColor('#999')
+                    .font('Helvetica')
                     .text(
-                        'Este documento es un resumen del historial médico generado automáticamente por VITAL+',
+                        `Documento generado automáticamente por VITAL+ | Página ${pageNumber}`,
                         50,
-                        750,
+                        doc.page.height - 50,
                         { align: 'center', width: 512 }
                     );
-            }
+            });
 
-            // Finalizar documento y el stream de respuesta
             doc.end();
-
             console.log('✅ PDF generado exitosamente');
 
         } catch (error) {
-            console.error('❌ Error al generar PDF del historial:', error);
+            console.error('❌ Error al generar PDF:', error);
+            console.error('Stack trace:', error.stack);
 
             if (pdfStarted) {
                 if (doc && !doc.ended) {
                     try {
                         doc.end();
-                    } catch (endError) {
+                    } catch (e) {
                         res.end();
                     }
                 }
-                console.log('⚠️ PDF iniciado. Stream de respuesta cerrado tras un error de generación.');
             } else {
                 res.status(500).json({
                     exito: false,
-                    mensaje: 'Error al generar el PDF del historial médico: ' + error.message
+                    mensaje: 'Error al generar el PDF: ' + error.message
                 });
             }
         }
