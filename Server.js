@@ -37,6 +37,9 @@ app.use('/api/usuarios', usuarioRutas);
 const autorizacionRutas = require('./rutas/autorizacionRutas');
 app.use('/api/autorizaciones', autorizacionRutas);
 
+const laboratorioRutas = require('./rutas/laboratorioRutas');
+app.use('/api/laboratorio', laboratorioRutas);
+
 // ============================================
 // 🏠 Rutas del Frontend
 // ============================================
@@ -90,6 +93,7 @@ app.listen(PORT, async () => {
         require('./entidades/Agenda');
         require('./entidades/Cita');
         require('./entidades/Autorizacion');
+        require('./entidades/ExamenLaboratorio');
 
         // 3️⃣ Cargar las asociaciones DESPUÉS de los modelos
         require('./entidades/asociaciones');

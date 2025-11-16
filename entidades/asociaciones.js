@@ -1,52 +1,59 @@
 // ============================================
-// 📄 entidades/asociaciones.js — Relaciones Sequelize
+//  entidades/asociaciones.js — Relaciones Sequelize
 // ============================================
 const Usuario = require('./Usuarios');
 const Agenda = require('./Agenda');
 const Cita = require('./Cita');
-const Autorizacion = require('../entidades/Autorizacion');
+const Autorizacion = require('./Autorizacion');
+const ExamenLaboratorio = require('./ExamenLaboratorio');
 
-// ✅ Asociaciones de Agenda
+// ============================================
+// ASOCIACIONES DE AGENDA
+// ============================================
 Usuario.hasOne(Agenda, { foreignKey: 'id_medico', as: 'agenda' });
 Agenda.belongsTo(Usuario, { foreignKey: 'id_medico', as: 'medico' });
 
-// ✅ Asociaciones de Cita - Relación con Médico
+// ============================================
+// ASOCIACIONES DE CITA
+// ============================================
+
+// Cita - Relación con Médico
 Usuario.hasMany(Cita, { foreignKey: 'id_medico', as: 'citasComoMedico' });
 Cita.belongsTo(Usuario, { foreignKey: 'id_medico', as: 'medico' });
 
-// ✅ Asociaciones de Cita - Relación con Paciente
+// Cita - Relación con Paciente
 Usuario.hasMany(Cita, { foreignKey: 'id_paciente', as: 'citasComoPaciente' });
 Cita.belongsTo(Usuario, { foreignKey: 'id_paciente', as: 'paciente' });
 
 // ============================================
-// RELACIONES DE AUTORIZACIONES
+// ASOCIACIONES DE AUTORIZACIONES
 // ============================================
 
-// Una autorización pertenece a un médico
+// Autorización pertenece a un médico (quien solicita)
 Autorizacion.belongsTo(Usuario, {
     foreignKey: 'id_medico',
     as: 'medico'
 });
 
-// Una autorización pertenece a un paciente
+// Autorización pertenece a un paciente
 Autorizacion.belongsTo(Usuario, {
     foreignKey: 'id_paciente',
     as: 'paciente'
 });
 
-// Una autorización pertenece a una cita
+// Autorización pertenece a una cita
 Autorizacion.belongsTo(Cita, {
     foreignKey: 'id_cita',
     as: 'cita'
 });
 
-// Una autorización puede tener un aprobador (administrador)
+// Autorización tiene un aprobador (administrador)
 Autorizacion.belongsTo(Usuario, {
     foreignKey: 'id_aprobador',
     as: 'aprobador'
 });
 
-// Relaciones inversas
+// Relaciones inversas de Autorizaciones
 Usuario.hasMany(Autorizacion, {
     foreignKey: 'id_medico',
     as: 'autorizacionesSolicitadas'
@@ -67,5 +74,41 @@ Cita.hasMany(Autorizacion, {
     as: 'autorizaciones'
 });
 
+// ============================================
+// ASOCIACIONES DE EXÁMENES DE LABORATORIO
+// ============================================
 
-module.exports = { Usuario, Agenda, Cita, Autorizacion };
+// ExamenLaboratorio pertenece a una Autorización
+ExamenLaboratorio.belongsTo(Autorizacion, {
+    foreignKey: 'id_autorizacion',
+    as: 'autorizacion'
+});
+
+// Autorización tiene un ExamenLaboratorio (relación inversa)
+Autorizacion.hasOne(ExamenLaboratorio, {
+    foreignKey: 'id_autorizacion',
+    as: 'examenLaboratorio'
+});
+
+// ExamenLaboratorio pertenece a un Usuario (técnico de laboratorio)
+ExamenLaboratorio.belongsTo(Usuario, {
+    foreignKey: 'id_tecnico',
+    as: 'tecnico'
+});
+
+// Usuario tiene muchos ExamenesLaboratorio (como técnico)
+Usuario.hasMany(ExamenLaboratorio, {
+    foreignKey: 'id_tecnico',
+    as: 'examenesRealizados'
+});
+
+// ============================================
+// EXPORTAR MODELOS
+// ============================================
+module.exports = {
+    Usuario,
+    Agenda,
+    Cita,
+    Autorizacion,
+    ExamenLaboratorio
+};
