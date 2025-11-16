@@ -416,10 +416,6 @@
                     <span>🎂</span>
                     <span><strong>Fecha Nacimiento:</strong> <span id="fechaNacimiento">-</span></span>
                 </div>
-                <div class="dato-item">
-                    <span>⚧</span>
-                    <span><strong>Género:</strong> <span id="genero">-</span></span>
-                </div>
             </div>
         </div>
 
@@ -525,7 +521,8 @@
         try {
             const token = localStorage.getItem('token');
 
-            // Buscar paciente por identificación
+            // 1. Buscar paciente por identificación
+            console.log('🔍 Buscando paciente con identificación:', identificacion);
             const responsePaciente = await fetch(`http://localhost:3000/api/usuarios/buscar-identificacion/${identificacion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -534,12 +531,18 @@
             });
 
             if (!responsePaciente.ok) {
-                throw new Error('Paciente no encontrado');
+                const errorData = await responsePaciente.json();
+                throw new Error(errorData.mensaje || 'Paciente no encontrado');
             }
 
-            pacienteActual = await responsePaciente.json();
+            const dataPaciente = await responsePaciente.json();
+            console.log('✅ Paciente encontrado:', dataPaciente);
 
-            // Obtener historial de citas del paciente
+            // ✅ Extraer el paciente correctamente según la estructura del backend
+            pacienteActual = dataPaciente.exito ? dataPaciente : dataPaciente;
+
+            // 2. Obtener historial de citas del paciente
+            console.log('📋 Obteniendo citas del paciente ID:', pacienteActual.id);
             const responseCitas = await fetch(`http://localhost:3000/api/citas/paciente/${pacienteActual.id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -549,11 +552,29 @@
 
             let citas = [];
             if (responseCitas.ok) {
-                citas = await responseCitas.json();
+                const dataCitas = await responseCitas.json();
+                console.log('📦 Respuesta de citas:', dataCitas);
+
+                // ✅ CORRECCIÓN CRÍTICA: Extraer el array de citas correctamente
+                if (Array.isArray(dataCitas)) {
+                    citas = dataCitas;
+                } else if (dataCitas.datos && Array.isArray(dataCitas.datos)) {
+                    citas = dataCitas.datos;
+                } else if (dataCitas.data && Array.isArray(dataCitas.data)) {
+                    citas = dataCitas.data;
+                } else {
+                    console.warn('⚠️ Formato de citas no esperado:', dataCitas);
+                    citas = [];
+                }
+            } else {
+                console.warn('⚠️ No se pudieron obtener las citas');
             }
+
+            console.log(`✅ Total de citas obtenidas: ${citas.length}`);
 
             // Filtrar solo citas completadas
             const citasCompletadas = citas.filter(c => c.estado === 'completada');
+            console.log(`✅ Citas completadas: ${citasCompletadas.length}`);
 
             historialCompleto = {
                 paciente: pacienteActual,
@@ -564,7 +585,7 @@
             mostrarResultados();
 
         } catch (error) {
-            console.error('Error al buscar paciente:', error);
+            console.error('❌ Error al buscar paciente:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -585,7 +606,12 @@
         document.getElementById('fechaNacimiento').textContent = historialCompleto.paciente.fecha_nacimiento
             ? new Date(historialCompleto.paciente.fecha_nacimiento).toLocaleDateString('es-ES')
             : '-';
-        document.getElementById('genero').textContent = historialCompleto.paciente.genero || '-';
+
+        // Género - si existe en la respuesta
+        const generoElement = document.getElementById('genero');
+        if (generoElement) {
+            generoElement.textContent = historialCompleto.paciente.genero || '-';
+        }
 
         // Estadísticas
         procesarEstadisticas();
@@ -600,7 +626,7 @@
     }
 
     function procesarEstadisticas() {
-        const citas = historialCompleto.citas;
+        const citas = historialCompleto.citas || [];
 
         // Total de consultas
         document.getElementById('totalConsultas').textContent = citas.length;
@@ -612,7 +638,6 @@
         citas.forEach(cita => {
             const notas = cita.notas || '';
             // Simplificación: contar por palabras clave
-            // En producción, esto debería venir de tablas separadas
             if (notas.toLowerCase().includes('medicamento') || notas.toLowerCase().includes('receta')) {
                 totalMedicamentos++;
             }
@@ -627,15 +652,15 @@
 
     function renderizarConsultas() {
         const container = document.getElementById('listaConsultas');
-        const citas = historialCompleto.citas;
+        const citas = historialCompleto.citas || [];
 
         if (citas.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>🩺</span>
-                    <p>No hay consultas registradas para este paciente</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>🩺</span>
+                <p>No hay consultas registradas para este paciente</p>
+            </div>
+        `;
             return;
         }
 
@@ -664,31 +689,59 @@
             const observacionesMatch = notas.match(/OBSERVACIONES:\s*([^\n]+)/i);
             if (observacionesMatch) observaciones = observacionesMatch[1].trim();
 
+            // ✅ Obtener nombre del médico de forma segura
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
+            // ✅ Obtener especialidad de forma segura
+            let especialidad = '';
+            if (cita.especialidad) {
+                especialidad = cita.especialidad;
+            } else if (cita.medico && cita.medico.especialidad) {
+                especialidad = cita.medico.especialidad;
+            }
+
+            // ✅ Obtener hora de forma segura
+            let hora = '';
+            if (cita.hora) {
+                hora = cita.hora.substring ? cita.hora.substring(0, 5) : cita.hora;
+            } else if (cita.hora_inicio) {
+                hora = cita.hora_inicio.substring ? cita.hora_inicio.substring(0, 5) : cita.hora_inicio;
+            }
+
             return `
-                <div class="historial-item">
-                    <div class="fecha">📅 ${fecha} - ${cita.hora || ''}</div>
-                    <div class="medico">👨‍⚕️ Atendido por: ${cita.medico || 'No registrado'} ${cita.especialidad ? `- ${cita.especialidad}` : ''}</div>
-                    <div class="contenido">
-                        <strong>Motivo de consulta:</strong>
-                        <p>${cita.motivo || 'No especificado'}</p>
+            <div class="historial-item">
+                <div class="fecha">📅 ${fecha}${hora ? ` - ${hora}` : ''}</div>
+                <div class="medico">👨‍⚕️ Atendido por: ${nombreMedico}${especialidad ? ` - ${especialidad}` : ''}</div>
+                <div class="contenido">
+                    <strong>Motivo de consulta:</strong>
+                    <p>${cita.motivo_consulta || cita.motivo || 'No especificado'}</p>
 
-                        <strong>Síntomas:</strong>
-                        <p>${sintomas}</p>
+                    <strong>Síntomas:</strong>
+                    <p>${sintomas}</p>
 
-                        <strong>Diagnóstico:</strong>
-                        <p>${diagnostico}</p>
+                    <strong>Diagnóstico:</strong>
+                    <p>${diagnostico}</p>
 
-                        <strong>Observaciones y Tratamiento:</strong>
-                        <p>${observaciones}</p>
-                    </div>
+                    <strong>Observaciones y Tratamiento:</strong>
+                    <p>${observaciones}</p>
                 </div>
-            `;
+            </div>
+        `;
         }).join('');
     }
 
     function renderizarMedicamentos() {
         const container = document.getElementById('listaMedicamentos');
-        const citas = historialCompleto.citas;
+        const citas = historialCompleto.citas || [];
 
         // Extraer medicamentos de las notas
         const medicamentos = [];
@@ -700,12 +753,23 @@
                 day: 'numeric'
             });
 
+            // Obtener nombre del médico de forma segura
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
             // Buscar patrones de medicamentos en las notas
-            // En producción, esto debería venir de una tabla de recetas
             if (notas.toLowerCase().includes('medicamento') || notas.toLowerCase().includes('receta')) {
                 medicamentos.push({
                     fecha: fecha,
-                    medico: cita.medico,
+                    medico: nombreMedico,
                     contenido: notas
                 });
             }
@@ -713,26 +777,26 @@
 
         if (medicamentos.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>💊</span>
-                    <p>No hay medicamentos recetados registrados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>💊</span>
+                <p>No hay medicamentos recetados registrados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = medicamentos.map(med => `
-            <div class="medicamento-item">
-                <h4>Receta médica - ${med.fecha}</h4>
-                <p><strong>Médico:</strong> ${med.medico || 'No registrado'}</p>
-                <p style="margin-top: 10px; white-space: pre-line;">${med.contenido}</p>
-            </div>
-        `).join('');
+        <div class="medicamento-item">
+            <h4>Receta médica - ${med.fecha}</h4>
+            <p><strong>Médico:</strong> ${med.medico}</p>
+            <p style="margin-top: 10px; white-space: pre-line;">${med.contenido}</p>
+        </div>
+    `).join('');
     }
 
     function renderizarExamenes() {
         const container = document.getElementById('listaExamenes');
-        const citas = historialCompleto.citas;
+        const citas = historialCompleto.citas || [];
 
         // Extraer exámenes de las notas
         const examenes = [];
@@ -744,11 +808,23 @@
                 day: 'numeric'
             });
 
+            // Obtener nombre del médico de forma segura
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
             // Buscar patrones de exámenes en las notas
             if (notas.toLowerCase().includes('examen') || notas.toLowerCase().includes('laboratorio')) {
                 examenes.push({
                     fecha: fecha,
-                    medico: cita.medico,
+                    medico: nombreMedico,
                     contenido: notas
                 });
             }
@@ -756,21 +832,21 @@
 
         if (examenes.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>🔬</span>
-                    <p>No hay exámenes solicitados registrados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>🔬</span>
+                <p>No hay exámenes solicitados registrados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = examenes.map(exam => `
-            <div class="examen-item">
-                <h4>Orden de examen - ${exam.fecha}</h4>
-                <p><strong>Médico:</strong> ${exam.medico || 'No registrado'}</p>
-                <p style="margin-top: 10px; white-space: pre-line;">${exam.contenido}</p>
-            </div>
-        `).join('');
+        <div class="examen-item">
+            <h4>Orden de examen - ${exam.fecha}</h4>
+            <p><strong>Médico:</strong> ${exam.medico}</p>
+            <p style="margin-top: 10px; white-space: pre-line;">${exam.contenido}</p>
+        </div>
+    `).join('');
     }
 
     function cambiarTab(tab) {
