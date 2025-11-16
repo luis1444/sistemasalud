@@ -602,9 +602,9 @@
                     <div class="form-group">
                         <label>Prioridad</label>
                         <select id="prioridadExamen">
-                            <option value="normal">Normal</option>
-                            <option value="urgente">Urgente</option>
-                            <option value="rutina">Rutina</option>
+                            <option value="baja">Baja</option>
+                            <option value="media">Media</option>
+                            <option value="alta">Alta</option>
                         </select>
                     </div>
 
@@ -1214,7 +1214,7 @@ OBSERVACIONES: ${observaciones}`;
     function limpiarFormularioExamen() {
         document.getElementById('tipoExamen').value = '';
         document.getElementById('nombreExamen').value = '';
-        document.getElementById('prioridadExamen').value = 'normal';
+        document.getElementById('prioridadExamen').value || 'media'
         document.getElementById('indicacionesExamen').value = '';
     }
 
@@ -1345,7 +1345,6 @@ OBSERVACIONES: ${observaciones}`;
             }
 
             // PASO 3: Crear autorizaciones para exámenes
-            // PASO 3: Crear autorizaciones para exámenes
             console.log('🔄 PASO 3: Creando autorizaciones de exámenes...');
             console.log('📋 Exámenes a procesar:', examenes); // DEBUG
 
@@ -1364,6 +1363,17 @@ OBSERVACIONES: ${observaciones}`;
                     }
 
                     // Construir el body de la petición
+                    // Normalizar prioridad: debe ser 'alta', 'media' o 'baja'
+                    let prioridad = 'media'; // valor por defecto
+                    if (ex.prioridad) {
+                        const prioridadLower = ex.prioridad.toLowerCase().trim();
+                        if (['alta', 'media', 'baja'].includes(prioridadLower)) {
+                            prioridad = prioridadLower;
+                        } else if (prioridadLower === 'normal') {
+                            prioridad = 'media'; // Convertir 'normal' a 'media'
+                        }
+                    }
+
                     const bodyExamen = {
                         id_cita: citaActual.id,
                         id_paciente: citaActual.pacienteId,
@@ -1372,7 +1382,7 @@ OBSERVACIONES: ${observaciones}`;
                         justificacion: (ex.indicaciones && ex.indicaciones.trim() !== '')
                             ? ex.indicaciones.trim()
                             : 'Examen solicitado durante la consulta',
-                        prioridad: ex.prioridad || 'media'
+                        prioridad: prioridad
                     };
 
                     // 🔍 DEBUG: Ver qué se está enviando

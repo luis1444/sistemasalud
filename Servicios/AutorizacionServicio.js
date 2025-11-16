@@ -7,16 +7,30 @@ class AutorizacionServicio {
 
     async crearAutorizacion(datos) {
         try {
+            console.log('🔍 Datos recibidos en crearAutorizacion:', datos);
+
             // Validar datos requeridos
-            if (!datos.id_cita || !datos.id_medico || !datos.id_paciente || !datos.tipo || !datos.descripcion) {
-                throw new Error('Faltan datos requeridos para crear la autorización.');
+            if (!datos.id_cita) {
+                throw new Error('El campo id_cita es requerido.');
+            }
+            if (!datos.id_medico) {
+                throw new Error('El campo id_medico es requerido.');
+            }
+            if (!datos.id_paciente) {
+                throw new Error('El campo id_paciente es requerido.');
+            }
+            if (!datos.tipo) {
+                throw new Error('El campo tipo es requerido.');
+            }
+            if (!datos.descripcion) {
+                throw new Error('El campo descripcion es requerido.');
             }
 
             if (!['medicamento', 'examen'].includes(datos.tipo)) {
                 throw new Error('Tipo de autorización inválido. Debe ser "medicamento" o "examen".');
             }
 
-            const autorizacion = await autorizacionRepositorio.crear({
+            const datosAutorizacion = {
                 id_cita: datos.id_cita,
                 id_medico: datos.id_medico,
                 id_paciente: datos.id_paciente,
@@ -26,11 +40,18 @@ class AutorizacionServicio {
                 prioridad: datos.prioridad || 'media',
                 cantidad: datos.cantidad || null,
                 duracion_tratamiento: datos.duracion_tratamiento || null
-            });
+            };
+
+            console.log('📝 Creando autorización con datos:', datosAutorizacion);
+
+            const autorizacion = await autorizacionRepositorio.crear(datosAutorizacion);
+
+            console.log('✅ Autorización creada exitosamente:', autorizacion.id);
 
             return this.formatearAutorizacion(autorizacion);
         } catch (error) {
             console.error('❌ Error en AutorizacionServicio.crearAutorizacion:', error);
+            console.error('❌ Stack:', error.stack);
             throw error;
         }
     }
@@ -144,7 +165,7 @@ class AutorizacionServicio {
             fechaRespuesta: autorizacionJSON.fecha_respuesta,
             observaciones: autorizacionJSON.observaciones,
             cantidad: autorizacionJSON.cantidad,
-            duracionTratamiento: autorizacionJSON.duracion_tratamiento, // ✅ CORREGIDO: era autorizacionJson
+            duracionTratamiento: autorizacionJSON.duracion_tratamiento,
             medico: autorizacionJSON.medico ? {
                 id: autorizacionJSON.medico.id,
                 nombre: autorizacionJSON.medico.nombre,
