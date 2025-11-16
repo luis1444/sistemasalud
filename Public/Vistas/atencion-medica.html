@@ -780,11 +780,11 @@
 
         if (citas.length === 0) {
             lista.innerHTML = `
-            <div class="lista-vacia">
-                <span>😔</span>
-                <p>No tiene citas pendientes para atender.</p>
-            </div>
-        `;
+        <div class="lista-vacia">
+            <span>😔</span>
+            <p>No tiene citas pendientes para atender.</p>
+        </div>
+    `;
             return;
         }
 
@@ -808,14 +808,14 @@
             const motivo = c.motivo_consulta || c.motivo || 'Sin motivo especificado';
 
             return `
-            <div class="cita-selector-item" onclick='seleccionarCita(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
-                <div class="cita-info">
-                    <strong>${nombrePaciente}</strong>
-                    <span>${c.fecha} - ${hora} | Motivo: ${motivo}</span>
-                </div>
-                <span class="btn btn-primary" style="padding: 5px 10px; font-size: 0.9em;">Seleccionar</span>
+        <div class="cita-selector-item" onclick='seleccionarCita(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
+            <div class="cita-info">
+                <strong>${nombrePaciente}</strong>
+                <span>${c.fecha} - ${hora} | Motivo: ${motivo}</span>
             </div>
-        `;
+            <span class="btn btn-primary" style="padding: 5px 10px; font-size: 0.9em;">Seleccionar</span>
+        </div>
+    `;
         }).join('');
     }
 
@@ -858,20 +858,20 @@
 
         if (!citaActual || !citaActual.pacienteId) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>📋</span>
-                    <p>Seleccione una cita para cargar el historial.</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>📋</span>
+                <p>Seleccione una cita para cargar el historial.</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = `
-            <div class="lista-vacia">
-                <span>⏳</span>
-                <p>Cargando historial...</p>
-            </div>
-        `;
+        <div class="lista-vacia">
+            <span>⏳</span>
+            <p>Cargando historial...</p>
+        </div>
+    `;
 
         try {
             const token = localStorage.getItem('token');
@@ -910,11 +910,11 @@
         } catch (error) {
             console.error('❌ Error al cargar historial:', error);
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>⚠️</span>
-                    <p>Error al cargar el historial del paciente.</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>⚠️</span>
+                <p>Error al cargar el historial del paciente.</p>
+            </div>
+        `;
         }
     }
 
@@ -923,11 +923,11 @@
 
         if (citas.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>📋</span>
-                    <p>Este paciente no tiene consultas previas registradas</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>📋</span>
+                <p>Este paciente no tiene consultas previas registradas</p>
+            </div>
+        `;
             return;
         }
 
@@ -949,12 +949,12 @@
             if (observacionesMatch) tratamiento = observacionesMatch[1].trim();
 
             return `
-            <div class="historial-item">
-                <div class="fecha">${fecha}</div>
-                <div class="detalle"><strong>Diagnóstico:</strong> ${diagnostico}</div>
-                <div class="detalle"><strong>Tratamiento:</strong> ${tratamiento}</div>
-            </div>
-        `;
+        <div class="historial-item">
+            <div class="fecha">${fecha}</div>
+            <div class="detalle"><strong>Diagnóstico:</strong> ${diagnostico}</div>
+            <div class="detalle"><strong>Tratamiento:</strong> ${tratamiento}</div>
+        </div>
+    `;
         }).join('');
 
         container.innerHTML = historialHTML;
@@ -1012,7 +1012,6 @@
         }
     }
 
-    // ✅ FUNCIÓN CORREGIDA - Guardar Anotaciones
     async function guardarAnotaciones() {
         if (!citaActual || citaActual.estado !== 'en-curso') {
             Swal.fire({
@@ -1020,7 +1019,7 @@
                 title: 'Cita no iniciada',
                 text: 'Debe iniciar la cita antes de guardar anotaciones.'
             });
-            return false; // ✅ Retorna false si no se puede guardar
+            return false;
         }
 
         const sintomas = document.getElementById('sintomas').value.trim();
@@ -1033,22 +1032,37 @@
                 title: 'Campos incompletos',
                 text: 'Por favor complete los Síntomas Actuales y el Diagnóstico'
             });
-            return false; // ✅ Retorna false si faltan campos
+            return false;
         }
 
-        // ✅ Formato con dobles saltos de línea
-        const notasCompletas = `SÍNTOMAS: ${sintomas}
+        // ✅ CONSTRUCCIÓN DE NOTAS COMPLETAS CON MEDICAMENTOS Y EXÁMENES
+        let notasCompletas = `SÍNTOMAS: ${sintomas}
 
 DIAGNÓSTICO: ${diagnostico}
 
 OBSERVACIONES: ${observaciones}`;
 
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-        console.log('📝 Guardando Anotaciones');
-        console.log('🆔 ID de la cita:', citaActual.id);
-        console.log('📦 Notas completas a enviar:');
-        console.log(notasCompletas);
-        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        // ✅ Agregar medicamentos si existen
+        if (medicamentos.length > 0) {
+            notasCompletas += '\n\n--- MEDICAMENTOS RECETADOS ---\n';
+            medicamentos.forEach((med, index) => {
+                notasCompletas += `\n${index + 1}. ${med.nombre}`;
+                notasCompletas += `\n   - Dosis: ${med.dosis}`;
+                notasCompletas += `\n   - Frecuencia: ${med.frecuencia}`;
+                if (med.duracion) notasCompletas += `\n   - Duración: ${med.duracion}`;
+                if (med.indicaciones) notasCompletas += `\n   - Indicaciones: ${med.indicaciones}`;
+            });
+        }
+
+        // ✅ Agregar exámenes si existen
+        if (examenes.length > 0) {
+            notasCompletas += '\n\n--- EXÁMENES SOLICITADOS ---\n';
+            examenes.forEach((ex, index) => {
+                notasCompletas += `\n${index + 1}. ${ex.nombre} (${ex.tipo})`;
+                notasCompletas += `\n   - Prioridad: ${ex.prioridad}`;
+                if (ex.indicaciones) notasCompletas += `\n   - Indicaciones: ${ex.indicaciones}`;
+            });
+        }
 
         try {
             const token = localStorage.getItem('token');
@@ -1064,14 +1078,10 @@ OBSERVACIONES: ${observaciones}`;
             });
 
             const responseData = await response.json();
-            console.log('📥 Respuesta del servidor:', responseData);
 
             if (response.ok) {
                 citaActual.notas = notasCompletas;
                 localStorage.setItem('citaActual', JSON.stringify(citaActual));
-
-                console.log('✅ Anotaciones guardadas correctamente');
-                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
                 Swal.fire({
                     icon: 'success',
@@ -1081,13 +1091,12 @@ OBSERVACIONES: ${observaciones}`;
                     showConfirmButton: false
                 });
 
-                return true; // ✅ Retorna true si se guardó correctamente
+                return true;
             } else {
                 throw new Error(responseData.mensaje || 'Error desconocido al guardar anotaciones');
             }
         } catch (error) {
             console.error('❌ ERROR al guardar anotaciones:', error);
-            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             Swal.fire({
                 icon: 'error',
@@ -1095,7 +1104,7 @@ OBSERVACIONES: ${observaciones}`;
                 text: error.message || 'No se pudieron guardar las anotaciones'
             });
 
-            return false; // ✅ Retorna false si hubo error
+            return false;
         }
     }
 
@@ -1145,25 +1154,25 @@ OBSERVACIONES: ${observaciones}`;
 
         if (medicamentos.length === 0) {
             container.innerHTML = `
-            <div class="lista-vacia">
-                <span>💊</span>
-                <p>No hay medicamentos agregados</p>
-            </div>
-        `;
+        <div class="lista-vacia">
+            <span>💊</span>
+            <p>No hay medicamentos agregados</p>
+        </div>
+    `;
             return;
         }
 
         container.innerHTML = medicamentos.map(med => `
-        <div class="medicamento-item">
-            <div class="medicamento-info">
-                <h4>${med.nombre}</h4>
-                <p><strong>Dosis:</strong> ${med.dosis} - <strong>Frecuencia:</strong> ${med.frecuencia}</p>
-                ${med.duracion ? `<p><strong>Duración:</strong> ${med.duracion}</p>` : ''}
-                ${med.indicaciones ? `<p><strong>Indicaciones:</strong> ${med.indicaciones}</p>` : ''}
-            </div>
-            <button class="btn-eliminar" onclick="eliminarMedicamento(${med.id})">🗑️ Eliminar</button>
+    <div class="medicamento-item">
+        <div class="medicamento-info">
+            <h4>${med.nombre}</h4>
+            <p><strong>Dosis:</strong> ${med.dosis} - <strong>Frecuencia:</strong> ${med.frecuencia}</p>
+            ${med.duracion ? `<p><strong>Duración:</strong> ${med.duracion}</p>` : ''}
+            ${med.indicaciones ? `<p><strong>Indicaciones:</strong> ${med.indicaciones}</p>` : ''}
         </div>
-    `).join('');
+        <button class="btn-eliminar" onclick="eliminarMedicamento(${med.id})">🗑️ Eliminar</button>
+    </div>
+`).join('');
     }
 
     function eliminarMedicamento(id) {
@@ -1214,24 +1223,24 @@ OBSERVACIONES: ${observaciones}`;
 
         if (examenes.length === 0) {
             container.innerHTML = `
-            <div class="lista-vacia">
-                <span>🔬</span>
-                <p>No hay exámenes solicitados</p>
-            </div>
-        `;
+        <div class="lista-vacia">
+            <span>🔬</span>
+            <p>No hay exámenes solicitados</p>
+        </div>
+    `;
             return;
         }
 
         container.innerHTML = examenes.map(ex => `
-        <div class="examen-item" data-prioridad="${ex.prioridad}">
-            <div class="examen-info">
-                <h4 class="${ex.prioridad === 'urgente' ? 'urgente' : ''}">${ex.nombre} (${ex.tipo})</h4>
-                <p><strong>Prioridad:</strong> ${ex.prioridad.charAt(0).toUpperCase() + ex.prioridad.slice(1)}</p>
-                ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
-            </div>
-            <button class="btn-eliminar" onclick="eliminarExamen(${ex.id})">🗑️ Eliminar</button>
+    <div class="examen-item" data-prioridad="${ex.prioridad}">
+        <div class="examen-info">
+            <h4 class="${ex.prioridad === 'urgente' ? 'urgente' : ''}">${ex.nombre} (${ex.tipo})</h4>
+            <p><strong>Prioridad:</strong> ${ex.prioridad.charAt(0).toUpperCase() + ex.prioridad.slice(1)}</p>
+            ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
         </div>
-    `).join('');
+        <button class="btn-eliminar" onclick="eliminarExamen(${ex.id})">🗑️ Eliminar</button>
+    </div>
+`).join('');
     }
 
     function eliminarExamen(id) {
@@ -1239,7 +1248,6 @@ OBSERVACIONES: ${observaciones}`;
         renderizarExamenes();
     }
 
-    // ✅ FUNCIÓN CORREGIDA - Finalizar Cita
     async function finalizarCita() {
         if (!citaActual) return;
 
@@ -1261,12 +1269,10 @@ OBSERVACIONES: ${observaciones}`;
         }
 
         try {
-            // ✅ PASO 1: Guardar anotaciones y esperar respuesta
             console.log('🔄 PASO 1: Guardando anotaciones...');
             const guardadoExitoso = await guardarAnotaciones();
 
             if (!guardadoExitoso) {
-                console.error('❌ No se pudieron guardar las anotaciones');
                 Swal.fire({
                     icon: 'error',
                     title: 'Error',
@@ -1275,12 +1281,8 @@ OBSERVACIONES: ${observaciones}`;
                 return;
             }
 
-            console.log('✅ Anotaciones guardadas exitosamente');
-
-            // ✅ PASO 2: Esperar un momento para asegurar que se guardó
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // ✅ PASO 3: Finalizar la cita
             console.log('🔄 PASO 2: Finalizando cita...');
             const token = localStorage.getItem('token');
 

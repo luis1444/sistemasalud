@@ -519,7 +519,6 @@
         try {
             const token = localStorage.getItem('token');
 
-            console.log('🔍 Buscando paciente con identificación:', identificacion);
             const responsePaciente = await fetch(`http://localhost:3000/api/usuarios/buscar-identificacion/${identificacion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -533,11 +532,8 @@
             }
 
             const dataPaciente = await responsePaciente.json();
-            console.log('✅ Paciente encontrado:', dataPaciente);
-
             pacienteActual = dataPaciente.exito ? dataPaciente : dataPaciente;
 
-            console.log('📋 Obteniendo citas del paciente ID:', pacienteActual.id);
             const responseCitas = await fetch(`http://localhost:3000/api/citas/paciente/${pacienteActual.id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -548,7 +544,6 @@
             let citas = [];
             if (responseCitas.ok) {
                 const dataCitas = await responseCitas.json();
-                console.log('📦 Respuesta de citas:', dataCitas);
 
                 if (Array.isArray(dataCitas)) {
                     citas = dataCitas;
@@ -556,18 +551,10 @@
                     citas = dataCitas.datos;
                 } else if (dataCitas.data && Array.isArray(dataCitas.data)) {
                     citas = dataCitas.data;
-                } else {
-                    console.warn('⚠️ Formato de citas no esperado:', dataCitas);
-                    citas = [];
                 }
-            } else {
-                console.warn('⚠️ No se pudieron obtener las citas');
             }
 
-            console.log(`✅ Total de citas obtenidas: ${citas.length}`);
-
             const citasCompletadas = citas.filter(c => c.estado === 'completada');
-            console.log(`✅ Citas completadas: ${citasCompletadas.length}`);
 
             historialCompleto = {
                 paciente: pacienteActual,
@@ -609,7 +596,6 @@
 
     function procesarEstadisticas() {
         const citas = historialCompleto.citas || [];
-
         document.getElementById('totalConsultas').textContent = citas.length;
 
         let totalMedicamentos = 0;
@@ -617,10 +603,10 @@
 
         citas.forEach(cita => {
             const notas = cita.notas || '';
-            if (notas.toLowerCase().includes('medicamento') || notas.toLowerCase().includes('receta')) {
+            if (notas.includes('--- MEDICAMENTOS RECETADOS ---')) {
                 totalMedicamentos++;
             }
-            if (notas.toLowerCase().includes('examen') || notas.toLowerCase().includes('laboratorio')) {
+            if (notas.includes('--- EXÁMENES SOLICITADOS ---')) {
                 totalExamenes++;
             }
         });
@@ -635,11 +621,11 @@
 
         if (citas.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>🩺</span>
-                    <p>No hay consultas registradas para este paciente</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>🩺</span>
+                <p>No hay consultas registradas para este paciente</p>
+            </div>
+        `;
             return;
         }
 
@@ -657,20 +643,15 @@
             let sintomas = 'No especificado';
             let observaciones = 'No especificado';
 
-            // ✅ CORRECCIÓN: Capturar contenido multilínea correctamente
-            // Captura todo después de "SÍNTOMAS:" hasta encontrar "DIAGNÓSTICO:" o el final
             const sintomasMatch = notas.match(/SÍNTOMAS:\s*([\s\S]*?)(?=\n\nDIAGNÓSTICO:|$)/i);
             if (sintomasMatch) sintomas = sintomasMatch[1].trim();
 
-            // Captura todo después de "DIAGNÓSTICO:" hasta encontrar "OBSERVACIONES:" o el final
             const diagnosticoMatch = notas.match(/DIAGNÓSTICO:\s*([\s\S]*?)(?=\n\nOBSERVACIONES:|$)/i);
             if (diagnosticoMatch) diagnostico = diagnosticoMatch[1].trim();
 
-            // Captura todo después de "OBSERVACIONES:" hasta el final
-            const observacionesMatch = notas.match(/OBSERVACIONES:\s*([\s\S]*?)$/i);
+            const observacionesMatch = notas.match(/OBSERVACIONES:\s*([\s\S]*?)(?=\n\n---|$)/i);
             if (observacionesMatch) observaciones = observacionesMatch[1].trim();
 
-            // Obtener nombre del médico
             let nombreMedico = 'No registrado';
             if (cita.medico) {
                 if (typeof cita.medico === 'string') {
@@ -682,7 +663,6 @@
                 nombreMedico = cita.medicoNombre;
             }
 
-            // Obtener especialidad
             let especialidad = '';
             if (cita.especialidad) {
                 especialidad = cita.especialidad;
@@ -690,7 +670,6 @@
                 especialidad = cita.medico.especialidad;
             }
 
-            // Obtener hora
             let hora = '';
             if (cita.hora) {
                 hora = cita.hora.substring ? cita.hora.substring(0, 5) : cita.hora;
@@ -699,24 +678,24 @@
             }
 
             return `
-                <div class="historial-item">
-                    <div class="fecha">📅 ${fecha}${hora ? ` - ${hora}` : ''}</div>
-                    <div class="medico">👨‍⚕️ Atendido por: ${nombreMedico}${especialidad ? ` - ${especialidad}` : ''}</div>
-                    <div class="contenido">
-                        <strong>Motivo de consulta:</strong>
-                        <p>${cita.motivo_consulta || cita.motivo || 'No especificado'}</p>
+            <div class="historial-item">
+                <div class="fecha">📅 ${fecha}${hora ? ` - ${hora}` : ''}</div>
+                <div class="medico">👨‍⚕️ Atendido por: ${nombreMedico}${especialidad ? ` - ${especialidad}` : ''}</div>
+                <div class="contenido">
+                    <strong>Motivo de consulta:</strong>
+                    <p>${cita.motivo_consulta || cita.motivo || 'No especificado'}</p>
 
-                        <strong>Síntomas:</strong>
-                        <p style="white-space: pre-wrap;">${sintomas}</p>
+                    <strong>Síntomas:</strong>
+                    <p style="white-space: pre-wrap;">${sintomas}</p>
 
-                        <strong>Diagnóstico:</strong>
-                        <p style="white-space: pre-wrap;">${diagnostico}</p>
+                    <strong>Diagnóstico:</strong>
+                    <p style="white-space: pre-wrap;">${diagnostico}</p>
 
-                        <strong>Observaciones y Tratamiento:</strong>
-                        <p style="white-space: pre-wrap;">${observaciones}</p>
-                    </div>
+                    <strong>Observaciones y Tratamiento:</strong>
+                    <p style="white-space: pre-wrap;">${observaciones}</p>
                 </div>
-            `;
+            </div>
+        `;
         }).join('');
     }
 
@@ -744,32 +723,37 @@
                 nombreMedico = cita.medicoNombre;
             }
 
-            if (notas.toLowerCase().includes('medicamento') || notas.toLowerCase().includes('receta')) {
-                medicamentos.push({
-                    fecha: fecha,
-                    medico: nombreMedico,
-                    contenido: notas
-                });
+            // ✅ Extraer medicamentos del formato estructurado
+            if (notas.includes('--- MEDICAMENTOS RECETADOS ---')) {
+                const medicamentosMatch = notas.match(/--- MEDICAMENTOS RECETADOS ---\n([\s\S]*?)(?=\n\n---|$)/);
+                if (medicamentosMatch) {
+                    const medicamentosTexto = medicamentosMatch[1].trim();
+                    medicamentos.push({
+                        fecha: fecha,
+                        medico: nombreMedico,
+                        contenido: medicamentosTexto
+                    });
+                }
             }
         });
 
         if (medicamentos.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>💊</span>
-                    <p>No hay medicamentos recetados registrados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>💊</span>
+                <p>No hay medicamentos recetados registrados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = medicamentos.map(med => `
-            <div class="medicamento-item">
-                <h4>Receta médica - ${med.fecha}</h4>
-                <p><strong>Médico:</strong> ${med.medico}</p>
-                <p style="margin-top: 10px; white-space: pre-line;">${med.contenido}</p>
-            </div>
-        `).join('');
+        <div class="medicamento-item">
+            <h4>Receta médica - ${med.fecha}</h4>
+            <p><strong>Médico:</strong> ${med.medico}</p>
+            <p style="margin-top: 10px; white-space: pre-line;">${med.contenido}</p>
+        </div>
+    `).join('');
     }
 
     function renderizarExamenes() {
@@ -796,32 +780,37 @@
                 nombreMedico = cita.medicoNombre;
             }
 
-            if (notas.toLowerCase().includes('examen') || notas.toLowerCase().includes('laboratorio')) {
-                examenes.push({
-                    fecha: fecha,
-                    medico: nombreMedico,
-                    contenido: notas
-                });
+            // ✅ Extraer exámenes del formato estructurado
+            if (notas.includes('--- EXÁMENES SOLICITADOS ---')) {
+                const examenesMatch = notas.match(/--- EXÁMENES SOLICITADOS ---\n([\s\S]*?)$/);
+                if (examenesMatch) {
+                    const examenesTexto = examenesMatch[1].trim();
+                    examenes.push({
+                        fecha: fecha,
+                        medico: nombreMedico,
+                        contenido: examenesTexto
+                    });
+                }
             }
         });
 
         if (examenes.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>🔬</span>
-                    <p>No hay exámenes solicitados registrados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>🔬</span>
+                <p>No hay exámenes solicitados registrados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = examenes.map(exam => `
-            <div class="examen-item">
-                <h4>Orden de examen - ${exam.fecha}</h4>
-                <p><strong>Médico:</strong> ${exam.medico}</p>
-                <p style="margin-top: 10px; white-space: pre-line;">${exam.contenido}</p>
-            </div>
-        `).join('');
+        <div class="examen-item">
+            <h4>Orden de examen - ${exam.fecha}</h4>
+            <p><strong>Médico:</strong> ${exam.medico}</p>
+            <p style="margin-top: 10px; white-space: pre-line;">${exam.contenido}</p>
+        </div>
+    `).join('');
     }
 
     function cambiarTab(tab) {
