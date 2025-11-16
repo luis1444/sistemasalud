@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Historial Médico | VITAL+</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+        }
+
+        .logo-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-header img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .logo-header h1 {
+            font-size: 1.8em;
+        }
+
+        .btn-volver {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-volver:hover {
+            background: white;
+            color: #0077b6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 40px;
+        }
+
+        .panel {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0, 119, 182, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .panel-titulo {
+            color: #0077b6;
+            font-size: 1.5em;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e0f7fa;
+            padding-bottom: 15px;
+        }
+
+        .info-paciente {
+            background: linear-gradient(135deg, #e0f7fa, #ffffff);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            border-left: 5px solid #0077b6;
+        }
+
+        .info-paciente h3 {
+            color: #0077b6;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .datos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .dato-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #52796f;
+        }
+
+        .dato-item strong {
+            color: #0077b6;
+        }
+
+        .estadisticas {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #0077b6, #00b4d8);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-card .numero {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .etiqueta {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            color: #52796f;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            font-size: 1em;
+        }
+
+        .tab.active {
+            color: #0077b6;
+            border-bottom-color: #0077b6;
+        }
+
+        .tab:hover {
+            color: #0077b6;
+            background: #f8f9fa;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .historial-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #0077b6;
+            transition: all 0.3s ease;
+        }
+
+        .historial-item:hover {
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.15);
+            transform: translateX(5px);
+        }
+
+        .historial-item .fecha {
+            color: #0077b6;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .historial-item .medico {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+
+        .historial-item .contenido {
+            color: #52796f;
+            line-height: 1.6;
+        }
+
+        .historial-item .contenido strong {
+            color: #0077b6;
+            display: block;
+            margin-top: 10px;
+            margin-bottom: 5px;
+        }
+
+        .medicamento-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .medicamento-card:hover {
+            border-color: #0077b6;
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.1);
+        }
+
+        .medicamento-card .header-medicamento {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .medicamento-card h4 {
+            color: #0077b6;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+
+        .estado-badge {
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .estado-entregado {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .estado-pendiente {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .medicamento-card .detalles {
+            color: #52796f;
+            line-height: 1.8;
+        }
+
+        .medicamento-card .detalles p {
+            margin: 8px 0;
+        }
+
+        .medicamento-card .fecha-receta {
+            color: #6c757d;
+            font-size: 0.9em;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .examen-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ffc107;
+            transition: all 0.3s ease;
+        }
+
+        .examen-card.realizado {
+            border-left-color: #28a745;
+        }
+
+        .examen-card.pendiente {
+            border-left-color: #dc3545;
+        }
+
+        .examen-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.1);
+            transform: translateX(5px);
+        }
+
+        .examen-card .header-examen {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .examen-card h4 {
+            color: #0077b6;
+            font-size: 1.2em;
+        }
+
+        .examen-card .detalles {
+            color: #52796f;
+            line-height: 1.8;
+        }
+
+        .lista-vacia {
+            text-align: center;
+            padding: 60px 20px;
+            color: #52796f;
+        }
+
+        .lista-vacia span {
+            font-size: 4em;
+            display: block;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .lista-vacia p {
+            font-size: 1.1em;
+        }
+
+        .btn-accion {
+            background: #0077b6;
+            color: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .btn-accion:hover {
+            background: #005a8d;
+            transform: translateY(-2px);
+        }
+
+        .btn-accion.completado {
+            background: #28a745;
+        }
+
+        .btn-accion.completado:hover {
+            background: #218838;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .tabs {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .datos-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .medicamento-card .header-medicamento,
+            .examen-card .header-examen {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="logo-header">
+        <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+        <h1>VITAL+</h1>
+    </div>
+    <a href="/Vistas/dashboard-paciente.html" class="btn-volver">← Volver al Dashboard</a>
+</div>
+
+<div class="container">
+    <div class="panel info-paciente">
+        <h3>📋 Mi Información</h3>
+        <div class="datos-grid">
+            <div class="dato-item">
+                <span>👤</span>
+                <span><strong>Nombre:</strong> <span id="nombrePaciente">Cargando...</span></span>
+            </div>
+            <div class="dato-item">
+                <span>🆔</span>
+                <span><strong>Identificación:</strong> <span id="idPaciente">-</span></span>
+            </div>
+            <div class="dato-item">
+                <span>📧</span>
+                <span><strong>Correo:</strong> <span id="correoPaciente">-</span></span>
+            </div>
+            <div class="dato-item">
+                <span>📞</span>
+                <span><strong>Teléfono:</strong> <span id="telefonoPaciente">-</span></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="estadisticas">
+        <div class="stat-card">
+            <div class="numero" id="totalConsultas">0</div>
+            <div class="etiqueta">Consultas Realizadas</div>
+        </div>
+        <div class="stat-card">
+            <div class="numero" id="totalMedicamentos">0</div>
+            <div class="etiqueta">Medicamentos Recetados</div>
+        </div>
+        <div class="stat-card">
+            <div class="numero" id="totalExamenes">0</div>
+            <div class="etiqueta">Exámenes Solicitados</div>
+        </div>
+        <div class="stat-card">
+            <div class="numero" id="examenesPendientes">0</div>
+            <div class="etiqueta">Exámenes Pendientes</div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <div class="panel-titulo">📚 Mi Historial Médico</div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="cambiarTab('consultas')">🩺 Consultas</button>
+            <button class="tab" onclick="cambiarTab('medicamentos')">💊 Medicamentos</button>
+            <button class="tab" onclick="cambiarTab('examenes')">🔬 Exámenes</button>
+        </div>
+
+        <div id="tab-consultas" class="tab-content active">
+            <div id="listaConsultas">
+                <div class="lista-vacia">
+                    <span>🩺</span>
+                    <p>Cargando consultas...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-medicamentos" class="tab-content">
+            <div id="listaMedicamentos">
+                <div class="lista-vacia">
+                    <span>💊</span>
+                    <p>Cargando medicamentos...</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-examenes" class="tab-content">
+            <div id="listaExamenes">
+                <div class="lista-vacia">
+                    <span>🔬</span>
+                    <p>Cargando exámenes...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    let historialCompleto = null;
+    let medicamentosEstado = {};
+    let examenesEstado = {};
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        verificarAutenticacion();
+        await cargarHistorialPaciente();
+        cargarEstadosMedicamentos();
+        cargarEstadosExamenes();
+    });
+
+    function verificarAutenticacion() {
+        const token = localStorage.getItem('token');
+        const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+        if (!token || usuario.rol !== 'paciente') {
+            window.location.href = '/login.html';
+            return;
+        }
+
+        document.getElementById('nombrePaciente').textContent = usuario.nombre || '-';
+        document.getElementById('idPaciente').textContent = usuario.identificacion || '-';
+        document.getElementById('correoPaciente').textContent = usuario.correo || '-';
+        document.getElementById('telefonoPaciente').textContent = usuario.telefono || '-';
+    }
+
+    async function cargarHistorialPaciente() {
+        const token = localStorage.getItem('token');
+
+        try {
+            console.log('📋 Cargando historial del paciente...');
+
+            // ✅ CORREGIDO: Usar la ruta correcta
+            const response = await fetch('http://localhost:3000/api/citas/mis-citas', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('📡 Status de respuesta:', response.status);
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.mensaje || 'No se pudo cargar el historial');
+            }
+
+            const resultado = await response.json();
+            console.log('📦 Respuesta del servidor:', resultado);
+
+            let citas = [];
+            if (Array.isArray(resultado)) {
+                citas = resultado;
+            } else if (resultado.datos && Array.isArray(resultado.datos)) {
+                citas = resultado.datos;
+            } else if (resultado.data && Array.isArray(resultado.data)) {
+                citas = resultado.data;
+            }
+
+            console.log(`✅ Total de citas obtenidas: ${citas.length}`);
+
+            const citasCompletadas = citas.filter(c => c.estado === 'completada');
+            console.log(`✅ Citas completadas: ${citasCompletadas.length}`);
+
+            historialCompleto = {
+                citas: citasCompletadas
+            };
+
+            procesarEstadisticas();
+            renderizarConsultas();
+            renderizarMedicamentos();
+            renderizarExamenes();
+
+        } catch (error) {
+            console.error('❌ Error al cargar historial:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo cargar el historial médico: ' + error.message
+            });
+        }
+    }
+
+    function procesarEstadisticas() {
+        const citas = historialCompleto.citas || [];
+        document.getElementById('totalConsultas').textContent = citas.length;
+
+        let totalMedicamentos = 0;
+        let totalExamenes = 0;
+        let examenesPendientesCount = 0;
+
+        citas.forEach(cita => {
+            const notas = cita.notas || '';
+            if (notas.includes('--- MEDICAMENTOS RECETADOS ---')) {
+                const medicamentosSeccion = notas.match(/--- MEDICAMENTOS RECETADOS ---\n([\s\S]*?)(?=\n\n---|$)/);
+                if (medicamentosSeccion) {
+                    const numMedicamentos = (medicamentosSeccion[1].match(/^\d+\./gm) || []).length;
+                    totalMedicamentos += numMedicamentos;
+                }
+            }
+            if (notas.includes('--- EXÁMENES SOLICITADOS ---')) {
+                const examenesSeccion = notas.match(/--- EXÁMENES SOLICITADOS ---\n([\s\S]*?)$/);
+                if (examenesSeccion) {
+                    const numExamenes = (examenesSeccion[1].match(/^\d+\./gm) || []).length;
+                    totalExamenes += numExamenes;
+                }
+            }
+        });
+
+        Object.values(examenesEstado).forEach(estado => {
+            if (estado === 'pendiente') examenesPendientesCount++;
+        });
+
+        document.getElementById('totalMedicamentos').textContent = totalMedicamentos;
+        document.getElementById('totalExamenes').textContent = totalExamenes;
+        document.getElementById('examenesPendientes').textContent = examenesPendientesCount;
+    }
+
+    function renderizarConsultas() {
+        const container = document.getElementById('listaConsultas');
+        const citas = historialCompleto.citas || [];
+
+        if (citas.length === 0) {
+            container.innerHTML = `
+            <div class="lista-vacia">
+                <span>🩺</span>
+                <p>No tienes consultas médicas registradas</p>
+            </div>
+        `;
+            return;
+        }
+
+        const citasOrdenadas = [...citas].sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+
+        container.innerHTML = citasOrdenadas.map(cita => {
+            const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            const notas = cita.notas || '';
+            let diagnostico = 'No especificado';
+            let sintomas = 'No especificado';
+            let observaciones = 'No especificado';
+
+            const sintomasMatch = notas.match(/SÍNTOMAS:\s*([\s\S]*?)(?=\n\nDIAGNÓSTICO:|$)/i);
+            if (sintomasMatch) sintomas = sintomasMatch[1].trim();
+
+            const diagnosticoMatch = notas.match(/DIAGNÓSTICO:\s*([\s\S]*?)(?=\n\nOBSERVACIONES:|$)/i);
+            if (diagnosticoMatch) diagnostico = diagnosticoMatch[1].trim();
+
+            const observacionesMatch = notas.match(/OBSERVACIONES:\s*([\s\S]*?)(?=\n\n---|$)/i);
+            if (observacionesMatch) observaciones = observacionesMatch[1].trim();
+
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
+            let especialidad = '';
+            if (cita.especialidad) {
+                especialidad = cita.especialidad;
+            } else if (cita.medico && cita.medico.especialidad) {
+                especialidad = cita.medico.especialidad;
+            }
+
+            return `
+            <div class="historial-item">
+                <div class="fecha">
+                    <span>📅</span>
+                    <span>${fecha}</span>
+                </div>
+                <div class="medico">👨‍⚕️ Atendido por: ${nombreMedico}${especialidad ? ` - ${especialidad}` : ''}</div>
+                <div class="contenido">
+                    <strong>Motivo de consulta:</strong>
+                    <p>${cita.motivo_consulta || cita.motivo || 'No especificado'}</p>
+
+                    <strong>Síntomas:</strong>
+                    <p style="white-space: pre-wrap;">${sintomas}</p>
+
+                    <strong>Diagnóstico:</strong>
+                    <p style="white-space: pre-wrap;">${diagnostico}</p>
+
+                    <strong>Observaciones y Tratamiento:</strong>
+                    <p style="white-space: pre-wrap;">${observaciones}</p>
+                </div>
+            </div>
+        `;
+        }).join('');
+    }
+
+    function renderizarMedicamentos() {
+        const container = document.getElementById('listaMedicamentos');
+        const citas = historialCompleto.citas || [];
+
+        const medicamentos = [];
+        citas.forEach((cita, citaIndex) => {
+            const notas = cita.notas || '';
+            const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
+            if (notas.includes('--- MEDICAMENTOS RECETADOS ---')) {
+                const medicamentosMatch = notas.match(/--- MEDICAMENTOS RECETADOS ---\n([\s\S]*?)(?=\n\n---|$)/);
+                if (medicamentosMatch) {
+                    const medicamentosTexto = medicamentosMatch[1].trim();
+                    const medicamentosArray = medicamentosTexto.split(/\n(?=\d+\.)/);
+
+                    medicamentosArray.forEach((medTexto, medIndex) => {
+                        const medicamentoId = `${cita.id}-med-${medIndex}`;
+                        const nombreMatch = medTexto.match(/^\d+\.\s*(.+)/);
+                        const nombre = nombreMatch ? nombreMatch[1].trim() : 'Medicamento';
+
+                        const dosisMatch = medTexto.match(/Dosis:\s*(.+)/);
+                        const dosis = dosisMatch ? dosisMatch[1].trim() : '';
+
+                        const frecuenciaMatch = medTexto.match(/Frecuencia:\s*(.+)/);
+                        const frecuencia = frecuenciaMatch ? frecuenciaMatch[1].trim() : '';
+
+                        const duracionMatch = medTexto.match(/Duración:\s*(.+)/);
+                        const duracion = duracionMatch ? duracionMatch[1].trim() : '';
+
+                        const indicacionesMatch = medTexto.match(/Indicaciones:\s*(.+)/);
+                        const indicaciones = indicacionesMatch ? indicacionesMatch[1].trim() : '';
+
+                        medicamentos.push({
+                            id: medicamentoId,
+                            nombre,
+                            dosis,
+                            frecuencia,
+                            duracion,
+                            indicaciones,
+                            fecha,
+                            medico: nombreMedico,
+                            estado: medicamentosEstado[medicamentoId] || 'pendiente'
+                        });
+                    });
+                }
+            }
+        });
+
+        if (medicamentos.length === 0) {
+            container.innerHTML = `
+            <div class="lista-vacia">
+                <span>💊</span>
+                <p>No tienes medicamentos recetados</p>
+            </div>
+        `;
+            return;
+        }
+
+        container.innerHTML = medicamentos.map(med => `
+        <div class="medicamento-card">
+            <div class="header-medicamento">
+                <div>
+                    <h4>💊 ${med.nombre}</h4>
+                </div>
+                <span class="estado-badge ${med.estado === 'entregado' ? 'estado-entregado' : 'estado-pendiente'}">
+                    ${med.estado === 'entregado' ? '✅ Entregado' : '⏳ Pendiente'}
+                </span>
+            </div>
+            <div class="detalles">
+                ${med.dosis ? `<p><strong>Dosis:</strong> ${med.dosis}</p>` : ''}
+                ${med.frecuencia ? `<p><strong>Frecuencia:</strong> ${med.frecuencia}</p>` : ''}
+                ${med.duracion ? `<p><strong>Duración:</strong> ${med.duracion}</p>` : ''}
+                ${med.indicaciones ? `<p><strong>Indicaciones:</strong> ${med.indicaciones}</p>` : ''}
+            </div>
+            <div class="fecha-receta">
+                <p><strong>Recetado por:</strong> ${med.medico} el ${med.fecha}</p>
+                <button class="btn-accion ${med.estado === 'entregado' ? 'completado' : ''}"
+                        onclick="cambiarEstadoMedicamento('${med.id}', '${med.estado}')">
+                    ${med.estado === 'entregado' ? '✓ Marcar como Pendiente' : '✓ Marcar como Entregado'}
+                </button>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    function renderizarExamenes() {
+        const container = document.getElementById('listaExamenes');
+        const citas = historialCompleto.citas || [];
+
+        const examenes = [];
+        citas.forEach((cita, citaIndex) => {
+            const notas = cita.notas || '';
+            const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            let nombreMedico = 'No registrado';
+            if (cita.medico) {
+                if (typeof cita.medico === 'string') {
+                    nombreMedico = cita.medico;
+                } else if (cita.medico.nombre) {
+                    nombreMedico = cita.medico.nombre;
+                }
+            } else if (cita.medicoNombre) {
+                nombreMedico = cita.medicoNombre;
+            }
+
+            if (notas.includes('--- EXÁMENES SOLICITADOS ---')) {
+                const examenesMatch = notas.match(/--- EXÁMENES SOLICITADOS ---\n([\s\S]*?)$/);
+                if (examenesMatch) {
+                    const examenesTexto = examenesMatch[1].trim();
+                    const examenesArray = examenesTexto.split(/\n(?=\d+\.)/);
+
+                    examenesArray.forEach((exTexto, exIndex) => {
+                        const examenId = `${cita.id}-ex-${exIndex}`;
+                        const nombreMatch = exTexto.match(/^\d+\.\s*(.+)/);
+                        const nombreCompleto = nombreMatch ? nombreMatch[1].trim() : 'Examen';
+
+                        const nombreTipoMatch = nombreCompleto.match(/^(.+?)\s*\((.+?)\)/);
+                        const nombre = nombreTipoMatch ? nombreTipoMatch[1].trim() : nombreCompleto;
+                        const tipo = nombreTipoMatch ? nombreTipoMatch[2].trim() : '';
+
+                        const prioridadMatch = exTexto.match(/Prioridad:\s*(.+)/);
+                        const prioridad = prioridadMatch ? prioridadMatch[1].trim() : 'Normal';
+
+                        const indicacionesMatch = exTexto.match(/Indicaciones:\s*(.+)/);
+                        const indicaciones = indicacionesMatch ? indicacionesMatch[1].trim() : '';
+
+                        examenes.push({
+                            id: examenId,
+                            nombre,
+                            tipo,
+                            prioridad,
+                            indicaciones,
+                            fecha,
+                            medico: nombreMedico,
+                            estado: examenesEstado[examenId] || 'pendiente'
+                        });
+                    });
+                }
+            }
+        });
+
+        if (examenes.length === 0) {
+            container.innerHTML = `
+            <div class="lista-vacia">
+                <span>🔬</span>
+                <p>No tienes exámenes solicitados</p>
+            </div>
+        `;
+            return;
+        }
+
+        const examenesPendientes = examenes.filter(ex => ex.estado === 'pendiente');
+        const examenesRealizados = examenes.filter(ex => ex.estado === 'realizado');
+        const examenesOrdenados = [...examenesPendientes, ...examenesRealizados];
+
+        container.innerHTML = examenesOrdenados.map(ex => `
+        <div class="examen-card ${ex.estado}">
+            <div class="header-examen">
+                <div>
+                    <h4>🔬 ${ex.nombre}${ex.tipo ? ` (${ex.tipo})` : ''}</h4>
+                </div>
+                <span class="estado-badge ${ex.estado === 'realizado' ? 'estado-entregado' : 'estado-pendiente'}">
+                    ${ex.estado === 'realizado' ? '✅ Realizado' : '⏳ Pendiente'}
+                </span>
+            </div>
+            <div class="detalles">
+                <p><strong>Prioridad:</strong> ${ex.prioridad}</p>
+                ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
+                <p><strong>Solicitado por:</strong> ${ex.medico} el ${ex.fecha}</p>
+                <button class="btn-accion ${ex.estado === 'realizado' ? 'completado' : ''}"
+                        onclick="cambiarEstadoExamen('${ex.id}', '${ex.estado}')">
+                    ${ex.estado === 'realizado' ? '✓ Marcar como Pendiente' : '✓ Marcar como Realizado'}
+                </button>
+            </div>
+        </div>
+    `).join('');
+    }
+
+    function cambiarTab(tab) {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+        event.target.classList.add('active');
+        document.getElementById(`tab-${tab}`).classList.add('active');
+    }
+
+    function cambiarEstadoMedicamento(medicamentoId, estadoActual) {
+        const nuevoEstado = estadoActual === 'entregado' ? 'pendiente' : 'entregado';
+        medicamentosEstado[medicamentoId] = nuevoEstado;
+
+        localStorage.setItem('medicamentosEstado', JSON.stringify(medicamentosEstado));
+
+        procesarEstadisticas();
+        renderizarMedicamentos();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Estado actualizado',
+            text: `Medicamento marcado como ${nuevoEstado}`,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    function cambiarEstadoExamen(examenId, estadoActual) {
+        const nuevoEstado = estadoActual === 'realizado' ? 'pendiente' : 'realizado';
+        examenesEstado[examenId] = nuevoEstado;
+
+        localStorage.setItem('examenesEstado', JSON.stringify(examenesEstado));
+
+        procesarEstadisticas();
+        renderizarExamenes();
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Estado actualizado',
+            text: `Examen marcado como ${nuevoEstado}`,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    function cargarEstadosMedicamentos() {
+        const estadosGuardados = localStorage.getItem('medicamentosEstado');
+        if (estadosGuardados) {
+            medicamentosEstado = JSON.parse(estadosGuardados);
+        }
+    }
+
+    function cargarEstadosExamenes() {
+        const estadosGuardados = localStorage.getItem('examenesEstado');
+        if (estadosGuardados) {
+            examenesEstado = JSON.parse(estadosGuardados);
+        }
+    }
+</script>
+
+</body>
+</html>

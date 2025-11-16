@@ -1,14 +1,14 @@
 // ============================================
-//  rutas/citaRutas.js — Rutas de Citas
+// 📄 rutas/citaRutas.js — Rutas de Citas
 // ============================================
 const express = require('express');
 const router = express.Router();
 const citaControlador = require('../controladores/CitaControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
-const citaServicio = require('../servicios/CitaServicio'); // ✅ Importar servicio para iniciar/finalizar citas
+const citaServicio = require('../servicios/CitaServicio');
 
 // ============================================
-//  RUTAS DE CITAS
+// 📋 RUTAS DE CITAS
 // ============================================
 
 // Obtener citas de un médico
@@ -24,21 +24,28 @@ router.get('/medico/:idMedico',
     citaControlador.obtenerCitasMedico
 );
 
-// ✅ NUEVO: Obtener citas del paciente autenticado (desde el token)
+// ✅ NUEVO: Obtener mis citas (paciente autenticado desde el token)
+// GET /api/citas/mis-citas
+router.get('/mis-citas',
+    authMiddleware.verificarToken,
+    citaControlador.obtenerMisCitas
+);
+
+// Obtener citas del paciente autenticado (alternativa)
 // GET /api/citas/paciente
 router.get('/paciente',
     authMiddleware.verificarToken,
     citaControlador.obtenerMisCitas
 );
 
-//  Obtener citas de un paciente específico (por ID)
+// Obtener citas de un paciente específico (por ID)
 // GET /api/citas/paciente/:idPaciente
 router.get('/paciente/:idPaciente',
     authMiddleware.verificarToken,
     citaControlador.obtenerCitasPaciente
 );
 
-//  Obtener citas disponibles de un médico en una fecha
+// Obtener citas disponibles de un médico en una fecha
 // GET /api/citas/disponibles/:idMedico/:fecha
 router.get('/disponibles/:idMedico/:fecha',
     authMiddleware.verificarToken,
@@ -52,21 +59,21 @@ router.post('/:idCita/reservar',
     citaControlador.reservarCita
 );
 
-//  Cancelar una cita
+// Cancelar una cita
 // PUT /api/citas/:idCita/cancelar
 router.put('/:idCita/cancelar',
     authMiddleware.verificarToken,
     citaControlador.cancelarCita
 );
 
-// ✔ Marcar cita como completada
+// Marcar cita como completada
 // PUT /api/citas/:idCita/completar
 router.put('/:idCita/completar',
     authMiddleware.verificarToken,
     citaControlador.completarCita
 );
 
-//  Actualizar notas de una cita
+// Actualizar notas de una cita
 // PUT /api/citas/:idCita/notas
 router.put('/:idCita/notas',
     authMiddleware.verificarToken,
@@ -74,7 +81,7 @@ router.put('/:idCita/notas',
 );
 
 // ============================================
-// ✅ NUEVAS RUTAS DE ATENCIÓN MÉDICA
+// ✅ RUTAS DE ATENCIÓN MÉDICA
 // ============================================
 
 // Iniciar una cita (estado = 'en-curso')
@@ -100,7 +107,7 @@ router.put('/:idCita/finalizar',
     async (req, res) => {
         try {
             const { idCita } = req.params;
-            const { notas } = req.body || {}; // Permite enviar notas opcionalmente
+            const { notas } = req.body || {};
             await citaServicio.completarCita(idCita, notas);
             res.status(200).json({ mensaje: 'Cita finalizada correctamente' });
         } catch (error) {
