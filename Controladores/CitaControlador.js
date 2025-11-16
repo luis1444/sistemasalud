@@ -5,9 +5,6 @@ const citaServicio = require('../servicios/CitaServicio');
 
 class CitaControlador {
 
-    // ============================================
-    //  Obtener citas de un médico
-    // ============================================
     async obtenerCitasMedico(req, res) {
         try {
             const { idMedico } = req.params;
@@ -33,12 +30,8 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    // ✅ NUEVO: Obtener citas del paciente autenticado
-    // ============================================
     async obtenerMisCitas(req, res) {
         try {
-            // El ID viene del token JWT (middleware authMiddleware)
             const idPaciente = req.usuario.id;
 
             console.log(`📋 Obteniendo citas del paciente ID: ${idPaciente}`);
@@ -61,9 +54,6 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    // 👤 Obtener citas de un paciente (por ID específico)
-    // ============================================
     async obtenerCitasPaciente(req, res) {
         try {
             const { idPaciente } = req.params;
@@ -84,9 +74,6 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    // Obtener citas disponibles de un médico en una fecha
-    // ============================================
     async obtenerCitasDisponibles(req, res) {
         try {
             const { idMedico, fecha } = req.params;
@@ -108,9 +95,6 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    //  Reservar una cita
-    // ============================================
     async reservarCita(req, res) {
         try {
             const { idCita } = req.params;
@@ -137,9 +121,6 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    // Cancelar una cita
-    // ============================================
     async cancelarCita(req, res) {
         try {
             const { idCita } = req.params;
@@ -160,15 +141,24 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    //  Completar una cita
-    // ============================================
+    // ✅ MÉTODO CORREGIDO: completarCita ya NO recibe notas obligatorias
     async completarCita(req, res) {
         try {
             const { idCita } = req.params;
             const { notas } = req.body;
 
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('✅ CitaControlador.completarCita');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🆔 ID de cita (params):', idCita);
+            console.log('📦 Body completo:', req.body);
+            console.log('📝 Notas recibidas:', notas ? `${notas.length} caracteres` : 'NO SE ENVIARON NOTAS');
+
+            // ✅ Completar la cita (las notas ya deben estar guardadas previamente)
             const citaCompletada = await citaServicio.completarCita(idCita, notas);
+
+            console.log('✅ CitaControlador: Cita completada exitosamente');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             res.json({
                 exito: true,
@@ -184,15 +174,37 @@ class CitaControlador {
         }
     }
 
-    // ============================================
-    // Actualizar notas médicas
-    // ============================================
+    // ✅ MÉTODO PARA ACTUALIZAR NOTAS (SE USA ANTES DE COMPLETAR)
     async actualizarNotas(req, res) {
         try {
             const { idCita } = req.params;
             const { notas } = req.body;
 
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('📝 CitaControlador.actualizarNotas');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+            console.log('🆔 ID de cita (params):', idCita);
+            console.log('📦 Body completo:', req.body);
+            console.log('📝 Notas recibidas:', notas ? `${notas.length} caracteres` : 'NULL/UNDEFINED');
+
+            if (!notas) {
+                console.log('⚠️ ADVERTENCIA CRÍTICA: req.body.notas es NULL o UNDEFINED');
+                console.log('⚠️ Verificar que el frontend esté enviando el campo "notas"');
+                return res.status(400).json({
+                    exito: false,
+                    mensaje: 'El campo "notas" es requerido'
+                });
+            }
+
+            if (notas) {
+                console.log('📄 Primeros 200 caracteres:');
+                console.log(notas.substring(0, 200));
+            }
+
             const citaActualizada = await citaServicio.actualizarNotas(idCita, notas);
+
+            console.log('✅ CitaControlador: Respuesta exitosa');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             res.json({
                 exito: true,

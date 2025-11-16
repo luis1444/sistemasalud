@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Atención Médica | VITAL+</title>
     <style>
-        /* [El CSS es el mismo que el anterior, omitido por brevedad, pero debe incluirse en el archivo final] */
         * {
             margin: 0;
             padding: 0;
@@ -368,31 +367,6 @@
             color: #52796f;
         }
 
-        @media (max-width: 1024px) {
-            .grid-atencion {
-                grid-template-columns: 1fr;
-            }
-
-            .info-paciente {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 0 20px;
-            }
-
-            .grid-2cols {
-                grid-template-columns: 1fr;
-            }
-
-            .acciones-principales {
-                flex-direction: column;
-            }
-        }
-
-        /* --- Estilos para el Modal Selector de Citas --- */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -404,7 +378,7 @@
             justify-content: center;
             align-items: center;
             z-index: 1000;
-            display: none; /* Oculto por defecto */
+            display: none;
         }
 
         .modal-content {
@@ -453,6 +427,30 @@
             color: #52796f;
             font-size: 0.9em;
         }
+
+        @media (max-width: 1024px) {
+            .grid-atencion {
+                grid-template-columns: 1fr;
+            }
+
+            .info-paciente {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 20px;
+            }
+
+            .grid-2cols {
+                grid-template-columns: 1fr;
+            }
+
+            .acciones-principales {
+                flex-direction: column;
+            }
+        }
     </style>
 </head>
 <body>
@@ -493,7 +491,8 @@
             <span>⏳ Programada</span>
         </div>
     </div>
-    <div class="panel" style="margin-top: 20px;">
+
+    <div class="panel" style="margin-bottom: 20px;">
         <div class="panel-titulo">⚡ Acciones</div>
         <div class="acciones-principales">
             <button class="btn btn-success" onclick="iniciarCita()" id="btnIniciarCita">
@@ -503,7 +502,7 @@
                 ✅ Finalizar Cita
             </button>
         </div>
-
+    </div>
 
     <div class="grid-atencion">
         <div>
@@ -632,63 +631,14 @@
         </div>
 
         <div>
-            <div id="historialReciente">
-                <div class="lista-vacia">
-                    <span>📋</span>
-                    <p>Cargando historial...</p>
+            <div class="panel">
+                <div class="panel-titulo">📋 Historial Reciente</div>
+                <div id="historialReciente">
+                    <div class="lista-vacia">
+                        <span>📋</span>
+                        <p>Cargando historial...</p>
+                    </div>
                 </div>
-            </div>
-
-            <script>
-                async function cargarHistorialMedico(idPaciente) {
-                    const contenedor = document.getElementById('historialReciente');
-                    contenedor.innerHTML = `
-        <div class="lista-vacia">
-            <span>📋</span>
-            <p>Cargando historial...</p>
-        </div>
-    `;
-
-                    try {
-                        const token = localStorage.getItem('token');
-                        const resp = await fetch(`/api/anotaciones/paciente/${idPaciente}`, {
-                            headers: { Authorization: `Bearer ${token}` }
-                        });
-                        const data = await resp.json();
-
-                        if (!data.exito || !data.datos || data.datos.length === 0) {
-                            contenedor.innerHTML = `
-                <div class="lista-vacia">
-                    <span>📋</span>
-                    <p>No hay anotaciones médicas recientes.</p>
-                </div>
-            `;
-                            return;
-                        }
-
-                        contenedor.innerHTML = data.datos.map(anot => `
-            <div class="item-historial">
-                <div class="fecha">${new Date(anot.fecha).toLocaleDateString()}</div>
-                <div class="contenido">
-                    <strong>${anot.diagnostico || 'Sin diagnóstico'}</strong><br>
-                    <em>${anot.observaciones || ''}</em>
-                </div>
-            </div>
-        `).join('');
-
-                    } catch (err) {
-                        console.error('Error cargando historial:', err);
-                        contenedor.innerHTML = `
-            <div class="lista-vacia">
-                <span>⚠️</span>
-                <p>Error al cargar el historial.</p>
-            </div>
-        `;
-                    }
-                }
-            </script>
-
-        </div>
             </div>
         </div>
     </div>
@@ -731,15 +681,13 @@
         }
     }
 
-    // Nueva función para obtener las citas pendientes (simulación)
     async function obtenerCitasPendientes() {
         const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
         const doctorId = usuario.id;
         const token = localStorage.getItem('token');
 
-        // **IMPORTANTE:** En un entorno real, esta API debe filtrar por el Doctor y el estado 'programada' o 'en-curso'
         try {
-            const response = await fetch(`http://localhost:3000/api/citas/doctor/${doctorId}/pendientes`, {
+            const response = await fetch(`http://localhost:3000/api/citas/medico/${doctorId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -748,22 +696,27 @@
 
             if (response.ok) {
                 const resultado = await response.json();
-                // Simulación de datos si la API devuelve un array de citas
-                return resultado.citas || [
-                    { id: 101, paciente: 'Juan Pérez', pacienteId: 1, fecha: '2025-11-05', hora: '10:00 AM', motivo: 'Dolor de cabeza recurrente', estado: 'programada', pacienteCorreo: 'juan@mail.com', pacienteTelefono: '12345678' },
-                    { id: 102, paciente: 'Maria López', pacienteId: 2, fecha: '2025-11-05', hora: '11:00 AM', motivo: 'Control anual', estado: 'programada', pacienteCorreo: 'maria@mail.com', pacienteTelefono: '87654321' },
-                    { id: 103, paciente: 'Carlos Ruiz', pacienteId: 3, fecha: '2025-11-06', hora: '09:00 AM', motivo: 'Seguimiento de fractura', estado: 'programada', pacienteCorreo: 'carlos@mail.com', pacienteTelefono: '55512345' },
-                ];
+
+                let todasLasCitas = [];
+                if (Array.isArray(resultado)) {
+                    todasLasCitas = resultado;
+                } else if (resultado.datos && Array.isArray(resultado.datos)) {
+                    todasLasCitas = resultado.datos;
+                } else if (resultado.data && Array.isArray(resultado.data)) {
+                    todasLasCitas = resultado.data;
+                }
+
+                const citasPendientes = todasLasCitas.filter(c =>
+                    c.estado === 'programada' || c.estado === 'en-curso'
+                );
+
+                return citasPendientes;
             } else {
                 return [];
             }
         } catch (error) {
-            console.error('Error al obtener citas pendientes:', error);
-            // Simulación de respuesta si hay un error de conexión
-            return [
-                { id: 101, paciente: 'Juan Pérez (Sim)', pacienteId: 1, fecha: '2025-11-05', hora: '10:00 AM', motivo: 'Dolor de cabeza recurrente', estado: 'programada', pacienteCorreo: 'juan@mail.com', pacienteTelefono: '12345678' },
-                { id: 102, paciente: 'Maria López (Sim)', pacienteId: 2, fecha: '2025-11-05', hora: '11:00 AM', motivo: 'Control anual', estado: 'programada', pacienteCorreo: 'maria@mail.com', pacienteTelefono: '87654321' },
-            ];
+            console.error('❌ Error al obtener citas pendientes:', error);
+            return [];
         }
     }
 
@@ -771,7 +724,6 @@
         const citaGuardada = citaSeleccionada || localStorage.getItem('citaActual');
 
         if (!citaGuardada) {
-            // Muestra el modal selector si no hay cita en localStorage
             await mostrarSelectorCitas();
             return;
         }
@@ -779,32 +731,43 @@
         try {
             citaActual = JSON.parse(typeof citaGuardada === 'string' ? citaGuardada : JSON.stringify(citaGuardada));
         } catch(e) {
-            // Si hay un error al parsear, también mostramos el selector
-            console.error("Error al parsear cita:", e);
+            console.error("❌ Error al parsear cita:", e);
             await mostrarSelectorCitas();
             return;
         }
 
+        let nombrePaciente = 'Paciente';
+        if (citaActual.paciente) {
+            if (typeof citaActual.paciente === 'string') {
+                nombrePaciente = citaActual.paciente;
+            } else if (citaActual.paciente.nombre) {
+                nombrePaciente = citaActual.paciente.nombre;
+            }
+        }
 
-        // Cargar datos en la interfaz
-        document.getElementById('nombrePaciente').textContent = citaActual.paciente || 'Paciente';
+        document.getElementById('nombrePaciente').textContent = nombrePaciente;
         document.getElementById('correoPaciente').textContent = citaActual.pacienteCorreo || '-';
         document.getElementById('telefonoPaciente').textContent = citaActual.pacienteTelefono || '-';
         document.getElementById('fechaCita').textContent = citaActual.fecha || '-';
-        document.getElementById('horaCita').textContent = citaActual.hora || '-';
-        document.getElementById('motivoConsulta').value = citaActual.motivo || 'No especificado';
 
-        // Avatar con inicial
-        const inicial = (citaActual.paciente || 'P')[0].toUpperCase();
+        let hora = '-';
+        if (citaActual.hora) {
+            hora = citaActual.hora.substring ? citaActual.hora.substring(0, 5) : citaActual.hora;
+        } else if (citaActual.hora_inicio) {
+            hora = citaActual.hora_inicio.substring ? citaActual.hora_inicio.substring(0, 5) : citaActual.hora_inicio;
+        }
+        document.getElementById('horaCita').textContent = hora;
+
+        const motivo = citaActual.motivo_consulta || citaActual.motivo || 'No especificado';
+        document.getElementById('motivoConsulta').value = motivo;
+
+        const inicial = nombrePaciente[0].toUpperCase();
         document.getElementById('avatarPaciente').textContent = inicial;
 
-        // Estado de la cita
         actualizarEstadoCita(citaActual.estado);
 
-        // Ocultar modal si estaba visible
         document.getElementById('modalSelectorCitas').style.display = 'none';
 
-        // Guardar la cita seleccionada/cargada en localStorage para el futuro
         localStorage.setItem('citaActual', JSON.stringify(citaActual));
     }
 
@@ -817,51 +780,53 @@
 
         if (citas.length === 0) {
             lista.innerHTML = `
-                <div class="lista-vacia">
-                    <span>😔</span>
-                    <p>No tiene citas pendientes para hoy.</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>😔</span>
+                <p>No tiene citas pendientes para atender.</p>
+            </div>
+        `;
             return;
         }
 
-        lista.innerHTML = citas.map(c => `
-            <div class="cita-selector-item" onclick="seleccionarCita(${c.id})">
+        lista.innerHTML = citas.map(c => {
+            let nombrePaciente = 'Paciente Desconocido';
+            if (c.paciente) {
+                if (typeof c.paciente === 'string') {
+                    nombrePaciente = c.paciente;
+                } else if (c.paciente.nombre) {
+                    nombrePaciente = c.paciente.nombre;
+                }
+            }
+
+            let hora = '-';
+            if (c.hora) {
+                hora = c.hora.substring ? c.hora.substring(0, 5) : c.hora;
+            } else if (c.hora_inicio) {
+                hora = c.hora_inicio.substring ? c.hora_inicio.substring(0, 5) : c.hora_inicio;
+            }
+
+            const motivo = c.motivo_consulta || c.motivo || 'Sin motivo especificado';
+
+            return `
+            <div class="cita-selector-item" onclick='seleccionarCita(${JSON.stringify(c).replace(/'/g, "&apos;")})'>
                 <div class="cita-info">
-                    <strong>${c.paciente}</strong>
-                    <span>${c.fecha} - ${c.hora} | Motivo: ${c.motivo}</span>
+                    <strong>${nombrePaciente}</strong>
+                    <span>${c.fecha} - ${hora} | Motivo: ${motivo}</span>
                 </div>
                 <span class="btn btn-primary" style="padding: 5px 10px; font-size: 0.9em;">Seleccionar</span>
             </div>
-        `).join('');
-
-        // Almacenar las citas cargadas para usarlas al seleccionar
-        localStorage.setItem('citasPendientes', JSON.stringify(citas));
+        `;
+        }).join('');
     }
 
-    function seleccionarCita(idCita) {
-        const citasPendientes = JSON.parse(localStorage.getItem('citasPendientes') || '[]');
-        const cita = citasPendientes.find(c => c.id === idCita);
-
-        if (cita) {
-            // Limpiar listas de trabajo de la cita anterior
-            medicamentos = [];
-            examenes = [];
-            renderizarMedicamentos();
-            renderizarExamenes();
-
-            // Cargar los datos de la nueva cita seleccionada
-            cargarDatosCita(cita);
-            cargarHistorialReciente();
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Error de Selección',
-                text: 'La cita no se encuentra en la lista de pendientes.'
-            });
-        }
+    function seleccionarCita(cita) {
+        medicamentos = [];
+        examenes = [];
+        renderizarMedicamentos();
+        renderizarExamenes();
+        cargarDatosCita(cita);
+        cargarHistorialReciente();
     }
-
 
     function actualizarEstadoCita(estado) {
         const estadoElement = document.getElementById('estadoCita');
@@ -880,7 +845,7 @@
             estadoElement.innerHTML = '<span>⏳ Programada</span>';
             btnIniciar.style.display = 'block';
             btnFinalizar.style.display = 'none';
-        } else if (estado === 'finalizada') {
+        } else if (estado === 'completada' || estado === 'finalizada') {
             estadoElement.classList.add('estado-finalizada');
             estadoElement.innerHTML = '<span>✅ Finalizada</span>';
             btnIniciar.style.display = 'none';
@@ -889,9 +854,10 @@
     }
 
     async function cargarHistorialReciente() {
-        // Asegurarse de tener una cita actual antes de intentar cargar el historial
+        const container = document.getElementById('historialReciente');
+
         if (!citaActual || !citaActual.pacienteId) {
-            document.getElementById('historialReciente').innerHTML = `
+            container.innerHTML = `
                 <div class="lista-vacia">
                     <span>📋</span>
                     <p>Seleccione una cita para cargar el historial.</p>
@@ -900,76 +866,105 @@
             return;
         }
 
+        container.innerHTML = `
+            <div class="lista-vacia">
+                <span>⏳</span>
+                <p>Cargando historial...</p>
+            </div>
+        `;
+
         try {
             const token = localStorage.getItem('token');
             const pacienteId = citaActual.pacienteId;
 
-            // Simulación: en una app real, esta ruta traería las últimas historias clínicas del paciente
-            const response = await fetch(`http://localhost:3000/api/historias-clinicas/paciente/${pacienteId}`, {
+            const response = await fetch(`http://localhost:3000/api/citas/paciente/${pacienteId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             });
 
-            if (response.ok) {
-                const resultado = await response.json();
-                const historias = resultado.datos || [];
-
-                renderizarHistorial(historias.slice(0, 5)); // Últimas 5 consultas
-            } else {
-                // Simulación si falla la API:
-                renderizarHistorial([
-                    { fecha: '2024-05-15', diagnostico: 'Gripe estacional', tratamiento: 'Reposo y acetaminofén' },
-                    { fecha: '2023-11-01', diagnostico: 'Infección urinaria', tratamiento: 'Antibiótico por 7 días' },
-                ]);
+            if (!response.ok) {
+                throw new Error('No se pudo cargar el historial');
             }
+
+            const resultado = await response.json();
+
+            let citas = [];
+            if (Array.isArray(resultado)) {
+                citas = resultado;
+            } else if (resultado.datos && Array.isArray(resultado.datos)) {
+                citas = resultado.datos;
+            } else if (resultado.data && Array.isArray(resultado.data)) {
+                citas = resultado.data;
+            }
+
+            const citasCompletadas = citas.filter(c => c.estado === 'completada');
+
+            const ultimasCitas = citasCompletadas
+                .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+                .slice(0, 5);
+
+            renderizarHistorial(ultimasCitas);
+
         } catch (error) {
-            console.error('No se pudo cargar el historial:', error);
-            // Simulación en caso de error
-            renderizarHistorial([
-                { fecha: '2024-05-15 (Sim)', diagnostico: 'Gripe estacional', tratamiento: 'Reposo y acetaminofén' },
-                { fecha: '2023-11-01 (Sim)', diagnostico: 'Infección urinaria', tratamiento: 'Antibiótico por 7 días' },
-            ]);
+            console.error('❌ Error al cargar historial:', error);
+            container.innerHTML = `
+                <div class="lista-vacia">
+                    <span>⚠️</span>
+                    <p>Error al cargar el historial del paciente.</p>
+                </div>
+            `;
         }
     }
 
-    function renderizarHistorial(historias) {
+    function renderizarHistorial(citas) {
         const container = document.getElementById('historialReciente');
 
-        if (historias.length === 0) {
+        if (citas.length === 0) {
             container.innerHTML = `
                 <div class="lista-vacia">
                     <span>📋</span>
-                    <p>Sin historial previo</p>
+                    <p>Este paciente no tiene consultas previas registradas</p>
                 </div>
             `;
             return;
         }
 
-        container.innerHTML = historias.map(historia => {
-            // Aseguramos que la fecha sea legible
-            const fechaObj = new Date(historia.fecha);
-            const fecha = isNaN(fechaObj) ? 'Fecha no disponible' : fechaObj.toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+        const historialHTML = citas.map(cita => {
+            const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+
+            const notas = cita.notas || '';
+            let diagnostico = 'No especificado';
+            let tratamiento = 'No especificado';
+
+            const diagnosticoMatch = notas.match(/DIAGNÓSTICO:\s*([^\n]+)/i);
+            if (diagnosticoMatch) diagnostico = diagnosticoMatch[1].trim();
+
+            const observacionesMatch = notas.match(/OBSERVACIONES:\s*([^\n]+)/i);
+            if (observacionesMatch) tratamiento = observacionesMatch[1].trim();
 
             return `
-                <div class="historial-item">
-                    <div class="fecha">${fecha}</div>
-                    <div class="detalle"><strong>Diagnóstico:</strong> ${historia.diagnostico || 'N/A'}</div>
-                    ${historia.tratamiento ? `<div class="detalle"><strong>Tratamiento:</strong> ${historia.tratamiento}</div>` : ''}
-                </div>
-            `;
+            <div class="historial-item">
+                <div class="fecha">${fecha}</div>
+                <div class="detalle"><strong>Diagnóstico:</strong> ${diagnostico}</div>
+                <div class="detalle"><strong>Tratamiento:</strong> ${tratamiento}</div>
+            </div>
+        `;
         }).join('');
+
+        container.innerHTML = historialHTML;
     }
 
     function cambiarTab(tab) {
-        // Desactivar todos los tabs
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-        // Activar el tab seleccionado
-        const clickedButton = event.target;
-        clickedButton.classList.add('active');
+        event.target.classList.add('active');
         document.getElementById(`tab-${tab}`).classList.add('active');
     }
 
@@ -1008,7 +1003,7 @@
                 throw new Error(errorData.mensaje || 'Error desconocido al iniciar la cita');
             }
         } catch (error) {
-            console.error('Error al iniciar cita:', error);
+            console.error('❌ Error al iniciar cita:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -1017,6 +1012,7 @@
         }
     }
 
+    // ✅ FUNCIÓN CORREGIDA - Guardar Anotaciones
     async function guardarAnotaciones() {
         if (!citaActual || citaActual.estado !== 'en-curso') {
             Swal.fire({
@@ -1024,7 +1020,7 @@
                 title: 'Cita no iniciada',
                 text: 'Debe iniciar la cita antes de guardar anotaciones.'
             });
-            return;
+            return false; // ✅ Retorna false si no se puede guardar
         }
 
         const sintomas = document.getElementById('sintomas').value.trim();
@@ -1035,29 +1031,48 @@
             Swal.fire({
                 icon: 'warning',
                 title: 'Campos incompletos',
-                text: 'Por favor complete los **Síntomas Actuales** y el **Diagnóstico**'
+                text: 'Por favor complete los Síntomas Actuales y el Diagnóstico'
             });
-            return;
+            return false; // ✅ Retorna false si faltan campos
         }
 
-        const notasCompletas = `SÍNTOMAS: ${sintomas}\n\nDIAGNÓSTICO: ${diagnostico}\n\nOBSERVACIONES: ${observaciones}`;
+        // ✅ Formato con dobles saltos de línea
+        const notasCompletas = `SÍNTOMAS: ${sintomas}
+
+DIAGNÓSTICO: ${diagnostico}
+
+OBSERVACIONES: ${observaciones}`;
+
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('📝 Guardando Anotaciones');
+        console.log('🆔 ID de la cita:', citaActual.id);
+        console.log('📦 Notas completas a enviar:');
+        console.log(notasCompletas);
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/notas`, {
+            const url = `http://localhost:3000/api/citas/${citaActual.id}/notas`;
+
+            const response = await fetch(url, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    notas: notasCompletas
-                })
+                body: JSON.stringify({ notas: notasCompletas })
             });
+
+            const responseData = await response.json();
+            console.log('📥 Respuesta del servidor:', responseData);
 
             if (response.ok) {
                 citaActual.notas = notasCompletas;
                 localStorage.setItem('citaActual', JSON.stringify(citaActual));
+
+                console.log('✅ Anotaciones guardadas correctamente');
+                console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Guardado',
@@ -1065,21 +1080,24 @@
                     timer: 2000,
                     showConfirmButton: false
                 });
+
+                return true; // ✅ Retorna true si se guardó correctamente
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.mensaje || 'Error desconocido al guardar anotaciones');
+                throw new Error(responseData.mensaje || 'Error desconocido al guardar anotaciones');
             }
         } catch (error) {
-            console.error('Error al guardar anotaciones:', error);
+            console.error('❌ ERROR al guardar anotaciones:', error);
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
                 text: error.message || 'No se pudieron guardar las anotaciones'
             });
+
+            return false; // ✅ Retorna false si hubo error
         }
     }
-
-    // --- Funciones de Medicamentos ---
 
     function agregarMedicamento() {
         if (!citaActual || citaActual.estado !== 'en-curso') {
@@ -1127,33 +1145,31 @@
 
         if (medicamentos.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>💊</span>
-                    <p>No hay medicamentos agregados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>💊</span>
+                <p>No hay medicamentos agregados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = medicamentos.map(med => `
-            <div class="medicamento-item">
-                <div class="medicamento-info">
-                    <h4>${med.nombre}</h4>
-                    <p><strong>Dosis:</strong> ${med.dosis} - <strong>Frecuencia:</strong> ${med.frecuencia}</p>
-                    ${med.duracion ? `<p><strong>Duración:</strong> ${med.duracion}</p>` : ''}
-                    ${med.indicaciones ? `<p><strong>Indicaciones:</strong> ${med.indicaciones}</p>` : ''}
-                </div>
-                <button class="btn-eliminar" onclick="eliminarMedicamento(${med.id})">🗑️ Eliminar</button>
+        <div class="medicamento-item">
+            <div class="medicamento-info">
+                <h4>${med.nombre}</h4>
+                <p><strong>Dosis:</strong> ${med.dosis} - <strong>Frecuencia:</strong> ${med.frecuencia}</p>
+                ${med.duracion ? `<p><strong>Duración:</strong> ${med.duracion}</p>` : ''}
+                ${med.indicaciones ? `<p><strong>Indicaciones:</strong> ${med.indicaciones}</p>` : ''}
             </div>
-        `).join('');
+            <button class="btn-eliminar" onclick="eliminarMedicamento(${med.id})">🗑️ Eliminar</button>
+        </div>
+    `).join('');
     }
 
     function eliminarMedicamento(id) {
         medicamentos = medicamentos.filter(m => m.id !== id);
         renderizarMedicamentos();
     }
-
-    // --- Funciones de Exámenes ---
 
     function agregarExamen() {
         if (!citaActual || citaActual.estado !== 'en-curso') {
@@ -1198,24 +1214,24 @@
 
         if (examenes.length === 0) {
             container.innerHTML = `
-                <div class="lista-vacia">
-                    <span>🔬</span>
-                    <p>No hay exámenes solicitados</p>
-                </div>
-            `;
+            <div class="lista-vacia">
+                <span>🔬</span>
+                <p>No hay exámenes solicitados</p>
+            </div>
+        `;
             return;
         }
 
         container.innerHTML = examenes.map(ex => `
-            <div class="examen-item" data-prioridad="${ex.prioridad}">
-                <div class="examen-info">
-                    <h4 class="${ex.prioridad === 'urgente' ? 'urgente' : ''}">${ex.nombre} (${ex.tipo})</h4>
-                    <p><strong>Prioridad:</strong> ${ex.prioridad.charAt(0).toUpperCase() + ex.prioridad.slice(1)}</p>
-                    ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
-                </div>
-                <button class="btn-eliminar" onclick="eliminarExamen(${ex.id})">🗑️ Eliminar</button>
+        <div class="examen-item" data-prioridad="${ex.prioridad}">
+            <div class="examen-info">
+                <h4 class="${ex.prioridad === 'urgente' ? 'urgente' : ''}">${ex.nombre} (${ex.tipo})</h4>
+                <p><strong>Prioridad:</strong> ${ex.prioridad.charAt(0).toUpperCase() + ex.prioridad.slice(1)}</p>
+                ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
             </div>
-        `).join('');
+            <button class="btn-eliminar" onclick="eliminarExamen(${ex.id})">🗑️ Eliminar</button>
+        </div>
+    `).join('');
     }
 
     function eliminarExamen(id) {
@@ -1223,8 +1239,7 @@
         renderizarExamenes();
     }
 
-    // --- Función Finalizar Cita ---
-
+    // ✅ FUNCIÓN CORREGIDA - Finalizar Cita
     async function finalizarCita() {
         if (!citaActual) return;
 
@@ -1237,64 +1252,58 @@
         const diagnostico = document.getElementById('diagnostico').value.trim();
 
         if (!sintomas || !diagnostico) {
-            Swal.fire({ icon: 'warning', title: 'Atención', text: 'Asegúrese de guardar el diagnóstico y síntomas antes de finalizar.' });
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe completar Síntomas y Diagnóstico antes de finalizar la cita.'
+            });
             return;
         }
 
-        // 1. Guardar Anotaciones por última vez
-        await guardarAnotaciones();
-
-        // 2. Enviar Receta y Órdenes de Exámenes (simulación de envío a la API)
-        const recetaData = medicamentos.map(m => ({
-            nombre: m.nombre,
-            dosis: m.dosis,
-            frecuencia: m.frecuencia,
-            duracion: m.duracion,
-            indicaciones: m.indicaciones,
-            pacienteId: citaActual.pacienteId
-        }));
-
-        const examenData = examenes.map(e => ({
-            nombre: e.nombre,
-            tipo: e.tipo,
-            prioridad: e.prioridad,
-            indicaciones: e.indicaciones,
-            pacienteId: citaActual.pacienteId
-        }));
-
         try {
+            // ✅ PASO 1: Guardar anotaciones y esperar respuesta
+            console.log('🔄 PASO 1: Guardando anotaciones...');
+            const guardadoExitoso = await guardarAnotaciones();
+
+            if (!guardadoExitoso) {
+                console.error('❌ No se pudieron guardar las anotaciones');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'No se pudieron guardar las anotaciones. Intente nuevamente.'
+                });
+                return;
+            }
+
+            console.log('✅ Anotaciones guardadas exitosamente');
+
+            // ✅ PASO 2: Esperar un momento para asegurar que se guardó
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            // ✅ PASO 3: Finalizar la cita
+            console.log('🔄 PASO 2: Finalizando cita...');
             const token = localStorage.getItem('token');
 
-            // Simulación de envío de receta
-            if (recetaData.length > 0) {
-                console.log('Enviando receta:', recetaData);
-                // Aquí iría la llamada a la API de receta: POST a /api/recetas
-            }
-
-            // Simulación de envío de órdenes de examen
-            if (examenData.length > 0) {
-                console.log('Enviando órdenes de examen:', examenData);
-                // Aquí iría la llamada a la API de órdenes: POST a /api/ordenes-examen
-            }
-
-            // 3. Finalizar la Cita
-            const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/finalizar`, {
+            const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/completar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
+                },
+                body: JSON.stringify({})
             });
 
             if (response.ok) {
-                citaActual.estado = 'finalizada';
-                localStorage.removeItem('citaActual'); // La cita ya no es la "actual"
-                actualizarEstadoCita('finalizada');
+                console.log('✅ Cita finalizada correctamente');
+
+                citaActual.estado = 'completada';
+                localStorage.removeItem('citaActual');
+                actualizarEstadoCita('completada');
 
                 Swal.fire({
                     icon: 'success',
                     title: 'Cita Finalizada',
-                    text: 'Se ha registrado la atención y finalizado la cita.',
+                    text: 'Se ha registrado la atención médica correctamente.',
                     showConfirmButton: true,
                     confirmButtonText: 'Ir a la Agenda'
                 }).then(() => {
@@ -1307,7 +1316,7 @@
             }
 
         } catch (error) {
-            console.error('Error al finalizar cita:', error);
+            console.error('❌ Error al finalizar cita:', error);
             Swal.fire({
                 icon: 'error',
                 title: 'Error',
@@ -1315,7 +1324,6 @@
             });
         }
     }
-
 </script>
 </body>
 </html>
