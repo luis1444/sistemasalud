@@ -773,11 +773,7 @@
             </div>
             <div class="fecha-receta">
                 <p><strong>Recetado por:</strong> ${med.medico} el ${med.fecha}</p>
-                <button class="btn-accion ${med.estado === 'entregado' ? 'completado' : ''}"
-                        onclick="cambiarEstadoMedicamento('${med.id}', '${med.estado}')">
-                    ${med.estado === 'entregado' ? '✓ Marcar como Pendiente' : '✓ Marcar como Entregado'}
-                </button>
-            </div>
+                </div>
         </div>
     `).join('');
     }
@@ -870,11 +866,7 @@
                 <p><strong>Prioridad:</strong> ${ex.prioridad}</p>
                 ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
                 <p><strong>Solicitado por:</strong> ${ex.medico} el ${ex.fecha}</p>
-                <button class="btn-accion ${ex.estado === 'realizado' ? 'completado' : ''}"
-                        onclick="cambiarEstadoExamen('${ex.id}', '${ex.estado}')">
-                    ${ex.estado === 'realizado' ? '✓ Marcar como Pendiente' : '✓ Marcar como Realizado'}
-                </button>
-            </div>
+                </div>
         </div>
     `).join('');
     }
@@ -887,7 +879,15 @@
         document.getElementById(`tab-${tab}`).classList.add('active');
     }
 
+    // Funciones de cambio de estado ya no se necesitan para el paciente,
+    // pero se mantienen para no romper el resto del script que depende de ellas
+    // (aunque el botón ya no las llama).
+
     function cambiarEstadoMedicamento(medicamentoId, estadoActual) {
+        // Lógica de cambio de estado eliminada o desactivada para el paciente
+        // Ya que el botón fue removido.
+        console.warn('Función cambiarEstadoMedicamento desactivada para pacientes.');
+        /*
         const nuevoEstado = estadoActual === 'entregado' ? 'pendiente' : 'entregado';
         medicamentosEstado[medicamentoId] = nuevoEstado;
 
@@ -903,9 +903,14 @@
             timer: 1500,
             showConfirmButton: false
         });
+        */
     }
 
     function cambiarEstadoExamen(examenId, estadoActual) {
+        // Lógica de cambio de estado eliminada o desactivada para el paciente
+        // Ya que el botón fue removido.
+        console.warn('Función cambiarEstadoExamen desactivada para pacientes.');
+        /*
         const nuevoEstado = estadoActual === 'realizado' ? 'pendiente' : 'realizado';
         examenesEstado[examenId] = nuevoEstado;
 
@@ -921,6 +926,7 @@
             timer: 1500,
             showConfirmButton: false
         });
+        */
     }
 
     function cargarEstadosMedicamentos() {
