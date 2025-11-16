@@ -1,5 +1,5 @@
 // ============================================
-// 📄 servicios/CitaServicio.js (CORREGIDO)
+// 📄 servicios/CitaServicio.js (CORREGIDO - SOLUCIÓN COMPLETA)
 // ============================================
 const citaRepositorio = require('../repositorios/CitaRepositorio');
 
@@ -9,20 +9,22 @@ class CitaServicio {
         try {
             const citas = await citaRepositorio.buscarPorMedico(idMedico, fechaInicio, fechaFin);
 
-            // Transformar los datos para el frontend
             return citas.map(cita => {
                 const citaJSON = cita.toJSON ? cita.toJSON() : cita;
 
                 return {
                     id: citaJSON.id,
                     fecha: citaJSON.fecha,
-                    hora: citaJSON.hora_inicio, // ⚠️ Mapear hora_inicio a hora
+                    // ✅ Enviar ambos formatos para compatibilidad
+                    hora: citaJSON.hora_inicio,
+                    hora_inicio: citaJSON.hora_inicio,
+                    hora_fin: citaJSON.hora_fin,
                     duracion: citaJSON.duracion_cita_minutos || 30,
                     estado: citaJSON.estado,
-                    motivo: citaJSON.motivo_consulta, // ⚠️ Mapear motivo_consulta a motivo
+                    motivo: citaJSON.motivo_consulta,
+                    motivo_consulta: citaJSON.motivo_consulta, // ✅ También en formato original
                     tipoConsulta: 'Consulta General',
                     pacienteId: citaJSON.id_paciente,
-                    // ⚠️ CRÍTICO: Acceder correctamente al nombre del paciente desde la relación
                     paciente: citaJSON.paciente ? citaJSON.paciente.nombre : 'Sin asignar',
                     pacienteCorreo: citaJSON.paciente ? citaJSON.paciente.correo : null,
                     pacienteTelefono: citaJSON.paciente ? citaJSON.paciente.telefono : null,
@@ -39,20 +41,30 @@ class CitaServicio {
         try {
             const citas = await citaRepositorio.buscarPorPaciente(idPaciente);
 
-            // Transformar los datos para el frontend
             return citas.map(cita => {
                 const citaJSON = cita.toJSON ? cita.toJSON() : cita;
 
                 return {
                     id: citaJSON.id,
                     fecha: citaJSON.fecha,
+                    // ✅ CRÍTICO: Enviar ambos formatos
                     hora: citaJSON.hora_inicio,
+                    hora_inicio: citaJSON.hora_inicio,
+                    hora_fin: citaJSON.hora_fin,
                     duracion: citaJSON.duracion_cita_minutos || 30,
                     estado: citaJSON.estado,
                     motivo: citaJSON.motivo_consulta,
+                    motivo_consulta: citaJSON.motivo_consulta, // ✅ También en formato original
                     tipoConsulta: 'Consulta General',
                     medicoId: citaJSON.id_medico,
-                    medico: citaJSON.medico ? citaJSON.medico.nombre : 'Sin asignar',
+                    // ✅ Enviar objeto completo del médico
+                    medico: citaJSON.medico ? {
+                        nombre: citaJSON.medico.nombre,
+                        especialidad: citaJSON.medico.especialidad,
+                        correo: citaJSON.medico.correo
+                    } : null,
+                    // ✅ También campos directos para compatibilidad
+                    medicoNombre: citaJSON.medico ? citaJSON.medico.nombre : 'Sin asignar',
                     especialidad: citaJSON.medico ? citaJSON.medico.especialidad : null,
                     notas: citaJSON.notas
                 };
@@ -73,9 +85,9 @@ class CitaServicio {
                 return {
                     id: citaJSON.id,
                     fecha: citaJSON.fecha,
-                    hora_inicio: citaJSON.hora_inicio, // ⚠️ Mantener nombre original
-                    hora_fin: citaJSON.hora_fin,       // ⚠️ Mantener nombre original
-                    hora: citaJSON.hora_inicio,        // Para compatibilidad
+                    hora_inicio: citaJSON.hora_inicio,
+                    hora_fin: citaJSON.hora_fin,
+                    hora: citaJSON.hora_inicio, // Para compatibilidad
                     duracion: citaJSON.duracion_cita_minutos || 30,
                     estado: citaJSON.estado
                 };
@@ -88,7 +100,6 @@ class CitaServicio {
 
     async reservarCita(idCita, idPaciente, motivoConsulta = null) {
         try {
-            // Buscar la cita específica
             const cita = await citaRepositorio.buscarPorId(idCita);
 
             if (!cita) {
@@ -99,7 +110,6 @@ class CitaServicio {
                 throw new Error('La cita no está disponible.');
             }
 
-            // Actualizar la cita a estado 'programada' (no 'reservada')
             return await citaRepositorio.actualizarEstado(idCita, 'programada', {
                 id_paciente: idPaciente,
                 motivo_consulta: motivoConsulta
@@ -112,7 +122,6 @@ class CitaServicio {
 
     async cancelarCita(idCita) {
         try {
-            // Al cancelar, volver a estado 'disponible'
             return await citaRepositorio.actualizarEstado(idCita, 'disponible', {
                 id_paciente: null,
                 motivo_consulta: null
