@@ -89,23 +89,31 @@ app.listen(PORT, async () => {
         console.log('🔄 Sincronizando base de datos...');
 
         // 2️⃣ Cargar TODOS los modelos (esto es crítico)
+        console.log('📦 Cargando modelos...');
         require('./entidades/Usuarios');
         require('./entidades/Agenda');
         require('./entidades/Cita');
         require('./entidades/Autorizacion');
         require('./entidades/ExamenLaboratorio');
+        console.log('✅ Modelos cargados');
 
         // 3️⃣ Cargar las asociaciones DESPUÉS de los modelos
+        console.log('🔗 Configurando asociaciones...');
         require('./entidades/asociaciones');
 
-        // 4️⃣ Sincronizar base de datos
-        // OPCIÓN A: Si estás en desarrollo y puedes perder datos
-        // await sequelize.sync({ force: true }); // ⚠️ BORRA TODO
-
-        // OPCIÓN B: Sincronización segura (recomendado)
-        await sequelize.sync({ alter: false }); // Solo crea tablas nuevas
+        // 4️⃣ Sincronizar base de datos con logging activado
+        console.log('⚙️ Sincronizando tablas...');
+        await sequelize.sync({
+            logging: console.log  // 👈 Esto muestra las queries SQL
+        });
 
         console.log('✅ Tablas sincronizadas correctamente.');
+        console.log('📋 Tablas en la base de datos:');
+        console.log('   - usuarios');
+        console.log('   - agendas');
+        console.log('   - citas');
+        console.log('   - autorizaciones ✨');
+        console.log('   - examenes_laboratorio ✨');
     } catch (error) {
         console.error('❌ Error al sincronizar la base de datos:', error);
     }

@@ -1,90 +1,52 @@
 // ============================================
-// 📄 servicios/AutorizacionServicio.js
+// Servicios/AutorizacionServicio.js
 // ============================================
 const autorizacionRepositorio = require('../Repositorios/AutorizacionRepositorio');
+const laboratorioRepositorio = require('../Repositorios/LaboratorioRepositorio');
 
 class AutorizacionServicio {
 
-    async crearAutorizacion(datos) {
+    async crearAutorizacion(datos, idMedico) {
         try {
-            console.log('🔍 Datos recibidos en crearAutorizacion:', datos);
+            console.log('📥 Datos recibidos:', datos);
 
-            // Validar datos requeridos
-            if (!datos.id_cita) {
-                throw new Error('El campo id_cita es requerido.');
-            }
-            if (!datos.id_medico) {
-                throw new Error('El campo id_medico es requerido.');
-            }
-            if (!datos.id_paciente) {
-                throw new Error('El campo id_paciente es requerido.');
-            }
-            if (!datos.tipo) {
-                throw new Error('El campo tipo es requerido.');
-            }
-            if (!datos.descripcion) {
-                throw new Error('El campo descripcion es requerido.');
-            }
+            // Normalizar nombres (aceptar ambos formatos)
+            const idCita = datos.idCita || datos.id_cita;
+            const idPaciente = datos.idPaciente || datos.id_paciente;
+            const duracionTratamiento = datos.duracionTratamiento || datos.duracion_tratamiento;
 
-            if (!['medicamento', 'examen'].includes(datos.tipo)) {
-                throw new Error('Tipo de autorización inválido. Debe ser "medicamento" o "examen".');
-            }
+            // Validaciones
+            if (!idCita) throw new Error('La cita es requerida');
+            if (!idPaciente) throw new Error('El paciente es requerido');
+            if (!datos.tipo) throw new Error('El tipo de autorización es requerido');
+            if (!datos.descripcion) throw new Error('La descripción es requerida');
 
             const datosAutorizacion = {
-                id_cita: datos.id_cita,
-                id_medico: datos.id_medico,
-                id_paciente: datos.id_paciente,
+                id_cita: idCita,
+                id_medico: idMedico,
+                id_paciente: idPaciente,
                 tipo: datos.tipo,
                 descripcion: datos.descripcion,
                 justificacion: datos.justificacion || null,
                 prioridad: datos.prioridad || 'media',
                 cantidad: datos.cantidad || null,
-                duracion_tratamiento: datos.duracion_tratamiento || null
+                duracion_tratamiento: duracionTratamiento || null
             };
 
-            console.log('📝 Creando autorización con datos:', datosAutorizacion);
-
-            const autorizacion = await autorizacionRepositorio.crear(datosAutorizacion);
-
-            console.log('✅ Autorización creada exitosamente:', autorizacion.id);
-
-            return this.formatearAutorizacion(autorizacion);
+            return await autorizacionRepositorio.crear(datosAutorizacion);
         } catch (error) {
             console.error('❌ Error en AutorizacionServicio.crearAutorizacion:', error);
-            console.error('❌ Stack:', error.stack);
             throw error;
         }
     }
 
-    async obtenerAutorizacionesPendientes() {
+    async aprobarAutorizacion(id, idAprobador, observaciones = null) {
         try {
-            const autorizaciones = await autorizacionRepositorio.buscarPorEstado('pendiente');
-            return autorizaciones.map(a => this.formatearAutorizacion(a));
-        } catch (error) {
-            console.error('❌ Error en AutorizacionServicio.obtenerAutorizacionesPendientes:', error);
-            throw error;
-        }
-    }
+            console.log('✅ Aprobando autorización:', id);
 
-    async obtenerAutorizacionPorId(idAutorizacion) {
-        try {
-            const autorizacion = await autorizacionRepositorio.buscarPorId(idAutorizacion);
-
-            if (!autorizacion) {
-                throw new Error('Autorización no encontrada.');
-            }
-
-            return this.formatearAutorizacion(autorizacion);
-        } catch (error) {
-            console.error('❌ Error en AutorizacionServicio.obtenerAutorizacionPorId:', error);
-            throw error;
-        }
-    }
-
-    async aprobarAutorizacion(idAutorizacion, idAprobador, observaciones = null) {
-        try {
+            // Aprobar la autorización usando actualizarEstado
             const autorizacion = await autorizacionRepositorio.actualizarEstado(
-                idAutorizacion,
+                id,
                 'aprobada',
                 {
                     id_aprobador: idAprobador,
@@ -92,51 +54,70 @@ class AutorizacionServicio {
                 }
             );
 
-            return this.formatearAutorizacion(autorizacion);
+            console.log('📋 Autorización aprobada:', {
+                id: autorizacion.id,
+                tipo: autorizacion.tipo,
+                estado: autorizacion.estado
+            });
+
+            // 🔥 Si es un examen, crear automáticamente el registro en laboratorio
+            if (autorizacion.tipo === 'examen') {
+                console.log('🧪 Creando examen de laboratorio para autorización:', id);
+
+                try {
+                    const examenLab = await laboratorioRepositorio.crearExamenLaboratorio(autorizacion.id);
+                    console.log('✅ Examen de laboratorio creado:', examenLab.id);
+                } catch (errorLab) {
+                    console.error('❌ Error al crear examen de laboratorio:', errorLab);
+                }
+            }
+
+            return autorizacion;
         } catch (error) {
             console.error('❌ Error en AutorizacionServicio.aprobarAutorizacion:', error);
             throw error;
         }
     }
 
-    async rechazarAutorizacion(idAutorizacion, idAprobador, observaciones) {
+    async rechazarAutorizacion(id, idAprobador, observaciones) {
         try {
-            if (!observaciones) {
-                throw new Error('Debe proporcionar observaciones para rechazar una autorización.');
+            if (!observaciones || observaciones.trim() === '') {
+                throw new Error('Las observaciones son requeridas para rechazar');
             }
 
-            const autorizacion = await autorizacionRepositorio.actualizarEstado(
-                idAutorizacion,
+            return await autorizacionRepositorio.actualizarEstado(
+                id,
                 'rechazada',
                 {
                     id_aprobador: idAprobador,
                     observaciones: observaciones
                 }
             );
-
-            return this.formatearAutorizacion(autorizacion);
         } catch (error) {
             console.error('❌ Error en AutorizacionServicio.rechazarAutorizacion:', error);
             throw error;
         }
     }
 
-    async obtenerAutorizacionesPorMedico(idMedico, filtros = {}) {
+    async obtenerPendientes() {
         try {
-            const autorizaciones = await autorizacionRepositorio.buscarPorMedico(idMedico, filtros);
+            const autorizaciones = await autorizacionRepositorio.buscarPorEstado('pendiente');
             return autorizaciones.map(a => this.formatearAutorizacion(a));
         } catch (error) {
-            console.error('❌ Error en AutorizacionServicio.obtenerAutorizacionesPorMedico:', error);
+            console.error('❌ Error en AutorizacionServicio.obtenerPendientes:', error);
             throw error;
         }
     }
 
-    async obtenerAutorizacionesPorPaciente(idPaciente) {
+    async obtenerPorId(id) {
         try {
-            const autorizaciones = await autorizacionRepositorio.buscarPorPaciente(idPaciente);
-            return autorizaciones.map(a => this.formatearAutorizacion(a));
+            const autorizacion = await autorizacionRepositorio.buscarPorId(id);
+            if (!autorizacion) {
+                throw new Error('Autorización no encontrada');
+            }
+            return this.formatearAutorizacion(autorizacion);
         } catch (error) {
-            console.error('❌ Error en AutorizacionServicio.obtenerAutorizacionesPorPaciente:', error);
+            console.error('❌ Error en AutorizacionServicio.obtenerPorId:', error);
             throw error;
         }
     }
@@ -151,37 +132,44 @@ class AutorizacionServicio {
     }
 
     formatearAutorizacion(autorizacion) {
-        const autorizacionJSON = autorizacion.toJSON ? autorizacion.toJSON() : autorizacion;
+        const auth = autorizacion.toJSON ? autorizacion.toJSON() : autorizacion;
 
         return {
-            id: autorizacionJSON.id,
-            idCita: autorizacionJSON.id_cita,
-            tipo: autorizacionJSON.tipo,
-            descripcion: autorizacionJSON.descripcion,
-            justificacion: autorizacionJSON.justificacion,
-            estado: autorizacionJSON.estado,
-            prioridad: autorizacionJSON.prioridad,
-            fechaSolicitud: autorizacionJSON.fecha_solicitud,
-            fechaRespuesta: autorizacionJSON.fecha_respuesta,
-            observaciones: autorizacionJSON.observaciones,
-            cantidad: autorizacionJSON.cantidad,
-            duracionTratamiento: autorizacionJSON.duracion_tratamiento,
-            medico: autorizacionJSON.medico ? {
-                id: autorizacionJSON.medico.id,
-                nombre: autorizacionJSON.medico.nombre,
-                especialidad: autorizacionJSON.medico.especialidad
+            id: auth.id,
+            idCita: auth.id_cita,
+            idMedico: auth.id_medico,
+            idPaciente: auth.id_paciente,
+            tipo: auth.tipo,
+            descripcion: auth.descripcion,
+            justificacion: auth.justificacion,
+            estado: auth.estado,
+            prioridad: auth.prioridad,
+            fechaSolicitud: auth.fecha_solicitud,
+            fechaRespuesta: auth.fecha_respuesta,
+            idAprobador: auth.id_aprobador,
+            observaciones: auth.observaciones,
+            cantidad: auth.cantidad,
+            duracionTratamiento: auth.duracion_tratamiento,
+            medico: auth.medico ? {
+                id: auth.medico.id,
+                nombre: auth.medico.nombre,
+                especialidad: auth.medico.especialidad
             } : null,
-            paciente: autorizacionJSON.paciente ? {
-                id: autorizacionJSON.paciente.id,
-                nombre: autorizacionJSON.paciente.nombre,
-                correo: autorizacionJSON.paciente.correo,
-                telefono: autorizacionJSON.paciente.telefono
+            paciente: auth.paciente ? {
+                id: auth.paciente.id,
+                nombre: auth.paciente.nombre,
+                correo: auth.paciente.correo,
+                telefono: auth.paciente.telefono
             } : null,
-            cita: autorizacionJSON.cita ? {
-                id: autorizacionJSON.cita.id,
-                fecha: autorizacionJSON.cita.fecha,
-                hora: autorizacionJSON.cita.hora_inicio,
-                motivo: autorizacionJSON.cita.motivo_consulta
+            cita: auth.cita ? {
+                id: auth.cita.id,
+                fecha: auth.cita.fecha,
+                hora: auth.cita.hora_inicio,
+                motivo: auth.cita.motivo_consulta
+            } : null,
+            aprobador: auth.aprobador ? {
+                id: auth.aprobador.id,
+                nombre: auth.aprobador.nombre
             } : null
         };
     }

@@ -8,12 +8,8 @@ class AutorizacionControlador {
     async crearAutorizacion(req, res) {
         try {
             const idMedico = req.usuario.id;
-            const datos = {
-                ...req.body,
-                id_medico: idMedico
-            };
 
-            const autorizacion = await autorizacionServicio.crearAutorizacion(datos);
+            const autorizacion = await autorizacionServicio.crearAutorizacion(req.body, idMedico);
 
             res.status(201).json({
                 exito: true,
@@ -31,7 +27,7 @@ class AutorizacionControlador {
 
     async obtenerAutorizacionesPendientes(req, res) {
         try {
-            const autorizaciones = await autorizacionServicio.obtenerAutorizacionesPendientes();
+            const autorizaciones = await autorizacionServicio.obtenerPendientes();
 
             res.json({
                 exito: true,
