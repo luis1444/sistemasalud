@@ -184,6 +184,35 @@ class AutorizacionControlador {
             });
         }
     }
+    async obtenerMedicamentosPaciente(req, res) {
+        try {
+            const { idPaciente } = req.params;
+
+            console.log('🔍 Buscando medicamentos del paciente:', idPaciente);
+
+            // Obtener todas las autorizaciones del paciente
+            const autorizaciones = await autorizacionServicio.obtenerAutorizacionesPorPaciente(idPaciente);
+
+            console.log('📋 Total autorizaciones encontradas:', autorizaciones.length);
+
+            // Filtrar solo medicamentos (no exámenes)
+            const soloMedicamentos = autorizaciones.filter(auth => auth.tipo === 'medicamento');
+
+            console.log('💊 Total medicamentos:', soloMedicamentos.length);
+
+            res.json({
+                exito: true,
+                total: soloMedicamentos.length,
+                datos: soloMedicamentos
+            });
+        } catch (error) {
+            console.error('❌ Error en AutorizacionControlador.obtenerMedicamentosPaciente:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message || 'Error al obtener medicamentos del paciente'
+            });
+        }
+    }
 }
 
 // IMPORTANTE: Exportar una INSTANCIA de la clase

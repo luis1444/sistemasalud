@@ -5,6 +5,8 @@ const express = require('express');
 const router = express.Router();
 const autorizacionControlador = require('../Controladores/AutorizacionControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
+const usuarioControlador = require('../Controladores/UsuarioControlador'); // 🆕 AGREGAR ESTA LÍNEA
+
 
 // ============================================
 // 📋 RUTAS DE AUTORIZACIONES
@@ -80,6 +82,18 @@ router.post('/:idAutorizacion/rechazar',
     authMiddleware.verificarToken,
     authMiddleware.esAdministrador,
     autorizacionControlador.rechazarAutorizacion
+);
+
+// Buscar usuario por identificación
+router.get('/paciente/:idPaciente/medicamentos',
+    authMiddleware.verificarToken,
+    autorizacionControlador.obtenerMedicamentosPaciente
+);
+
+// Obtener medicamentos de un paciente
+router.get('/autorizaciones/paciente/:idPaciente/medicamentos',
+    authMiddleware.verificarToken,
+    autorizacionControlador.obtenerMedicamentosPaciente
 );
 
 module.exports = router;

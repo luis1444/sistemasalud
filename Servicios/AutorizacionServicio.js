@@ -173,6 +173,16 @@ class AutorizacionServicio {
             } : null
         };
     }
+
+    async obtenerAutorizacionesPorPaciente(idPaciente) {
+        try {
+            const autorizaciones = await autorizacionRepositorio.buscarPorPaciente(idPaciente);
+            return autorizaciones.map(a => this.formatearAutorizacion(a));
+        } catch (error) {
+            console.error('❌ Error en AutorizacionServicio.obtenerAutorizacionesPorPaciente:', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = new AutorizacionServicio();

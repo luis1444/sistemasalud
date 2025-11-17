@@ -37,7 +37,7 @@ router.put('/perfil', authMiddleware.verificarToken, usuarioControlador.actualiz
 // ============================================
 router.get('/buscar-identificacion/:identificacion',
     authMiddleware.verificarToken,
-    authMiddleware.verificarRol(['doctor', 'admin']),
+    authMiddleware.verificarRol(['doctor', 'admin', 'farmacia']),
     async (req, res) => {
         try {
             const { identificacion } = req.params;
