@@ -40,11 +40,15 @@ app.use('/api/autorizaciones', autorizacionRutas);
 const laboratorioRutas = require('./rutas/laboratorioRutas');
 app.use('/api/laboratorio', laboratorioRutas);
 
-const examenesRutas = require('./rutas/examenesRutas');  // ← NUEVO
+const examenesRutas = require('./rutas/examenesRutas');
 app.use('/api/examenes', examenesRutas);
 
 const medicoRutas = require('./rutas/medicoRutas');
 app.use('/api/medico', medicoRutas);
+
+const dispensacionesRutas = require('./rutas/dispensacionesRutas');
+app.use('/api/dispensaciones', dispensacionesRutas);
+
 // ============================================
 // 🏠 Rutas del Frontend
 // ============================================
@@ -100,6 +104,7 @@ app.listen(PORT, async () => {
         require('./entidades/Cita');
         require('./entidades/Autorizacion');
         require('./entidades/ExamenLaboratorio');
+        require('./entidades/Dispensacion');
         console.log('✅ Modelos cargados');
 
         // 3️⃣ Cargar las asociaciones DESPUÉS de los modelos
@@ -119,6 +124,7 @@ app.listen(PORT, async () => {
         console.log('   - citas');
         console.log('   - autorizaciones ✨');
         console.log('   - examenes_laboratorio ✨');
+        console.log('   - dispensaciones ✨'); // ✅ AGREGAR AQUÍ
     } catch (error) {
         console.error('❌ Error al sincronizar la base de datos:', error);
     }
