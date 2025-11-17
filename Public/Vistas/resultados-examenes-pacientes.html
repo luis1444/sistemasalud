@@ -908,83 +908,74 @@
       minute: '2-digit'
     });
   }
+  // Reemplaza la función descargarResultado() en tu script actual
 
-  function descargarResultado(idExamen) {
-    const examen = examenesLaboratorio.find(ex => ex.id == idExamen);
-    if (!examen) return;
+  async function descargarResultado(idExamen) {
+    const token = localStorage.getItem('token');
 
-    // Crear contenido del documento
-    let contenido = `
-═══════════════════════════════════════════════════════════════
-                    RESULTADOS DE EXAMEN DE LABORATORIO
-                              VITAL+ SALUD
-═══════════════════════════════════════════════════════════════
+    try {
+      Swal.fire({
+        title: 'Generando PDF...',
+        text: 'Por favor espera',
+        allowOutsideClick: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
 
-INFORMACIÓN DEL PACIENTE
-────────────────────────────────────────────────────────────────
-Nombre:         ${document.getElementById('nombrePaciente').textContent}
-Identificación: ${document.getElementById('idPaciente').textContent}
-Correo:         ${document.getElementById('correoPaciente').textContent}
-Teléfono:       ${document.getElementById('telefonoPaciente').textContent}
+      const response = await fetch(`http://localhost:3000/api/examenes/${idExamen}/descargar-pdf`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
-INFORMACIÓN DEL EXAMEN
-────────────────────────────────────────────────────────────────
-Tipo de Examen: ${examen.descripcion}
-Código Muestra: ${examen.codigoMuestra || 'N/A'}
-Fecha Solicitud: ${formatearFechaCompleta(examen.fechaSolicitud)}
-Médico Solicitante: ${examen.medico?.nombre || 'N/A'}
-${examen.medico?.especialidad ? `Especialidad: ${examen.medico.especialidad}` : ''}
+      if (!response.ok) {
+        throw new Error('No se pudo generar el PDF');
+      }
 
-DATOS DE LA MUESTRA
-────────────────────────────────────────────────────────────────
-Tipo de Muestra: ${examen.tipoMuestra || 'N/A'}
-Fecha Toma: ${formatearFechaCompleta(examen.fechaTomaMuestra)}
-Condición: ${examen.condicionMuestra || 'N/A'}
-${examen.observacionesToma ? `Observaciones: ${examen.observacionesToma}` : ''}
+      // Obtener el blob del PDF
+      const blob = await response.blob();
 
-ANÁLISIS
-────────────────────────────────────────────────────────────────
-Fecha Inicio: ${formatearFechaCompleta(examen.fechaInicioAnalisis)}
-Método: ${examen.metodoAnalisis || 'N/A'}
-Técnico: ${examen.tecnico?.nombre || 'N/A'}
-Fecha Finalización: ${formatearFechaCompleta(examen.fechaRealizacion)}
+      // Obtener nombre del archivo del header (si está disponible)
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = 'Resultado_Examen.pdf';
 
-RESULTADOS
-────────────────────────────────────────────────────────────────
-Estado: ${examen.estadoResultado?.toUpperCase() || 'N/A'}
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
+        if (filenameMatch) {
+          filename = filenameMatch[1];
+        }
+      }
 
-${examen.resultado || 'Sin resultados'}
+      // Crear URL temporal y descargar
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
 
-${examen.observaciones ? `
-OBSERVACIONES TÉCNICAS
-────────────────────────────────────────────────────────────────
-${examen.observaciones}
-` : ''}
+      // Limpiar
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
 
-═══════════════════════════════════════════════════════════════
-Documento generado el: ${new Date().toLocaleString('es-ES')}
-VITAL+ Salud - Sistema de Gestión Médica
-═══════════════════════════════════════════════════════════════
-        `.trim();
+      Swal.fire({
+        icon: 'success',
+        title: '¡Descarga exitosa!',
+        text: 'El resultado ha sido descargado en formato PDF',
+        timer: 2000,
+        showConfirmButton: false
+      });
 
-    // Crear y descargar archivo
-    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `Resultado_${examen.codigoMuestra || examen.id}_${examen.descripcion.replace(/\s+/g, '_')}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(a);
-
-    Swal.fire({
-      icon: 'success',
-      title: '¡Descarga exitosa!',
-      text: 'El resultado ha sido descargado',
-      timer: 2000,
-      showConfirmButton: false
-    });
+    } catch (error) {
+      console.error('❌ Error al descargar PDF:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudo descargar el resultado: ' + error.message
+      });
+    }
   }
 
   // Event listeners para filtros en tiempo real

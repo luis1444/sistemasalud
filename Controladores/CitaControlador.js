@@ -325,6 +325,7 @@ class CitaControlador {
             });
         }
     }
+
 }
 
 module.exports = new CitaControlador();

@@ -40,6 +40,8 @@ app.use('/api/autorizaciones', autorizacionRutas);
 const laboratorioRutas = require('./rutas/laboratorioRutas');
 app.use('/api/laboratorio', laboratorioRutas);
 
+const examenesRutas = require('./rutas/examenesRutas');  // ← NUEVO
+app.use('/api/examenes', examenesRutas);
 // ============================================
 // 🏠 Rutas del Frontend
 // ============================================
