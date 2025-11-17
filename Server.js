@@ -42,6 +42,9 @@ app.use('/api/laboratorio', laboratorioRutas);
 
 const examenesRutas = require('./rutas/examenesRutas');  // ← NUEVO
 app.use('/api/examenes', examenesRutas);
+
+const medicoRutas = require('./rutas/medicoRutas');
+app.use('/api/medico', medicoRutas);
 // ============================================
 // 🏠 Rutas del Frontend
 // ============================================
