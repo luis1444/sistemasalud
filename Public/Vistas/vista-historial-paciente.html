@@ -521,18 +521,29 @@
         </div>
     </div>
 </div>
-
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let historialCompleto = null;
     let medicamentosEstado = {};
     let examenesEstado = {};
+    let examenesLaboratorio = []; // NUEVO: Almacenar exámenes del laboratorio
 
     window.addEventListener('DOMContentLoaded', async () => {
         verificarAutenticacion();
-        await cargarHistorialPaciente();
         cargarEstadosMedicamentos();
         cargarEstadosExamenes();
+
+        // Cargar datos en paralelo
+        await Promise.all([
+            cargarHistorialPaciente(),
+            cargarExamenesLaboratorio()
+        ]);
+
+        // Renderizar después de que ambos terminen
+        procesarEstadisticas();
+        renderizarConsultas();
+        renderizarMedicamentos();
+        renderizarExamenes();
     });
 
     function verificarAutenticacion() {
@@ -591,11 +602,6 @@
                 citas: citasCompletadas
             };
 
-            procesarEstadisticas();
-            renderizarConsultas();
-            renderizarMedicamentos();
-            renderizarExamenes();
-
         } catch (error) {
             console.error('❌ Error al cargar historial:', error);
             Swal.fire({
@@ -606,12 +612,44 @@
         }
     }
 
+    // NUEVO: Cargar exámenes de laboratorio completados
+    async function cargarExamenesLaboratorio() {
+        const token = localStorage.getItem('token');
+
+        try {
+            console.log('🔬 Cargando exámenes de laboratorio...');
+
+            const response = await fetch('http://localhost:3000/api/citas/mis-examenes-laboratorio', {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                console.warn('⚠️ No se pudieron cargar los exámenes de laboratorio');
+                return;
+            }
+
+            const resultado = await response.json();
+            console.log('📦 Respuesta exámenes laboratorio:', resultado);
+
+            if (resultado.exito && resultado.datos) {
+                examenesLaboratorio = resultado.datos;
+                console.log(`✅ Exámenes de laboratorio cargados: ${examenesLaboratorio.length}`);
+                console.log('📊 Detalle de exámenes:', examenesLaboratorio);
+            }
+
+        } catch (error) {
+            console.error('❌ Error al cargar exámenes de laboratorio:', error);
+        }
+    }
+
     async function descargarHistorialPDF() {
         const token = localStorage.getItem('token');
         const btnDescargar = document.getElementById('btnDescargarPDF');
 
         try {
-            // Deshabilitar botón y mostrar loader
             btnDescargar.disabled = true;
             const textoOriginal = btnDescargar.innerHTML;
             btnDescargar.innerHTML = '<div class="loader"></div><span>Generando PDF...</span>';
@@ -629,15 +667,11 @@
                 throw new Error('Error al generar el PDF');
             }
 
-            // Obtener el blob del PDF
             const blob = await response.blob();
-
-            // Crear URL temporal para descarga
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
 
-            // Obtener nombre del usuario para el archivo
             const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
             const nombreArchivo = `historial-medico-${usuario.nombre.replace(/\s+/g, '-')}.pdf`;
 
@@ -645,7 +679,6 @@
             document.body.appendChild(a);
             a.click();
 
-            // Limpiar
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
@@ -667,7 +700,6 @@
                 text: 'No se pudo descargar el historial en PDF: ' + error.message
             });
         } finally {
-            // Restaurar botón
             btnDescargar.disabled = false;
             btnDescargar.innerHTML = '<span>📄</span><span>Descargar Historial en PDF</span>';
         }
@@ -680,6 +712,7 @@
         let totalMedicamentos = 0;
         let totalExamenes = 0;
         let examenesPendientesCount = 0;
+        let examenesCompletadosCount = examenesLaboratorio.filter(ex => ex.estado === 'completado').length;
 
         citas.forEach(cita => {
             const notas = cita.notas || '';
@@ -699,9 +732,10 @@
             }
         });
 
-        Object.values(examenesEstado).forEach(estado => {
-            if (estado === 'pendiente') examenesPendientesCount++;
-        });
+        // Contar pendientes desde laboratorio
+        examenesPendientesCount = examenesLaboratorio.filter(ex =>
+            ['pendiente', 'muestra-tomada', 'en-analisis'].includes(ex.estado)
+        ).length;
 
         document.getElementById('totalMedicamentos').textContent = totalMedicamentos;
         document.getElementById('totalExamenes').textContent = totalExamenes;
@@ -888,7 +922,15 @@
         const container = document.getElementById('listaExamenes');
         const citas = historialCompleto.citas || [];
 
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log('🎨 Renderizando exámenes');
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        console.log(`📋 Total citas: ${citas.length}`);
+        console.log(`🔬 Total exámenes laboratorio: ${examenesLaboratorio.length}`);
+
         const examenes = [];
+
+        // Extraer exámenes de las notas de las citas
         citas.forEach((cita, citaIndex) => {
             const notas = cita.notas || '';
             const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
@@ -929,6 +971,35 @@
                         const indicacionesMatch = exTexto.match(/Indicaciones:\s*(.+)/);
                         const indicaciones = indicacionesMatch ? indicacionesMatch[1].trim() : '';
 
+                        // Buscar si hay resultados de laboratorio para este examen
+                        console.log(`🔍 Buscando examen de laboratorio para: "${nombre}"`);
+
+                        const examenLab = examenesLaboratorio.find(exLab => {
+                            const descripcionLab = (exLab.descripcion || '').toLowerCase().trim();
+                            const nombreBusqueda = nombre.toLowerCase().trim();
+
+                            // Buscar coincidencia exacta o parcial
+                            const coincide = descripcionLab === nombreBusqueda ||
+                                descripcionLab.includes(nombreBusqueda) ||
+                                nombreBusqueda.includes(descripcionLab);
+
+                            if (coincide) {
+                                console.log(`✅ Match encontrado: "${descripcionLab}" ↔ "${nombreBusqueda}"`);
+                            }
+
+                            return coincide;
+                        });
+
+                        if (examenLab) {
+                            console.log(`📋 Datos del examen encontrado:`, {
+                                estado: examenLab.estado,
+                                resultado: examenLab.resultado ? 'Sí' : 'No',
+                                codigo: examenLab.codigoMuestra
+                            });
+                        } else {
+                            console.log(`⚠️ No se encontró examen de laboratorio para "${nombre}"`);
+                        }
+
                         examenes.push({
                             id: examenId,
                             nombre,
@@ -937,7 +1008,13 @@
                             indicaciones,
                             fecha,
                             medico: nombreMedico,
-                            estado: examenesEstado[examenId] || 'pendiente'
+                            estado: examenLab ? examenLab.estado : 'pendiente',
+                            resultado: examenLab?.resultado || null,
+                            observaciones: examenLab?.observaciones || null,
+                            estadoResultado: examenLab?.estadoResultado || null,
+                            fechaRealizacion: examenLab?.fechaRealizacion || null,
+                            codigoMuestra: examenLab?.codigoMuestra || null,
+                            tecnico: examenLab?.tecnico || null
                         });
                     });
                 }
@@ -951,30 +1028,117 @@
                 <p>No tienes exámenes solicitados</p>
             </div>
         `;
+            console.log('⚠️ No hay exámenes para renderizar');
+            console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
             return;
         }
 
-        const examenesPendientes = examenes.filter(ex => ex.estado === 'pendiente');
-        const examenesRealizados = examenes.filter(ex => ex.estado === 'realizado');
-        const examenesOrdenados = [...examenesPendientes, ...examenesRealizados];
+        console.log(`✅ Total exámenes a renderizar: ${examenes.length}`);
+        examenes.forEach((ex, idx) => {
+            console.log(`   ${idx + 1}. ${ex.nombre} - Estado: ${ex.estado} - Resultado: ${ex.resultado ? 'Sí' : 'No'}`);
+        });
+        console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-        container.innerHTML = examenesOrdenados.map(ex => `
-        <div class="examen-card ${ex.estado}">
-            <div class="header-examen">
-                <div>
-                    <h4>🔬 ${ex.nombre}${ex.tipo ? ` (${ex.tipo})` : ''}</h4>
+        // Ordenar: completados al final
+        const examenesPendientes = examenes.filter(ex => ex.estado !== 'completado');
+        const examenesCompletados = examenes.filter(ex => ex.estado === 'completado');
+        const examenesOrdenados = [...examenesPendientes, ...examenesCompletados];
+
+        container.innerHTML = examenesOrdenados.map(ex => {
+            const esCompletado = ex.estado === 'completado';
+
+            // Determinar badge de estado
+            let estadoBadge = '';
+            let estadoTexto = '';
+
+            if (esCompletado) {
+                estadoBadge = 'estado-completado';
+                estadoTexto = '✅ Completado';
+            } else if (ex.estado === 'en-analisis') {
+                estadoBadge = 'estado-en-proceso';
+                estadoTexto = '🔬 En Análisis';
+            } else if (ex.estado === 'muestra-tomada') {
+                estadoBadge = 'estado-muestra';
+                estadoTexto = '💉 Muestra Tomada';
+            } else {
+                estadoBadge = 'estado-pendiente';
+                estadoTexto = '⏳ Pendiente';
+            }
+
+            return `
+            <div class="examen-card ${ex.estado}">
+                <div class="header-examen">
+                    <div>
+                        <h4>🔬 ${ex.nombre}${ex.tipo ? ` (${ex.tipo})` : ''}</h4>
+                        ${ex.codigoMuestra ? `<small style="color: #666;">Código: ${ex.codigoMuestra}</small>` : ''}
+                    </div>
+                    <span class="estado-badge ${estadoBadge}">
+                        ${estadoTexto}
+                    </span>
                 </div>
-                <span class="estado-badge ${ex.estado === 'realizado' ? 'estado-entregado' : 'estado-pendiente'}">
-                    ${ex.estado === 'realizado' ? '✅ Realizado' : '⏳ Pendiente'}
-                </span>
+                <div class="detalles">
+                    <p><strong>Prioridad:</strong> ${ex.prioridad}</p>
+                    ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
+                    <p><strong>Solicitado por:</strong> ${ex.medico} el ${ex.fecha}</p>
+
+                    ${esCompletado && ex.resultado ? `
+                        <div style="margin-top: 15px; padding: 15px; background: #f0f9ff; border-left: 4px solid #3b82f6; border-radius: 4px;">
+                            <h5 style="color: #1e40af; margin: 0 0 10px 0;">
+                                📋 Resultados del Examen
+                            </h5>
+
+                            ${ex.estadoResultado ? `
+                                <div style="margin-bottom: 10px;">
+                                    <span class="badge ${
+                ex.estadoResultado === 'normal' ? 'bg-success' :
+                    ex.estadoResultado === 'anormal' ? 'bg-warning' : 'bg-danger'
+            }">
+                                        ${ex.estadoResultado.toUpperCase()}
+                                    </span>
+                                </div>
+                            ` : ''}
+
+                            <div style="white-space: pre-wrap; color: #1e293b; margin: 10px 0;">
+                                ${ex.resultado}
+                            </div>
+
+                            ${ex.observaciones ? `
+                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #cbd5e1;">
+                                    <strong style="color: #64748b;">Observaciones:</strong>
+                                    <p style="margin: 5px 0; color: #475569;">${ex.observaciones}</p>
+                                </div>
+                            ` : ''}
+
+                            ${ex.fechaRealizacion ? `
+                                <div style="margin-top: 10px; font-size: 0.875rem; color: #64748b;">
+                                    <strong>Fecha de realización:</strong> ${formatearFechaCompleta(ex.fechaRealizacion)}
+                                </div>
+                            ` : ''}
+
+                            ${ex.tecnico ? `
+                                <div style="margin-top: 5px; font-size: 0.875rem; color: #64748b;">
+                                    <strong>Técnico responsable:</strong> ${ex.tecnico.nombre}
+                                </div>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
             </div>
-            <div class="detalles">
-                <p><strong>Prioridad:</strong> ${ex.prioridad}</p>
-                ${ex.indicaciones ? `<p><strong>Indicaciones:</strong> ${ex.indicaciones}</p>` : ''}
-                <p><strong>Solicitado por:</strong> ${ex.medico} el ${ex.fecha}</p>
-            </div>
-        </div>
-    `).join('');
+        `;
+        }).join('');
+    }
+
+    // NUEVA FUNCIÓN: Formatear fecha completa
+    function formatearFechaCompleta(fecha) {
+        if (!fecha) return 'N/A';
+        const date = new Date(fecha);
+        return date.toLocaleString('es-ES', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
     }
 
     function cambiarTab(tab) {
@@ -999,6 +1163,5 @@
         }
     }
 </script>
-
 </body>
 </html>

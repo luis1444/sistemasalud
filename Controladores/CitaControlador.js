@@ -219,6 +219,112 @@ class CitaControlador {
             });
         }
     }
+
+    async obtenerMisExamenesLaboratorio(req, res) {
+        try {
+            const idPaciente = req.usuario.id;
+
+            console.log(`🔬 Obteniendo exámenes de laboratorio del paciente ID: ${idPaciente}`);
+
+            // Importar modelos necesarios
+            const ExamenLaboratorio = require('../entidades/ExamenLaboratorio');
+            const Autorizacion = require('../entidades/Autorizacion');
+            const Usuario = require('../entidades/Usuarios');
+
+            const examenes = await ExamenLaboratorio.findAll({
+                include: [
+                    {
+                        model: Autorizacion,
+                        as: 'autorizacion',
+                        where: {
+                            id_paciente: idPaciente,
+                            tipo: 'examen'
+                        },
+                        include: [
+                            {
+                                model: Usuario,
+                                as: 'medico',
+                                attributes: ['id', 'nombre', 'especialidad']
+                            },
+                            {
+                                model: Usuario,
+                                as: 'paciente',
+                                attributes: ['id', 'nombre', 'correo']
+                            }
+                        ]
+                    },
+                    {
+                        model: Usuario,
+                        as: 'tecnico',
+                        attributes: ['id', 'nombre']
+                    }
+                ],
+                order: [['created_at', 'DESC']]
+            });
+
+            console.log(`✅ Se encontraron ${examenes.length} exámenes para el paciente ${idPaciente}`);
+
+            // Formatear datos
+            const examenesFormateados = examenes.map(ex => {
+                const exJSON = ex.toJSON();
+                const autorizacion = exJSON.autorizacion || {};
+
+                return {
+                    id: exJSON.id,
+                    descripcion: autorizacion.descripcion,
+                    tipo: autorizacion.tipo,
+                    justificacion: autorizacion.justificacion,
+                    prioridad: autorizacion.prioridad,
+                    estado: exJSON.estado,
+
+                    // Datos de la muestra
+                    tipoMuestra: exJSON.tipo_muestra,
+                    codigoMuestra: exJSON.codigo_muestra,
+                    fechaTomaMuestra: exJSON.fecha_toma_muestra,
+                    condicionMuestra: exJSON.condicion_muestra,
+
+                    // Datos del análisis
+                    fechaInicioAnalisis: exJSON.fecha_inicio_analisis,
+                    metodoAnalisis: exJSON.metodo_analisis,
+
+                    // Resultados
+                    resultado: exJSON.resultado,
+                    observaciones: exJSON.observaciones,
+                    estadoResultado: exJSON.estado_resultado,
+                    fechaRealizacion: exJSON.fecha_realizacion,
+
+                    // Fechas
+                    fechaSolicitud: autorizacion.fecha_solicitud,
+
+                    // Médico solicitante
+                    medico: autorizacion.medico ? {
+                        id: autorizacion.medico.id,
+                        nombre: autorizacion.medico.nombre,
+                        especialidad: autorizacion.medico.especialidad
+                    } : null,
+
+                    // Técnico de laboratorio
+                    tecnico: exJSON.tecnico ? {
+                        id: exJSON.tecnico.id,
+                        nombre: exJSON.tecnico.nombre
+                    } : null
+                };
+            });
+
+            res.json({
+                exito: true,
+                total: examenesFormateados.length,
+                datos: examenesFormateados
+            });
+
+        } catch (error) {
+            console.error('❌ Error en CitaControlador.obtenerMisExamenesLaboratorio:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: 'Error al obtener exámenes de laboratorio: ' + error.message
+            });
+        }
+    }
 }
 
 module.exports = new CitaControlador();

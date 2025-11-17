@@ -124,4 +124,26 @@ router.get('/historial/descargar-pdf',
     historialPDFControlador.generarHistorialPDF
 );
 
+
+// ✅ NUEVO: Obtener mis citas (paciente autenticado desde el token)
+// GET /api/citas/mis-citas
+router.get('/mis-citas',
+    authMiddleware.verificarToken,
+    citaControlador.obtenerMisCitas
+);
+
+// ✅ NUEVO: Obtener mis exámenes de laboratorio (paciente autenticado)
+// GET /api/citas/mis-examenes-laboratorio
+router.get('/mis-examenes-laboratorio',
+    authMiddleware.verificarToken,
+    citaControlador.obtenerMisExamenesLaboratorio
+);
+
+// Obtener citas del paciente autenticado (alternativa)
+// GET /api/citas/paciente
+router.get('/paciente',
+    authMiddleware.verificarToken,
+    citaControlador.obtenerMisCitas
+);
+
 module.exports = router;
