@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resultados de Exámenes - VITAL+</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #1e40af;
+      --success-color: #22c55e;
+      --warning-color: #f59e0b;
+      --danger-color: #ef4444;
+      --info-color: #3b82f6;
+      --dark-color: #1e293b;
+      --light-bg: #f8fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 1. 🖼️ Fondo del Body corregido para que el header llegue al borde */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e0f7fa, #ffffff);
+      min-height: 100vh;
+      padding: 0; /* ELIMINADO: Quita el espacio alrededor de la página */
+    }
+
+    /* 2. ✂️ Header corregido para que ocupe todo el ancho */
+    .header {
+      background: linear-gradient(135deg, #0077b6, #00b4d8);
+      color: white;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 15px rgba(0, 119, 182, 0.3);
+      position: relative;
+      border-radius: 0; /* ELIMINADO: Quita los bordes redondeados */
+      margin-bottom: 0; /* ELIMINADO: Quita el margen inferior para que se pegue al siguiente elemento */
+    }
+
+    .logo-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-header img {
+      width: 50px;
+      height: 50px;
+    }
+
+    .logo-header h1 {
+      font-size: 1.8em;
+      letter-spacing: 1px;
+      color: white;
+      margin: 0;
+      font-weight: bold;
+    }
+
+    .btn-volver {
+      background: #48cae4;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-volver:hover {
+      background: #0096c7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 💡 Ajuste para que el contenido se centre y tenga padding */
+    .container-custom {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 20px; /* AGREGADO: Devuelve el padding al contenido principal */
+    }
+
+    /* El resto de estilos se mantiene igual, pero los he envuelto dentro del HTML completo
+       para mantener la coherencia de la respuesta. */
+
+    .info-paciente {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .info-paciente h3 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      font-size: 22px;
+    }
+
+    .datos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .dato-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px;
+      background: var(--light-bg);
+      border-radius: 10px;
+    }
+
+    .dato-item span:first-child {
+      font-size: 24px;
+    }
+
+    .filtros-section {
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 30px;
+    }
+
+    .filtros-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      align-items: end;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: var(--dark-color);
+      margin-bottom: 5px;
+      display: block;
+    }
+
+    .form-control, .form-select {
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+      padding: 10px 15px;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+    }
+
+    .btn-filtrar {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-filtrar:hover {
+      background: var(--secondary-color);
+      transform: translateY(-2px);
+    }
+
+    .estadisticas {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      transition: transform 0.3s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .stat-card .numero {
+      font-size: 42px;
+      font-weight: bold;
+      color: var(--primary-color);
+      margin-bottom: 10px;
+    }
+
+    .stat-card .etiqueta {
+      color: #64748b;
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .examen-detallado {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      margin-bottom: 25px;
+      border-left: 6px solid var(--primary-color);
+      transition: all 0.3s;
+    }
+
+    .examen-detallado:hover {
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      transform: translateX(5px);
+    }
+
+    .examen-detallado.completado {
+      border-left-color: var(--success-color);
+    }
+
+    .examen-detallado.en-analisis {
+      border-left-color: var(--warning-color);
+    }
+
+    .examen-detallado.muestra-tomada {
+      border-left-color: var(--info-color);
+    }
+
+    .examen-detallado.pendiente {
+      border-left-color: #94a3b8;
+    }
+
+    .examen-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 20px;
+      padding-bottom: 15px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .examen-titulo {
+      flex: 1;
+    }
+
+    .examen-titulo h3 {
+      color: var(--dark-color);
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .examen-subtitulo {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .estado-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 14px;
+      white-space: nowrap;
+    }
+
+    .estado-completado {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .estado-en-analisis {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .estado-muestra-tomada {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .estado-pendiente {
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .info-item {
+      background: var(--light-bg);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
+    .info-item .label {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .info-item .value {
+      color: var(--dark-color);
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .resultado-section {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      padding: 25px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 2px solid #bae6fd;
+    }
+
+    .resultado-section h4 {
+      color: var(--primary-color);
+      font-size: 20px;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .resultado-badge {
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 15px;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .resultado-normal {
+      background: var(--success-color);
+      color: white;
+    }
+
+    .resultado-anormal {
+      background: var(--warning-color);
+      color: white;
+    }
+
+    .resultado-critico {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .resultado-contenido {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      line-height: 1.8;
+      color: var(--dark-color);
+      font-size: 15px;
+    }
+
+    .observaciones-section {
+      background: #fefce8;
+      padding: 20px;
+      border-radius: 12px;
+      margin-top: 15px;
+      border-left: 4px solid var(--warning-color);
+    }
+
+    .observaciones-section h5 {
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+
+    .timeline {
+      margin-top: 20px;
+      padding-left: 20px;
+      border-left: 3px solid #e2e8f0;
+    }
+
+    .timeline-item {
+      position: relative;
+      padding-left: 30px;
+      margin-bottom: 20px;
+    }
+
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -11.5px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary-color);
+      border: 3px solid white;
+    }
+
+    .timeline-item.completado::before {
+      background: var(--success-color);
+    }
+
+    .timeline-fecha {
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 5px;
+    }
+
+    .timeline-descripcion {
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .lista-vacia {
+      text-align: center;
+      padding: 60px 20px;
+      color: #94a3b8;
+    }
+
+    .lista-vacia i {
+      font-size: 64px;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    .lista-vacia h4 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .btn-descargar {
+      background: var(--success-color);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-descargar:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+
+      .estadisticas {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .examen-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo-header">
+    <img src="/images/logoblanco.png" alt="Logo VITAL+" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3774/3774299.png'">
+    <h1>VITAL+</h1>
+  </div>
+  <div>
+    <a href="/Vistas/dashboard-paciente.html" class="btn-volver">
+      <i class="bi bi-arrow-left"></i> Volver al Historial
+    </a>
+  </div>
+</div>
+
+<div class="container-custom">
+  <!-- Información del Paciente -->
+  <div class="info-paciente">
+    <h3><i class="bi bi-person-circle"></i> Mi Información</h3>
+    <div class="datos-grid">
+      <div class="dato-item">
+        <span>👤</span>
+        <span><strong>Nombre:</strong> <span id="nombrePaciente">Cargando...</span></span>
+      </div>
+      <div class="dato-item">
+        <span>🆔</span>
+        <span><strong>Identificación:</strong> <span id="idPaciente">-</span></span>
+      </div>
+      <div class="dato-item">
+        <span>📧</span>
+        <span><strong>Correo:</strong> <span id="correoPaciente">-</span></span>
+      </div>
+      <div class="dato-item">
+        <span>📞</span>
+        <span><strong>Teléfono:</strong> <span id="telefonoPaciente">-</span></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filtros-section">
+    <h4 style="margin-bottom: 15px; color: var(--dark-color);">
+      <i class="bi bi-funnel"></i> Filtrar Exámenes
+    </h4>
+    <div class="filtros-grid">
+      <div class="form-group">
+        <label for="filtroEstado">Estado</label>
+        <select id="filtroEstado" class="form-select">
+          <option value="todos">Todos los estados</option>
+          <option value="completado">Completados</option>
+          <option value="en-analisis">En Análisis</option>
+          <option value="muestra-tomada">Muestra Tomada</option>
+          <option value="pendiente">Pendientes</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="filtroBusqueda">Buscar</label>
+        <input type="text" id="filtroBusqueda" class="form-control" placeholder="Nombre del examen...">
+      </div>
+      <div class="form-group">
+        <button class="btn-filtrar w-100" onclick="aplicarFiltros()">
+          <i class="bi bi-search"></i> Aplicar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Estadísticas -->
+  <div class="estadisticas">
+    <div class="stat-card">
+      <div class="numero" id="statTotal">0</div>
+      <div class="etiqueta">Total de Exámenes</div>
+    </div>
+    <div class="stat-card">
+      <div class="numero" id="statCompletados">0</div>
+      <div class="etiqueta">Completados</div>
+    </div>
+    <div class="stat-card">
+      <div class="numero" id="statEnProceso">0</div>
+      <div class="etiqueta">En Proceso</div>
+    </div>
+    <div class="stat-card">
+      <div class="numero" id="statPendientes">0</div>
+      <div class="etiqueta">Pendientes</div>
+    </div>
+  </div>
+
+  <!-- Lista de Exámenes Detallados -->
+  <div id="listaExamenesDetallados">
+    <div class="lista-vacia">
+      <i class="bi bi-hourglass-split"></i>
+      <h4>Cargando exámenes...</h4>
+      <p>Por favor espera un momento</p>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  let examenesLaboratorio = [];
+  let examenesFiltrados = [];
+
+  window.addEventListener('DOMContentLoaded', async () => {
+    verificarAutenticacion();
+    await cargarExamenesLaboratorio();
+    aplicarFiltros();
+  });
+
+  function verificarAutenticacion() {
+    const token = localStorage.getItem('token');
+    const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
+
+    if (!token || usuario.rol !== 'paciente') {
+      window.location.href = '/login.html';
+      return;
+    }
+
+    document.getElementById('nombrePaciente').textContent = usuario.nombre || '-';
+    document.getElementById('idPaciente').textContent = usuario.identificacion || '-';
+    document.getElementById('correoPaciente').textContent = usuario.correo || '-';
+    document.getElementById('telefonoPaciente').textContent = usuario.telefono || '-';
+  }
+
+  async function cargarExamenesLaboratorio() {
+    const token = localStorage.getItem('token');
+
+    try {
+      console.log('🔬 Cargando exámenes de laboratorio...');
+
+      const response = await fetch('http://localhost:3000/api/citas/mis-examenes-laboratorio', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('No se pudieron cargar los exámenes');
+      }
+
+      const resultado = await response.json();
+
+      if (resultado.exito && resultado.datos) {
+        examenesLaboratorio = resultado.datos;
+        console.log(`✅ Exámenes cargados: ${examenesLaboratorio.length}`);
+      }
+
+    } catch (error) {
+      console.error('❌ Error al cargar exámenes:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No se pudieron cargar los exámenes de laboratorio'
+      });
+    }
+  }
+
+  function aplicarFiltros() {
+    const filtroEstado = document.getElementById('filtroEstado').value;
+    const filtroBusqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
+
+    examenesFiltrados = examenesLaboratorio.filter(examen => {
+      const cumpleEstado = filtroEstado === 'todos' || examen.estado === filtroEstado;
+      const cumpleBusqueda = examen.descripcion.toLowerCase().includes(filtroBusqueda);
+      return cumpleEstado && cumpleBusqueda;
+    });
+
+    actualizarEstadisticas();
+    renderizarExamenes();
+  }
+
+  function actualizarEstadisticas() {
+    const total = examenesLaboratorio.length;
+    const completados = examenesLaboratorio.filter(ex => ex.estado === 'completado').length;
+    const enProceso = examenesLaboratorio.filter(ex =>
+            ['en-analisis', 'muestra-tomada'].includes(ex.estado)
+    ).length;
+    const pendientes = examenesLaboratorio.filter(ex => ex.estado === 'pendiente').length;
+
+    document.getElementById('statTotal').textContent = total;
+    document.getElementById('statCompletados').textContent = completados;
+    document.getElementById('statEnProceso').textContent = enProceso;
+    document.getElementById('statPendientes').textContent = pendientes;
+  }
+
+  function renderizarExamenes() {
+    const container = document.getElementById('listaExamenesDetallados');
+
+    if (examenesFiltrados.length === 0) {
+      container.innerHTML = `
+                <div class="lista-vacia">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No se encontraron exámenes</h4>
+                    <p>No hay exámenes que coincidan con los filtros aplicados</p>
+                </div>
+            `;
+      return;
+    }
+
+    // Ordenar: completados primero, luego por fecha
+    const examenesOrdenados = [...examenesFiltrados].sort((a, b) => {
+      if (a.estado === 'completado' && b.estado !== 'completado') return -1;
+      if (a.estado !== 'completado' && b.estado === 'completado') return 1;
+      return new Date(b.fechaSolicitud || 0) - new Date(a.fechaSolicitud || 0);
+    });
+
+    container.innerHTML = examenesOrdenados.map(examen => generarHTMLExamen(examen)).join('');
+  }
+
+  function generarHTMLExamen(examen) {
+    const estadoClass = examen.estado.replace('-', '_');
+    const estadoTexto = obtenerTextoEstado(examen.estado);
+
+    return `
+            <div class="examen-detallado ${examen.estado}">
+                <!-- Header -->
+                <div class="examen-header">
+                    <div class="examen-titulo">
+                        <h3><i class="bi bi-clipboard2-pulse"></i> ${examen.descripcion}</h3>
+                        <div class="examen-subtitulo">
+                            ${examen.codigoMuestra ? `<strong>Código:</strong> ${examen.codigoMuestra} • ` : ''}
+                            <strong>Tipo:</strong> ${examen.tipo || 'Examen de laboratorio'}
+                        </div>
+                    </div>
+                    <span class="estado-badge estado-${estadoClass}">
+                        ${estadoTexto}
+                    </span>
+                </div>
+
+                <!-- Información General -->
+                <div class="info-grid">
+                    ${examen.medico ? `
+                    <div class="info-item">
+                        <div class="label"><i class="bi bi-person-badge"></i> Médico Solicitante</div>
+                        <div class="value">${examen.medico.nombre}</div>
+                        ${examen.medico.especialidad ? `<small style="color: #64748b;">${examen.medico.especialidad}</small>` : ''}
+                    </div>
+                    ` : ''}
+
+                    ${examen.fechaSolicitud ? `
+                    <div class="info-item">
+                        <div class="label"><i class="bi bi-calendar-check"></i> Fecha de Solicitud</div>
+                        <div class="value">${formatearFecha(examen.fechaSolicitud)}</div>
+                    </div>
+                    ` : ''}
+
+                    ${examen.prioridad ? `
+                    <div class="info-item">
+                        <div class="label"><i class="bi bi-exclamation-circle"></i> Prioridad</div>
+                        <div class="value">${examen.prioridad.toUpperCase()}</div>
+                    </div>
+                    ` : ''}
+
+                    ${examen.tecnico ? `
+                    <div class="info-item">
+                        <div class="label"><i class="bi bi-person-check"></i> Técnico Responsable</div>
+                        <div class="value">${examen.tecnico.nombre}</div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                ${examen.justificacion ? `
+                <div class="info-item" style="margin-bottom: 20px;">
+                    <div class="label"><i class="bi bi-chat-text"></i> Justificación Médica</div>
+                    <div class="value" style="white-space: pre-wrap;">${examen.justificacion}</div>
+                </div>
+                ` : ''}
+
+                <!-- Timeline del Proceso -->
+                <h5 style="margin-top: 20px; margin-bottom: 15px; color: var(--dark-color);">
+                    <i class="bi bi-clock-history"></i> Línea de Tiempo
+                </h5>
+                <div class="timeline">
+                    ${generarTimeline(examen)}
+                </div>
+
+                <!-- Resultados (si están disponibles) -->
+                ${examen.estado === 'completado' && examen.resultado ? `
+                    <div class="resultado-section">
+                        <h4><i class="bi bi-file-earmark-medical"></i> Resultados del Examen</h4>
+
+                        ${examen.estadoResultado ? `
+                            <span class="resultado-badge resultado-${examen.estadoResultado}">
+                                ${examen.estadoResultado === 'normal' ? '✅ NORMAL' :
+            examen.estadoResultado === 'anormal' ? '⚠️ ANORMAL' :
+                    '🚨 CRÍTICO'}
+                            </span>
+                        ` : ''}
+
+                        <div class="resultado-contenido">
+                            ${examen.resultado}
+                        </div>
+
+                        ${examen.observaciones ? `
+                            <div class="observaciones-section">
+                                <h5><i class="bi bi-chat-dots"></i> Observaciones Técnicas</h5>
+                                <p style="margin: 0; white-space: pre-wrap;">${examen.observaciones}</p>
+                            </div>
+                        ` : ''}
+
+                        <div style="margin-top: 15px; text-align: right;">
+                            <button class="btn-descargar" onclick="descargarResultado('${examen.id}')">
+                                <i class="bi bi-download"></i> Descargar Resultados
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
+
+                <!-- Información sobre la muestra -->
+                ${examen.tipoMuestra ? `
+                    <div style="margin-top: 20px; padding: 15px; background: #f8fafc; border-radius: 10px;">
+                        <h5 style="color: var(--dark-color); margin-bottom: 10px;">
+                            <i class="bi bi-droplet-fill"></i> Información de la Muestra
+                        </h5>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="label">Tipo de Muestra</div>
+                                <div class="value">${examen.tipoMuestra}</div>
+                            </div>
+                            ${examen.condicionMuestra ? `
+                            <div class="info-item">
+                                <div class="label">Condición</div>
+                                <div class="value">${examen.condicionMuestra}</div>
+                            </div>
+                            ` : ''}
+                            ${examen.metodoAnalisis ? `
+                            <div class="info-item">
+                                <div class="label">Método de Análisis</div>
+                                <div class="value">${examen.metodoAnalisis}</div>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+  }
+
+  function generarTimeline(examen) {
+    let timeline = '';
+
+    if (examen.fechaSolicitud) {
+      timeline += `
+                <div class="timeline-item">
+                    <div class="timeline-fecha">${formatearFechaCompleta(examen.fechaSolicitud)}</div>
+                    <div class="timeline-descripcion">
+                        <i class="bi bi-file-text"></i> Examen solicitado por ${examen.medico?.nombre || 'Médico'}
+                    </div>
+                </div>
+            `;
+    }
+
+    if (examen.fechaTomaMuestra) {
+      timeline += `
+                <div class="timeline-item">
+                    <div class="timeline-fecha">${formatearFechaCompleta(examen.fechaTomaMuestra)}</div>
+                    <div class="timeline-descripcion">
+                        <i class="bi bi-droplet"></i> Muestra tomada y registrada
+                    </div>
+                </div>
+            `;
+    }
+
+    if (examen.fechaInicioAnalisis) {
+      timeline += `
+                <div class="timeline-item">
+                    <div class="timeline-fecha">${formatearFechaCompleta(examen.fechaInicioAnalisis)}</div>
+                    <div class="timeline-descripcion">
+                        <i class="bi bi-microscope"></i> Análisis iniciado por ${examen.tecnico?.nombre || 'Técnico de laboratorio'}
+                    </div>
+                </div>
+            `;
+    }
+
+    if (examen.fechaRealizacion) {
+      timeline += `
+                <div class="timeline-item completado">
+                    <div class="timeline-fecha">${formatearFechaCompleta(examen.fechaRealizacion)}</div>
+                    <div class="timeline-descripcion">
+                        <i class="bi bi-check-circle"></i> Examen completado y resultados disponibles
+                    </div>
+                </div>
+            `;
+    }
+
+    if (!timeline) {
+      timeline = `
+                <div class="timeline-item">
+                    <div class="timeline-fecha">Pendiente</div>
+                    <div class="timeline-descripcion">
+                        <i class="bi bi-hourglass-split"></i> Esperando procesamiento
+                    </div>
+                </div>
+            `;
+    }
+
+    return timeline;
+  }
+
+  function obtenerTextoEstado(estado) {
+    const estados = {
+      'pendiente': '⏳ Pendiente',
+      'muestra-tomada': '💉 Muestra Tomada',
+      'en-analisis': '🔬 En Análisis',
+      'completado': '✅ Completado',
+      'cancelado': '❌ Cancelado'
+    };
+    return estados[estado] || estado;
+  }
+
+  function formatearFecha(fecha) {
+    if (!fecha) return 'N/A';
+    const date = new Date(fecha);
+    return date.toLocaleDateString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  }
+
+  function formatearFechaCompleta(fecha) {
+    if (!fecha) return 'N/A';
+    const date = new Date(fecha);
+    return date.toLocaleString('es-ES', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  function descargarResultado(idExamen) {
+    const examen = examenesLaboratorio.find(ex => ex.id == idExamen);
+    if (!examen) return;
+
+    // Crear contenido del documento
+    let contenido = `
+═══════════════════════════════════════════════════════════════
+                    RESULTADOS DE EXAMEN DE LABORATORIO
+                              VITAL+ SALUD
+═══════════════════════════════════════════════════════════════
+
+INFORMACIÓN DEL PACIENTE
+────────────────────────────────────────────────────────────────
+Nombre:         ${document.getElementById('nombrePaciente').textContent}
+Identificación: ${document.getElementById('idPaciente').textContent}
+Correo:         ${document.getElementById('correoPaciente').textContent}
+Teléfono:       ${document.getElementById('telefonoPaciente').textContent}
+
+INFORMACIÓN DEL EXAMEN
+────────────────────────────────────────────────────────────────
+Tipo de Examen: ${examen.descripcion}
+Código Muestra: ${examen.codigoMuestra || 'N/A'}
+Fecha Solicitud: ${formatearFechaCompleta(examen.fechaSolicitud)}
+Médico Solicitante: ${examen.medico?.nombre || 'N/A'}
+${examen.medico?.especialidad ? `Especialidad: ${examen.medico.especialidad}` : ''}
+
+DATOS DE LA MUESTRA
+────────────────────────────────────────────────────────────────
+Tipo de Muestra: ${examen.tipoMuestra || 'N/A'}
+Fecha Toma: ${formatearFechaCompleta(examen.fechaTomaMuestra)}
+Condición: ${examen.condicionMuestra || 'N/A'}
+${examen.observacionesToma ? `Observaciones: ${examen.observacionesToma}` : ''}
+
+ANÁLISIS
+────────────────────────────────────────────────────────────────
+Fecha Inicio: ${formatearFechaCompleta(examen.fechaInicioAnalisis)}
+Método: ${examen.metodoAnalisis || 'N/A'}
+Técnico: ${examen.tecnico?.nombre || 'N/A'}
+Fecha Finalización: ${formatearFechaCompleta(examen.fechaRealizacion)}
+
+RESULTADOS
+────────────────────────────────────────────────────────────────
+Estado: ${examen.estadoResultado?.toUpperCase() || 'N/A'}
+
+${examen.resultado || 'Sin resultados'}
+
+${examen.observaciones ? `
+OBSERVACIONES TÉCNICAS
+────────────────────────────────────────────────────────────────
+${examen.observaciones}
+` : ''}
+
+═══════════════════════════════════════════════════════════════
+Documento generado el: ${new Date().toLocaleString('es-ES')}
+VITAL+ Salud - Sistema de Gestión Médica
+═══════════════════════════════════════════════════════════════
+        `.trim();
+
+    // Crear y descargar archivo
+    const blob = new Blob([contenido], { type: 'text/plain;charset=utf-8' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Resultado_${examen.codigoMuestra || examen.id}_${examen.descripcion.replace(/\s+/g, '_')}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Descarga exitosa!',
+      text: 'El resultado ha sido descargado',
+      timer: 2000,
+      showConfirmButton: false
+    });
+  }
+
+  // Event listeners para filtros en tiempo real
+  document.getElementById('filtroEstado').addEventListener('change', aplicarFiltros);
+  document.getElementById('filtroBusqueda').addEventListener('input', aplicarFiltros);
+</script>
+
+</body>
+</html>

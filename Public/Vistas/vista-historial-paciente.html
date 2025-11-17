@@ -521,6 +521,7 @@
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     let historialCompleto = null;
@@ -930,7 +931,6 @@
 
         const examenes = [];
 
-        // Extraer exámenes de las notas de las citas
         citas.forEach((cita, citaIndex) => {
             const notas = cita.notas || '';
             const fecha = new Date(cita.fecha).toLocaleDateString('es-ES', {
@@ -971,34 +971,15 @@
                         const indicacionesMatch = exTexto.match(/Indicaciones:\s*(.+)/);
                         const indicaciones = indicacionesMatch ? indicacionesMatch[1].trim() : '';
 
-                        // Buscar si hay resultados de laboratorio para este examen
-                        console.log(`🔍 Buscando examen de laboratorio para: "${nombre}"`);
-
                         const examenLab = examenesLaboratorio.find(exLab => {
                             const descripcionLab = (exLab.descripcion || '').toLowerCase().trim();
                             const nombreBusqueda = nombre.toLowerCase().trim();
-
-                            // Buscar coincidencia exacta o parcial
-                            const coincide = descripcionLab === nombreBusqueda ||
+                            return (
+                                descripcionLab === nombreBusqueda ||
                                 descripcionLab.includes(nombreBusqueda) ||
-                                nombreBusqueda.includes(descripcionLab);
-
-                            if (coincide) {
-                                console.log(`✅ Match encontrado: "${descripcionLab}" ↔ "${nombreBusqueda}"`);
-                            }
-
-                            return coincide;
+                                nombreBusqueda.includes(descripcionLab)
+                            );
                         });
-
-                        if (examenLab) {
-                            console.log(`📋 Datos del examen encontrado:`, {
-                                estado: examenLab.estado,
-                                resultado: examenLab.resultado ? 'Sí' : 'No',
-                                codigo: examenLab.codigoMuestra
-                            });
-                        } else {
-                            console.log(`⚠️ No se encontró examen de laboratorio para "${nombre}"`);
-                        }
 
                         examenes.push({
                             id: examenId,
@@ -1035,11 +1016,10 @@
 
         console.log(`✅ Total exámenes a renderizar: ${examenes.length}`);
         examenes.forEach((ex, idx) => {
-            console.log(`   ${idx + 1}. ${ex.nombre} - Estado: ${ex.estado} - Resultado: ${ex.resultado ? 'Sí' : 'No'}`);
+            console.log(`    ${idx + 1}. ${ex.nombre} - Estado: ${ex.estado} - Resultado: ${ex.resultado ? 'Sí' : 'No'}`);
         });
         console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-        // Ordenar: completados al final
         const examenesPendientes = examenes.filter(ex => ex.estado !== 'completado');
         const examenesCompletados = examenes.filter(ex => ex.estado === 'completado');
         const examenesOrdenados = [...examenesPendientes, ...examenesCompletados];
@@ -1047,7 +1027,6 @@
         container.innerHTML = examenesOrdenados.map(ex => {
             const esCompletado = ex.estado === 'completado';
 
-            // Determinar badge de estado
             let estadoBadge = '';
             let estadoTexto = '';
 
@@ -1102,13 +1081,6 @@
                                 ${ex.resultado}
                             </div>
 
-                            ${ex.observaciones ? `
-                                <div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #cbd5e1;">
-                                    <strong style="color: #64748b;">Observaciones:</strong>
-                                    <p style="margin: 5px 0; color: #475569;">${ex.observaciones}</p>
-                                </div>
-                            ` : ''}
-
                             ${ex.fechaRealizacion ? `
                                 <div style="margin-top: 10px; font-size: 0.875rem; color: #64748b;">
                                     <strong>Fecha de realización:</strong> ${formatearFechaCompleta(ex.fechaRealizacion)}
@@ -1127,6 +1099,7 @@
         `;
         }).join('');
     }
+
 
     // NUEVA FUNCIÓN: Formatear fecha completa
     function formatearFechaCompleta(fecha) {
