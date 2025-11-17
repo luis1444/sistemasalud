@@ -1,0 +1,1746 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Exámenes - Vital+</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        :root {
+            --primary-color: #0077b6;
+            --secondary-color: #00b4d8;
+            --dark-bg: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-dark: #2d3748;
+            --text-muted: #52796f;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+        }
+
+        /* Header */
+        .top-header {
+            background: var(--primary-color);
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            color: white;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-container img {
+            height: 55px;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container img:hover {
+            transform: scale(1.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .top-header .text-end h6, .top-header .text-end small {
+            color: white;
+            opacity: 0.9;
+        }
+
+        .btn-back {
+            background: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-back:hover {
+            background: #008cba;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 180, 216, 0.3);
+        }
+
+        /* Main Container */
+        .main-container {
+            padding: 100px 2rem 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stats-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0f7fa;
+            transition: all 0.3s;
+            color: var(--text-dark);
+        }
+
+        .stats-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary-color);
+        }
+
+        .stats-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stats-card h6 {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .stats-card h2 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            font-weight: 700;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e0f7fa;
+        }
+
+        /* Workflow Steps */
+        .workflow-steps {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--dark-bg);
+            border-radius: 12px;
+        }
+
+        .workflow-step {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            padding: 1rem;
+        }
+
+        .workflow-step::after {
+            content: '→';
+            position: absolute;
+            right: -20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 2rem;
+            color: var(--text-muted);
+        }
+
+        .workflow-step:last-child::after {
+            display: none;
+        }
+
+        .workflow-step.active {
+            background: var(--primary-color);
+            color: white;
+            border-radius: 8px;
+        }
+
+        .workflow-step .step-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .workflow-step h6 {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+
+        /* Exam Cards */
+        .exam-card {
+            background: var(--dark-bg);
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s;
+            color: var(--text-dark);
+        }
+
+        .exam-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            transform: translateX(5px);
+        }
+
+        .exam-card h5 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .exam-card p {
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .exam-card strong {
+            color: var(--text-dark);
+        }
+
+        /* Badge Styles */
+        .priority-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .priority-alta {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .priority-media {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .priority-baja {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .estado-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-block;
+        }
+
+        .estado-muestra-tomada {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .estado-en-analisis {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .estado-completado {
+            background: var(--success-color);
+            color: white;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary:hover {
+            background: #0066a3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 119, 182, 0.4);
+        }
+
+        .btn-success {
+            background: var(--success-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-warning {
+            background: var(--warning-color);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-warning:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
+        }
+
+        /* Search Box */
+        .search-box {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            z-index: 1;
+        }
+
+        .search-box input {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            color: var(--text-dark);
+            padding: 0.8rem 1rem 0.8rem 3rem;
+            width: 100%;
+            border-radius: 8px;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+            background: #ffffff;
+            outline: none;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        /* Modal Styles */
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid #ccc;
+            color: var(--text-dark);
+        }
+
+        .modal-header {
+            background: var(--primary-color);
+            color: white;
+            border-bottom: none;
+        }
+
+        .modal-header .btn-close {
+            filter: invert(1);
+        }
+
+        .patient-info {
+            background: #e0f7fa;
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-control, .form-select, textarea {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            color: var(--text-dark);
+            border-radius: 8px;
+            padding: 0.6rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus, textarea:focus {
+            background: #ffffff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
+            outline: none;
+        }
+
+        .form-label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+
+        .result-preview {
+            background: #f0f0f0;
+            border: 1px solid #ccc;
+            padding: 1.5rem;
+            border-radius: 8px;
+            min-height: 300px;
+        }
+
+        .alert-info {
+            background: #e0f7fa;
+            border: 1px solid #81d4fa;
+            color: var(--text-dark);
+            border-radius: 8px;
+        }
+
+        /* Sample Info Box */
+        .sample-info-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .sample-info-box h6 {
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .sample-info-box .info-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Timeline */
+        .timeline-item {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -7px;
+            top: 0;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary-color);
+        }
+    </style>
+</head>
+<body>
+<div class="top-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div class="logo-container">
+            <img src="../images/logoblanco.png" alt="Vital+">
+            <div>
+                <h5 class="mb-0">Registro de Exámenes</h5>
+                <small>Procesamiento y carga de resultados</small>
+            </div>
+        </div>
+        <div class="user-info">
+            <div class="text-end me-3">
+                <h6 class="mb-0" id="nombreUsuario">Cargando...</h6>
+                <small>Técnico de Laboratorio</small>
+            </div>
+            <a href="/Vistas/dashboard-laboratorio.html" class="btn-back">
+                <i class="bi bi-arrow-left-circle"></i> Volver al Dashboard
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="main-container">
+    <!-- Workflow Steps -->
+    <div class="workflow-steps">
+        <div class="workflow-step active" data-step="pendiente">
+            <div class="step-icon"><i class="bi bi-clipboard-check"></i></div>
+            <h6>Pendiente</h6>
+            <small id="countPendiente">0</small>
+        </div>
+        <div class="workflow-step" data-step="muestra">
+            <div class="step-icon"><i class="bi bi-droplet"></i></div>
+            <h6>Muestra Tomada</h6>
+            <small id="countMuestra">0</small>
+        </div>
+        <div class="workflow-step" data-step="analisis">
+            <div class="step-icon"><i class="bi bi-microscope"></i></div>
+            <h6>En Análisis</h6>
+            <small id="countAnalisis">0</small>
+        </div>
+        <div class="workflow-step" data-step="completado">
+            <div class="step-icon"><i class="bi bi-check-circle"></i></div>
+            <h6>Completado</h6>
+            <small id="countCompletado">0</small>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+        <div class="stats-card">
+            <div class="icon">
+                <i class="bi bi-droplet-fill" style="color: #3b82f6;"></i>
+            </div>
+            <h6>Muestras Hoy</h6>
+            <h2 id="statMuestrasHoy">0</h2>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="bi bi-microscope" style="color: var(--warning-color);"></i>
+            </div>
+            <h6>En Análisis</h6>
+            <h2 id="statEnAnalisis">0</h2>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="bi bi-check-circle-fill" style="color: var(--success-color);"></i>
+            </div>
+            <h6>Completados Hoy</h6>
+            <h2 id="statCompletadosHoy">0</h2>
+        </div>
+        <div class="stats-card">
+            <div class="icon">
+                <i class="bi bi-clock-history" style="color: var(--primary-color);"></i>
+            </div>
+            <h6>Tiempo Promedio</h6>
+            <h2 id="statTiempoPromedio">--</h2>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content-card">
+        <div class="mb-4">
+            <ul class="nav nav-tabs" id="registroTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="tomar-muestras-tab" data-bs-toggle="tab"
+                            data-bs-target="#tomar-muestras" type="button">
+                        <i class="bi bi-droplet"></i> Tomar Muestras
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="en-analisis-tab" data-bs-toggle="tab"
+                            data-bs-target="#en-analisis" type="button">
+                        <i class="bi bi-microscope"></i> En Análisis
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="cargar-resultados-tab" data-bs-toggle="tab"
+                            data-bs-target="#cargar-resultados" type="button">
+                        <i class="bi bi-file-earmark-medical"></i> Cargar Resultados
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="registroTabContent">
+            <!-- Tab 1: Tomar Muestras -->
+            <div class="tab-pane fade show active" id="tomar-muestras" role="tabpanel">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" id="searchMuestras"
+                           placeholder="Buscar por paciente o examen...">
+                </div>
+
+                <div id="listaMuestras">
+                    <div class="empty-state">
+                        <i class="bi bi-droplet"></i>
+                        <h5>No hay muestras pendientes</h5>
+                        <p>Los exámenes aprobados para toma de muestra aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: En Análisis -->
+            <div class="tab-pane fade" id="en-analisis" role="tabpanel">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" id="searchAnalisis"
+                           placeholder="Buscar exámenes en análisis...">
+                </div>
+
+                <div id="listaAnalisis">
+                    <div class="empty-state">
+                        <i class="bi bi-microscope"></i>
+                        <h5>No hay exámenes en análisis</h5>
+                        <p>Las muestras procesadas aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Cargar Resultados -->
+            <div class="tab-pane fade" id="cargar-resultados" role="tabpanel">
+                <div class="search-box">
+                    <i class="bi bi-search"></i>
+                    <input type="text" class="form-control" id="searchResultados"
+                           placeholder="Buscar para cargar resultados...">
+                </div>
+
+                <div id="listaResultados">
+                    <div class="empty-state">
+                        <i class="bi bi-file-earmark-medical"></i>
+                        <h5>No hay resultados pendientes</h5>
+                        <p>Los análisis completados listos para carga aparecerán aquí</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Registrar Toma de Muestra -->
+<div class="modal fade" id="modalTomarMuestra" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-droplet-fill"></i> Registrar Toma de Muestra
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="patient-info">
+                    <h6><i class="bi bi-person-circle"></i> Información del Paciente</h6>
+                    <p class="mb-1"><strong>Nombre:</strong> <span id="muestraPacienteNombre"></span></p>
+                    <p class="mb-1"><strong>Examen:</strong> <span id="muestraExamenNombre"></span></p>
+                    <p class="mb-0"><strong>Prioridad:</strong> <span id="muestraPrioridad"></span></p>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-droplet"></i> Tipo de Muestra *
+                        </label>
+                        <select class="form-select" id="tipoMuestra" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="sangre">Sangre</option>
+                            <option value="orina">Orina</option>
+                            <option value="heces">Heces</option>
+                            <option value="saliva">Saliva</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-upc"></i> Código de Muestra *
+                        </label>
+                        <input type="text" class="form-control" id="codigoMuestra"
+                               placeholder="Ej: MUE-2025-001" required>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-calendar-check"></i> Fecha y Hora de Toma *
+                        </label>
+                        <input type="datetime-local" class="form-control" id="fechaTomaMuestra" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-thermometer"></i> Condición de Muestra
+                        </label>
+                        <select class="form-select" id="condicionMuestra">
+                            <option value="optima">Óptima</option>
+                            <option value="aceptable">Aceptable</option>
+                            <option value="suboptima">Subóptima</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-chat-dots"></i> Observaciones de Toma
+                    </label>
+                    <textarea class="form-control" id="observacionesToma" rows="3"
+                              placeholder="Registre cualquier observación relevante sobre la toma de muestra..."></textarea>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    Al registrar la muestra, el examen pasará a estado "Muestra Tomada"
+                    y estará listo para análisis.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="confirmarTomarMuestra()">
+                    <i class="bi bi-check-circle"></i> Registrar Muestra
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Iniciar Análisis -->
+<div class="modal fade" id="modalIniciarAnalisis" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-microscope"></i> Iniciar Análisis de Muestra
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="sample-info-box">
+                    <h6><i class="bi bi-droplet-fill"></i> Información de Muestra</h6>
+                    <div class="info-item">
+                        <i class="bi bi-upc"></i>
+                        <span><strong>Código:</strong> <span id="analisisCodigoMuestra"></span></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-person-circle"></i>
+                        <span><strong>Paciente:</strong> <span id="analisisPacienteNombre"></span></span>
+                    </div>
+                    <div class="info-item">
+                        <i class="bi bi-clipboard-pulse"></i>
+                        <span><strong>Examen:</strong> <span id="analisisExamenNombre"></span></span>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-calendar-check"></i> Fecha Inicio Análisis *
+                        </label>
+                        <input type="datetime-local" class="form-control" id="fechaInicioAnalisis" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label class="form-label">
+                            <i class="bi bi-person-badge"></i> Técnico Responsable *
+                        </label>
+                        <input type="text" class="form-control" id="tecnicoResponsable" readonly>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-gear"></i> Método de Análisis
+                    </label>
+                    <select class="form-select" id="metodoAnalisis">
+                        <option value="automatizado">Automatizado</option>
+                        <option value="manual">Manual</option>
+                        <option value="semiautomatizado">Semiautomatizado</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        <i class="bi bi-chat-dots"></i> Notas Iniciales
+                    </label>
+                    <textarea class="form-control" id="notasInicioAnalisis" rows="3"
+                              placeholder="Observaciones sobre el inicio del análisis..."></textarea>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle"></i>
+                    El examen pasará a estado "En Análisis" y quedará asignado a tu usuario.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-warning" onclick="confirmarIniciarAnalisis()">
+                    <i class="bi bi-play-circle"></i> Iniciar Análisis
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Cargar Resultados -->
+<div class="modal fade" id="modalCargarResultados" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-file-earmark-medical"></i> Cargar Resultados del Examen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="patient-info">
+                            <h6><i class="bi bi-droplet-fill"></i> Información de Muestra</h6>
+                            <p class="mb-1"><strong>Código:</strong> <span id="resultCodigoMuestra"></span></p>
+                            <p class="mb-1"><strong>Paciente:</strong> <span id="resultPacienteNombre"></span></p>
+                            <p class="mb-1"><strong>Examen:</strong> <span id="resultExamenNombre"></span></p>
+                            <p class="mb-0"><strong>Tipo Muestra:</strong> <span id="resultTipoMuestra"></span></p>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-file-text"></i> Resultados del Examen *
+                            </label>
+                            <textarea class="form-control" id="resultadoExamen" rows="8"
+                                      placeholder="Ingrese los resultados detallados del examen...&#10;&#10;Ejemplo:&#10;Hemoglobina: 14.5 g/dL&#10;Leucocitos: 7,200/μL&#10;Plaquetas: 250,000/μL" required></textarea>
+                            <small class="text-muted">Incluya valores, unidades y observaciones relevantes</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-chat-dots"></i> Observaciones Técnicas
+                            </label>
+                            <textarea class="form-control" id="observacionesResultado" rows="4"
+                                      placeholder="Notas técnicas, hallazgos especiales, recomendaciones..."></textarea>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-clipboard-data"></i> Estado del Resultado *
+                                </label>
+                                <select class="form-select" id="estadoResultado" required>
+                                    <option value="normal">Normal</option>
+                                    <option value="anormal">Anormal</option>
+                                    <option value="critico">Crítico</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">
+                                    <i class="bi bi-calendar-check"></i> Fecha de Finalización *
+                                </label>
+                                <input type="datetime-local" class="form-control" id="fechaFinalizacion" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">
+                                <i class="bi bi-person-badge"></i> Revisado Por
+                            </label>
+                            <input type="text" class="form-control" id="revisadoPor" readonly>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="result-preview">
+                            <h6><i class="bi bi-eye"></i> Vista Previa del Informe</h6>
+                            <div id="previewResultado" class="border rounded p-3"
+                                 style="min-height: 400px; background: white;">
+                                <p class="text-muted text-center mt-5">
+                                    La vista previa aparecerá aquí...
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-info-circle"></i>
+                            El resultado será notificado automáticamente al médico solicitante y al paciente.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="guardarResultados()">
+                    <i class="bi bi-check-circle"></i> Guardar Resultados
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Ver Detalles Completos -->
+<div class="modal fade" id="modalVerDetalles" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-info-circle"></i> Detalles del Examen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="detallesExamenContent">
+                <!-- Contenido dinámico -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    let usuario = null;
+    let examenesPendientes = [];
+    let examenesConMuestra = [];
+    let examenesEnAnalisis = [];
+    let examenActual = null;
+
+    // ============================================
+    // INICIALIZACIÓN
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async () => {
+        await verificarAutenticacion();
+        await cargarDatos();
+        configurarEventos();
+
+        // Auto-refresh cada 2 minutos
+        setInterval(() => cargarDatos(), 120000);
+    });
+
+    async function verificarAutenticacion() {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+            return;
+        }
+
+        try {
+            const response = await fetch('http://localhost:3000/api/usuarios/perfil', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Sesión inválida');
+            }
+
+            const data = await response.json();
+            usuario = data.datos || data;
+
+            // Verificar rol de laboratorio
+            const rolesLaboratorio = ['laboratorio', 'tecnico', 'tecnico_laboratorio'];
+            if (!rolesLaboratorio.includes(usuario.rol)) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Acceso Denegado',
+                    text: `Tu rol actual es: ${usuario.rol}. Se requiere rol de laboratorio.`
+                }).then(() => {
+                    window.location.href = 'index.html';
+                });
+                return;
+            }
+
+            document.getElementById('nombreUsuario').textContent = usuario.nombre;
+            document.getElementById('tecnicoResponsable').value = usuario.nombre;
+            document.getElementById('revisadoPor').value = usuario.nombre;
+        } catch (error) {
+            console.error('❌ Error de autenticación:', error);
+            localStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+    }
+
+    function configurarEventos() {
+        // Búsqueda en tiempo real
+        document.getElementById('searchMuestras').addEventListener('input', (e) => {
+            filtrarExamenes(e.target.value, 'muestras');
+        });
+
+        document.getElementById('searchAnalisis').addEventListener('input', (e) => {
+            filtrarExamenes(e.target.value, 'analisis');
+        });
+
+        document.getElementById('searchResultados').addEventListener('input', (e) => {
+            filtrarExamenes(e.target.value, 'resultados');
+        });
+
+        // Preview de resultados
+        document.getElementById('resultadoExamen')?.addEventListener('input', actualizarPreview);
+        document.getElementById('observacionesResultado')?.addEventListener('input', actualizarPreview);
+        document.getElementById('estadoResultado')?.addEventListener('change', actualizarPreview);
+
+        // Establecer fechas actuales por defecto
+        const now = new Date();
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+        const fechaActual = now.toISOString().slice(0, 16);
+
+        document.getElementById('fechaTomaMuestra').value = fechaActual;
+        document.getElementById('fechaInicioAnalisis').value = fechaActual;
+        document.getElementById('fechaFinalizacion').value = fechaActual;
+
+        // Generar código de muestra automático
+        generarCodigoMuestra();
+    }
+
+    // ============================================
+    // CARGA DE DATOS
+    // ============================================
+    async function cargarDatos() {
+        await Promise.all([
+            cargarExamenesPendientes(),
+            cargarExamenesConMuestra(),
+            cargarExamenesEnAnalisis()
+        ]);
+        actualizarEstadisticas();
+    }
+
+    async function cargarExamenesPendientes() {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/laboratorio/examenes-pendientes', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                examenesPendientes = data.datos || [];
+                renderizarExamenesPendientes();
+            }
+        } catch (error) {
+            console.error('Error al cargar exámenes pendientes:', error);
+        }
+    }
+
+    async function cargarExamenesConMuestra() {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/laboratorio/examenes-con-muestra', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                examenesConMuestra = data.datos || [];
+                renderizarExamenesConMuestra();
+            }
+        } catch (error) {
+            console.error('Error al cargar exámenes con muestra:', error);
+        }
+    }
+
+    async function cargarExamenesEnAnalisis() {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:3000/api/laboratorio/examenes-en-analisis', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                examenesEnAnalisis = data.datos || [];
+                renderizarExamenesEnAnalisis();
+            }
+        } catch (error) {
+            console.error('Error al cargar exámenes en análisis:', error);
+        }
+    }
+
+    function actualizarEstadisticas() {
+        // Actualizar workflow steps
+        document.getElementById('countPendiente').textContent = examenesPendientes.length;
+        document.getElementById('countMuestra').textContent = examenesConMuestra.length;
+        document.getElementById('countAnalisis').textContent = examenesEnAnalisis.length;
+
+        // Stats cards
+        const hoy = new Date().toDateString();
+
+        const muestrasHoy = examenesPendientes.filter(ex => {
+            const fechaMuestra = ex.fechaTomaMuestra ? new Date(ex.fechaTomaMuestra).toDateString() : null;
+            return fechaMuestra === hoy;
+        }).length;
+
+        document.getElementById('statMuestrasHoy').textContent = muestrasHoy;
+        document.getElementById('statEnAnalisis').textContent = examenesEnAnalisis.length;
+
+        // Calcular completados hoy (esto requeriría un endpoint adicional)
+        document.getElementById('statCompletadosHoy').textContent = '0';
+        document.getElementById('statTiempoPromedio').textContent = '2.5h';
+    }
+
+    // ============================================
+    // RENDERIZADO
+    // ============================================
+    function renderizarExamenesPendientes() {
+        const container = document.getElementById('listaMuestras');
+
+        if (examenesPendientes.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-droplet"></i>
+                    <h5>No hay muestras pendientes</h5>
+                    <p>Los exámenes aprobados para toma de muestra aparecerán aquí</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        examenesPendientes.forEach(examen => {
+            html += `
+                <div class="exam-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h5 class="mb-2">
+                                <i class="bi bi-clipboard-pulse" style="color: var(--primary-color);"></i>
+                                ${examen.descripcion}
+                            </h5>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-person-circle"></i> Paciente:</strong>
+                                ${examen.paciente?.nombre || 'N/A'}
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-person-badge"></i> Médico:</strong>
+                                ${examen.medico?.nombre || 'N/A'}
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-calendar3"></i> Solicitud:</strong>
+                                ${formatearFecha(examen.fechaSolicitud)}
+                            </p>
+                            ${examen.justificacion ? `
+                                <p class="mb-0 text-muted">
+                                    <strong><i class="bi bi-info-circle"></i> Justificación:</strong>
+                                    ${examen.justificacion}
+                                </p>
+                            ` : ''}
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="priority-badge priority-${examen.prioridad}">
+                                <i class="bi bi-exclamation-circle"></i> ${examen.prioridad.toUpperCase()}
+                            </span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-primary w-100 mb-2"
+                                onclick="abrirModalTomarMuestra(${examen.id})">
+                                <i class="bi bi-droplet-fill"></i> Tomar Muestra
+                            </button>
+                            <button class="btn btn-outline-secondary w-100"
+                                onclick="verDetallesExamen(${examen.id}, 'pendiente')">
+                                <i class="bi bi-eye"></i> Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function renderizarExamenesConMuestra() {
+        const container = document.getElementById('listaAnalisis');
+
+        if (examenesConMuestra.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-microscope"></i>
+                    <h5>No hay muestras para análisis</h5>
+                    <p>Las muestras tomadas aparecerán aquí</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        examenesConMuestra.forEach(examen => {
+            html += `
+                <div class="exam-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h5 class="mb-2">
+                                <i class="bi bi-droplet-fill" style="color: #3b82f6;"></i>
+                                ${examen.descripcion}
+                            </h5>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-upc"></i> Código Muestra:</strong>
+                                <span class="badge bg-primary">${examen.codigoMuestra || 'N/A'}</span>
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-person-circle"></i> Paciente:</strong>
+                                ${examen.paciente?.nombre || 'N/A'}
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-droplet"></i> Tipo Muestra:</strong>
+                                ${examen.tipoMuestra || 'N/A'}
+                            </p>
+                            <p class="mb-0">
+                                <strong><i class="bi bi-clock"></i> Muestra tomada:</strong>
+                                ${formatearFecha(examen.fechaTomaMuestra)}
+                            </p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="estado-badge estado-muestra-tomada">
+                                <i class="bi bi-check-circle"></i> MUESTRA TOMADA
+                            </span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-warning w-100 mb-2"
+                                onclick="abrirModalIniciarAnalisis(${examen.id})">
+                                <i class="bi bi-microscope"></i> Iniciar Análisis
+                            </button>
+                            <button class="btn btn-outline-secondary w-100"
+                                onclick="verDetallesExamen(${examen.id}, 'muestra')">
+                                <i class="bi bi-eye"></i> Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    function renderizarExamenesEnAnalisis() {
+        const container = document.getElementById('listaResultados');
+
+        if (examenesEnAnalisis.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="bi bi-file-earmark-medical"></i>
+                    <h5>No hay análisis pendientes de resultados</h5>
+                    <p>Los exámenes en análisis aparecerán aquí</p>
+                </div>
+            `;
+            return;
+        }
+
+        let html = '';
+        examenesEnAnalisis.forEach(examen => {
+            html += `
+                <div class="exam-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <h5 class="mb-2">
+                                <i class="bi bi-microscope" style="color: var(--warning-color);"></i>
+                                ${examen.descripcion}
+                            </h5>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-upc"></i> Código:</strong>
+                                <span class="badge bg-warning">${examen.codigoMuestra || 'N/A'}</span>
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-person-circle"></i> Paciente:</strong>
+                                ${examen.paciente?.nombre || 'N/A'}
+                            </p>
+                            <p class="mb-1">
+                                <strong><i class="bi bi-clock"></i> Análisis iniciado:</strong>
+                                ${formatearFecha(examen.fechaInicioAnalisis)}
+                            </p>
+                            <p class="mb-0">
+                                <strong><i class="bi bi-hourglass-split"></i> Tiempo:</strong>
+                                ${calcularTiempoTranscurrido(examen.fechaInicioAnalisis)}
+                            </p>
+                        </div>
+                        <div class="col-md-3 text-center">
+                            <span class="estado-badge estado-en-analisis">
+                                <i class="bi bi-arrow-repeat"></i> EN ANÁLISIS
+                            </span>
+                        </div>
+                        <div class="col-md-2 text-end">
+                            <button class="btn btn-success w-100 mb-2"
+                                onclick="abrirModalCargarResultados(${examen.id})">
+                                <i class="bi bi-file-earmark-medical"></i> Cargar Resultados
+                            </button>
+                            <button class="btn btn-outline-secondary w-100"
+                                onclick="verDetallesExamen(${examen.id}, 'analisis')">
+                                <i class="bi bi-eye"></i> Ver Detalles
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.innerHTML = html;
+    }
+
+    // ============================================
+    // ACCIONES - TOMAR MUESTRA
+    // ============================================
+    function abrirModalTomarMuestra(idExamen) {
+        const examen = examenesPendientes.find(ex => ex.id === idExamen);
+        if (!examen) return;
+
+        examenActual = examen;
+
+        document.getElementById('muestraPacienteNombre').textContent = examen.paciente?.nombre || 'N/A';
+        document.getElementById('muestraExamenNombre').textContent = examen.descripcion;
+        document.getElementById('muestraPrioridad').innerHTML =
+            `<span class="priority-badge priority-${examen.prioridad}">${examen.prioridad.toUpperCase()}</span>`;
+
+        // Limpiar campos
+        document.getElementById('tipoMuestra').value = '';
+        document.getElementById('observacionesToma').value = '';
+        document.getElementById('condicionMuestra').value = 'optima';
+
+        generarCodigoMuestra();
+
+        const modal = new bootstrap.Modal(document.getElementById('modalTomarMuestra'));
+        modal.show();
+    }
+
+    function generarCodigoMuestra() {
+        const fecha = new Date();
+        const año = fecha.getFullYear();
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        document.getElementById('codigoMuestra').value = `MUE-${año}-${random}`;
+    }
+
+    async function confirmarTomarMuestra() {
+        const tipoMuestra = document.getElementById('tipoMuestra').value;
+        const codigoMuestra = document.getElementById('codigoMuestra').value;
+        const fechaTomaMuestra = document.getElementById('fechaTomaMuestra').value;
+        const condicionMuestra = document.getElementById('condicionMuestra').value;
+        const observacionesToma = document.getElementById('observacionesToma').value;
+
+        if (!tipoMuestra || !codigoMuestra || !fechaTomaMuestra) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe completar todos los campos obligatorios'
+            });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/laboratorio/examenes/${examenActual.id}/tomar-muestra`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    tipoMuestra,
+                    codigoMuestra,
+                    fechaTomaMuestra,
+                    condicionMuestra,
+                    observacionesToma
+                })
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Muestra Registrada!',
+                    text: 'La toma de muestra ha sido registrada exitosamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                bootstrap.Modal.getInstance(document.getElementById('modalTomarMuestra')).hide();
+                await cargarDatos();
+
+                // Cambiar a la pestaña "En Análisis"
+                document.getElementById('en-analisis-tab').click();
+            } else {
+                const error = await response.json();
+                throw new Error(error.mensaje || 'Error al registrar la muestra');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'No se pudo registrar la toma de muestra'
+            });
+        }
+    }
+
+    // ============================================
+    // ACCIONES - INICIAR ANÁLISIS
+    // ============================================
+    function abrirModalIniciarAnalisis(idExamen) {
+        const examen = examenesConMuestra.find(ex => ex.id === idExamen);
+        if (!examen) return;
+
+        examenActual = examen;
+
+        document.getElementById('analisisCodigoMuestra').textContent = examen.codigoMuestra || 'N/A';
+        document.getElementById('analisisPacienteNombre').textContent = examen.paciente?.nombre || 'N/A';
+        document.getElementById('analisisExamenNombre').textContent = examen.descripcion;
+
+        // Limpiar campos
+        document.getElementById('metodoAnalisis').value = 'automatizado';
+        document.getElementById('notasInicioAnalisis').value = '';
+
+        const modal = new bootstrap.Modal(document.getElementById('modalIniciarAnalisis'));
+        modal.show();
+    }
+
+    async function confirmarIniciarAnalisis() {
+        const fechaInicioAnalisis = document.getElementById('fechaInicioAnalisis').value;
+        const metodoAnalisis = document.getElementById('metodoAnalisis').value;
+        const notasInicioAnalisis = document.getElementById('notasInicioAnalisis').value;
+
+        if (!fechaInicioAnalisis) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe seleccionar la fecha de inicio del análisis'
+            });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/laboratorio/examenes/${examenActual.id}/iniciar-analisis`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    fechaInicioAnalisis,
+                    metodoAnalisis,
+                    notasInicioAnalisis
+                })
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Análisis Iniciado!',
+                    text: 'El análisis ha sido iniciado correctamente',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                bootstrap.Modal.getInstance(document.getElementById('modalIniciarAnalisis')).hide();
+                await cargarDatos();
+
+                // Cambiar a la pestaña "Cargar Resultados"
+                document.getElementById('cargar-resultados-tab').click();
+            } else {
+                const error = await response.json();
+                throw new Error(error.mensaje || 'Error al iniciar el análisis');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'No se pudo iniciar el análisis'
+            });
+        }
+    }
+
+    // ============================================
+    // ACCIONES - CARGAR RESULTADOS
+    // ============================================
+    function abrirModalCargarResultados(idExamen) {
+        const examen = examenesEnAnalisis.find(ex => ex.id === idExamen);
+        if (!examen) return;
+
+        examenActual = examen;
+
+        document.getElementById('resultCodigoMuestra').textContent = examen.codigoMuestra || 'N/A';
+        document.getElementById('resultPacienteNombre').textContent = examen.paciente?.nombre || 'N/A';
+        document.getElementById('resultExamenNombre').textContent = examen.descripcion;
+        document.getElementById('resultTipoMuestra').textContent = examen.tipoMuestra || 'N/A';
+
+        // Limpiar campos
+        document.getElementById('resultadoExamen').value = '';
+        document.getElementById('observacionesResultado').value = '';
+        document.getElementById('estadoResultado').value = 'normal';
+
+        actualizarPreview();
+
+        const modal = new bootstrap.Modal(document.getElementById('modalCargarResultados'));
+        modal.show();
+    }
+
+    function actualizarPreview() {
+        const resultado = document.getElementById('resultadoExamen')?.value || '';
+        const observaciones = document.getElementById('observacionesResultado')?.value || '';
+        const estado = document.getElementById('estadoResultado')?.value || 'normal';
+
+        let html = `
+            <div class="p-3">
+                <h6 class="border-bottom pb-2 mb-3" style="color: var(--primary-color);">
+                    <i class="bi bi-file-earmark-medical"></i> INFORME DE RESULTADOS
+                </h6>`;
+
+        if (examenActual) {
+            html += `
+                <p class="mb-1"><strong>Paciente:</strong> ${examenActual.paciente?.nombre || 'N/A'}</p>
+                <p class="mb-1"><strong>Examen:</strong> ${examenActual.descripcion}</p>
+                <p class="mb-3"><strong>Código Muestra:</strong> ${examenActual.codigoMuestra || 'N/A'}</p>
+            `;
+        }
+
+        html += `
+                <h6 class="border-bottom pb-2 mb-3" style="color: var(--primary-color);">
+                    <i class="bi bi-clipboard-data"></i> Resultados
+                </h6>
+                ${resultado ?
+            `<p style="white-space: pre-line;">${resultado}</p>` :
+            '<p class="text-muted">Sin resultados registrados</p>'
+        }
+            </div>
+        `;
+
+        if (observaciones) {
+            html += `
+                <div class="mt-3 p-3">
+                    <h6 class="border-bottom pb-2 mb-3" style="color: var(--primary-color);">
+                        <i class="bi bi-chat-dots"></i> Observaciones Técnicas
+                    </h6>
+                    <p style="white-space: pre-line;">${observaciones}</p>
+                </div>
+            `;
+        }
+
+        html += `
+            <div class="mt-3 p-3">
+                <h6 class="border-bottom pb-2 mb-3" style="color: var(--primary-color);">
+                    <i class="bi bi-clipboard-check"></i> Estado del Resultado
+                </h6>
+                <span class="badge bg-${estado === 'normal' ? 'success' : estado === 'anormal' ? 'warning' : 'danger'} fs-6">
+                    ${estado.toUpperCase()}
+                </span>
+            </div>
+        `;
+
+        const previewElement = document.getElementById('previewResultado');
+        if (previewElement) {
+            previewElement.innerHTML = html;
+        }
+    }
+
+    async function guardarResultados() {
+        const resultado = document.getElementById('resultadoExamen').value.trim();
+        const observaciones = document.getElementById('observacionesResultado').value.trim();
+        const estadoResultado = document.getElementById('estadoResultado').value;
+        const fechaFinalizacion = document.getElementById('fechaFinalizacion').value;
+
+        if (!resultado) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe ingresar los resultados del examen'
+            });
+            return;
+        }
+
+        if (!fechaFinalizacion) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Atención',
+                text: 'Debe seleccionar la fecha de finalización'
+            });
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch(`http://localhost:3000/api/laboratorio/examenes/${examenActual.id}/completar`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    resultado,
+                    observaciones,
+                    estadoResultado,
+                    fechaRealizacion: fechaFinalizacion
+                })
+            });
+
+            if (response.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Resultados Guardados!',
+                    html: `
+                        <p>El examen ha sido completado exitosamente.</p>
+                        <p class="text-muted">El médico y el paciente serán notificados automáticamente.</p>
+                    `,
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+
+                bootstrap.Modal.getInstance(document.getElementById('modalCargarResultados')).hide();
+                await cargarDatos();
+
+                // Volver a la primera pestaña
+                document.getElementById('tomar-muestras-tab').click();
+            } else {
+                const error = await response.json();
+                throw new Error(error.mensaje || 'Error al guardar resultados');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.message || 'No se pudieron guardar los resultados'
+            });
+        }
+    }
+
+    // ============================================
+    // VER DETALLES
+    // ============================================
+    async function verDetallesExamen(idExamen, tipo) {
+        let examen;
+
+        if (tipo === 'pendiente') {
+            examen = examenesPendientes.find(ex => ex.id === idExamen);
+        } else if (tipo === 'muestra') {
+            examen = examenesConMuestra.find(ex => ex.id === idExamen);
+        } else {
+            examen = examenesEnAnalisis.find(ex => ex.id === idExamen);
+        }
+
+        if (!examen) return;
+
+        let html = `
+            <div class="patient-info">
+                <h6><i class="bi bi-person-circle"></i> Información del Paciente</h6>
+                <p class="mb-1"><strong>Nombre:</strong> ${examen.paciente?.nombre || 'N/A'}</p>
+                <p class="mb-1"><strong>Correo:</strong> ${examen.paciente?.correo || 'N/A'}</p>
+                <p class="mb-0"><strong>Teléfono:</strong> ${examen.paciente?.telefono || 'N/A'}</p>
+            </div>
+
+            <div class="mb-3">
+                <h6><i class="bi bi-clipboard-pulse"></i> Información del Examen</h6>
+                <p class="mb-1"><strong>Tipo:</strong> ${examen.tipo}</p>
+                <p class="mb-1"><strong>Descripción:</strong> ${examen.descripcion}</p>
+                <p class="mb-1"><strong>Prioridad:</strong>
+                    <span class="priority-badge priority-${examen.prioridad}">${examen.prioridad.toUpperCase()}</span>
+                </p>
+                ${examen.justificacion ? `<p class="mb-0"><strong>Justificación:</strong> ${examen.justificacion}</p>` : ''}
+            </div>
+
+            <div class="mb-3">
+                <h6><i class="bi bi-person-badge"></i> Médico Solicitante</h6>
+                <p class="mb-1"><strong>Nombre:</strong> ${examen.medico?.nombre || 'N/A'}</p>
+                ${examen.medico?.especialidad ? `<p class="mb-0"><strong>Especialidad:</strong> ${examen.medico.especialidad}</p>` : ''}
+            </div>
+
+            <div class="mb-3">
+                <h6><i class="bi bi-calendar3"></i> Timeline del Examen</h6>
+                <div class="timeline-item">
+                    <p class="mb-1"><strong>Solicitud:</strong> ${formatearFecha(examen.fechaSolicitud)}</p>
+                </div>
+        `;
+
+        if (examen.fechaTomaMuestra) {
+            html += `
+                <div class="timeline-item">
+                    <p class="mb-1"><strong>Toma de Muestra:</strong> ${formatearFecha(examen.fechaTomaMuestra)}</p>
+                    <p class="mb-1"><strong>Código Muestra:</strong> ${examen.codigoMuestra}</p>
+                    <p class="mb-1"><strong>Tipo Muestra:</strong> ${examen.tipoMuestra}</p>
+                    <p class="mb-0"><strong>Condición:</strong> ${examen.condicionMuestra || 'N/A'}</p>
+                    ${examen.observacionesToma ? `<p class="mb-0 text-muted mt-1">${examen.observacionesToma}</p>` : ''}
+                </div>
+            `;
+        }
+
+        if (examen.fechaInicioAnalisis) {
+            html += `
+                <div class="timeline-item">
+                    <p class="mb-1"><strong>Inicio Análisis:</strong> ${formatearFecha(examen.fechaInicioAnalisis)}</p>
+                    <p class="mb-1"><strong>Método:</strong> ${examen.metodoAnalisis || 'N/A'}</p>
+                    ${examen.notasInicioAnalisis ? `<p class="mb-0 text-muted mt-1">${examen.notasInicioAnalisis}</p>` : ''}
+                </div>
+            `;
+        }
+
+        html += '</div>';
+
+        document.getElementById('detallesExamenContent').innerHTML = html;
+        const modal = new bootstrap.Modal(document.getElementById('modalVerDetalles'));
+        modal.show();
+    }
+
+    // ============================================
+    // FILTROS Y BÚSQUEDA
+    // ============================================
+    function filtrarExamenes(texto, seccion) {
+        const busqueda = texto.toLowerCase();
+        let selector = '';
+
+        if (seccion === 'muestras') {
+            selector = '#listaMuestras .exam-card';
+        } else if (seccion === 'analisis') {
+            selector = '#listaAnalisis .exam-card';
+        } else {
+            selector = '#listaResultados .exam-card';
+        }
+
+        document.querySelectorAll(selector).forEach(card => {
+            const contenido = card.textContent.toLowerCase();
+            card.style.display = contenido.includes(busqueda) ? 'block' : 'none';
+        });
+    }
+
+    // ============================================
+    // UTILIDADES
+    // ============================================
+    function formatearFecha(fecha) {
+        if (!fecha) return 'N/A';
+        const date = new Date(fecha);
+        return date.toLocaleString('es-CO', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function calcularTiempoTranscurrido(fechaInicio) {
+        if (!fechaInicio) return 'N/A';
+
+        const inicio = new Date(fechaInicio);
+        const ahora = new Date();
+        const diff = Math.abs(ahora - inicio);
+
+        const horas = Math.floor(diff / (1000 * 60 * 60));
+        const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+        if (horas > 0) {
+            return `${horas}h ${minutos}min`;
+        }
+        return `${minutos} minutos`;
+    }
+</script>
+</body>
+</html>

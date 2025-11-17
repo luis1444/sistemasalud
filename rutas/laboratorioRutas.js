@@ -1,4 +1,3 @@
-
 // ============================================
 //  rutas/laboratorioRutas.js
 // ============================================
@@ -14,7 +13,6 @@ const esLaboratorio = (req, res, next) => {
         usuario: req.usuario.nombre
     });
 
-    // CAMBIO: Aceptar múltiples roles válidos para laboratorio
     const rolesValidos = ['laboratorio', 'tecnico', 'tecnico_laboratorio'];
 
     if (!rolesValidos.includes(req.usuario.rol)) {
@@ -30,7 +28,7 @@ const esLaboratorio = (req, res, next) => {
 // 📋 RUTAS DE LABORATORIO
 // ============================================
 
-// Obtener exámenes pendientes
+// Obtener exámenes pendientes (sin muestra)
 // GET /api/laboratorio/examenes-pendientes
 router.get('/examenes-pendientes',
     authMiddleware.verificarToken,
@@ -38,7 +36,23 @@ router.get('/examenes-pendientes',
     laboratorioControlador.obtenerExamenesPendientes
 );
 
-// Obtener exámenes en proceso
+// NUEVO: Obtener exámenes con muestra tomada
+// GET /api/laboratorio/examenes-con-muestra
+router.get('/examenes-con-muestra',
+    authMiddleware.verificarToken,
+    esLaboratorio,
+    laboratorioControlador.obtenerExamenesConMuestra
+);
+
+// NUEVO: Obtener exámenes en análisis
+// GET /api/laboratorio/examenes-en-analisis
+router.get('/examenes-en-analisis',
+    authMiddleware.verificarToken,
+    esLaboratorio,
+    laboratorioControlador.obtenerExamenesEnAnalisis
+);
+
+// Obtener exámenes en proceso (compatibilidad con vista anterior)
 // GET /api/laboratorio/examenes-en-proceso
 router.get('/examenes-en-proceso',
     authMiddleware.verificarToken,
@@ -54,7 +68,23 @@ router.get('/historial',
     laboratorioControlador.obtenerHistorial
 );
 
-// Iniciar procesamiento de un examen
+// NUEVO: Registrar toma de muestra
+// PUT /api/laboratorio/examenes/:idExamen/tomar-muestra
+router.put('/examenes/:idExamen/tomar-muestra',
+    authMiddleware.verificarToken,
+    esLaboratorio,
+    laboratorioControlador.registrarTomaMuestra
+);
+
+// NUEVO: Iniciar análisis de muestra
+// PUT /api/laboratorio/examenes/:idExamen/iniciar-analisis
+router.put('/examenes/:idExamen/iniciar-analisis',
+    authMiddleware.verificarToken,
+    esLaboratorio,
+    laboratorioControlador.iniciarAnalisis
+);
+
+// Iniciar procesamiento de un examen (compatibilidad)
 // PUT /api/laboratorio/examenes/:idExamen/iniciar
 router.put('/examenes/:idExamen/iniciar',
     authMiddleware.verificarToken,

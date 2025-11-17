@@ -1,4 +1,3 @@
-
 // ============================================
 // Servicios/LaboratorioServicio.js
 // ============================================
@@ -12,6 +11,28 @@ class LaboratorioServicio {
             return examenes.map(ex => this.formatearExamen(ex));
         } catch (error) {
             console.error('❌ Error en LaboratorioServicio.obtenerExamenesPendientes:', error);
+            throw error;
+        }
+    }
+
+    // NUEVO: Obtener exámenes con muestra tomada
+    async obtenerExamenesConMuestra() {
+        try {
+            const examenes = await laboratorioRepositorio.obtenerExamenesConMuestra();
+            return examenes.map(ex => this.formatearExamen(ex));
+        } catch (error) {
+            console.error('❌ Error en LaboratorioServicio.obtenerExamenesConMuestra:', error);
+            throw error;
+        }
+    }
+
+    // NUEVO: Obtener exámenes en análisis
+    async obtenerExamenesEnAnalisis(idTecnico = null) {
+        try {
+            const examenes = await laboratorioRepositorio.obtenerExamenesEnAnalisis(idTecnico);
+            return examenes.map(ex => this.formatearExamen(ex));
+        } catch (error) {
+            console.error('❌ Error en LaboratorioServicio.obtenerExamenesEnAnalisis:', error);
             throw error;
         }
     }
@@ -32,6 +53,45 @@ class LaboratorioServicio {
             return examenes.map(ex => this.formatearExamen(ex));
         } catch (error) {
             console.error('❌ Error en LaboratorioServicio.obtenerHistorial:', error);
+            throw error;
+        }
+    }
+
+    // NUEVO: Registrar toma de muestra
+    async registrarTomaMuestra(idExamen, idTecnico, datosMuestra) {
+        try {
+            // Validaciones
+            if (!datosMuestra.tipoMuestra || datosMuestra.tipoMuestra.trim() === '') {
+                throw new Error('El tipo de muestra es requerido.');
+            }
+
+            if (!datosMuestra.codigoMuestra || datosMuestra.codigoMuestra.trim() === '') {
+                throw new Error('El código de muestra es requerido.');
+            }
+
+            if (!datosMuestra.fechaTomaMuestra) {
+                throw new Error('La fecha de toma de muestra es requerida.');
+            }
+
+            const examen = await laboratorioRepositorio.registrarTomaMuestra(idExamen, idTecnico, datosMuestra);
+            return this.formatearExamen(examen);
+        } catch (error) {
+            console.error('❌ Error en LaboratorioServicio.registrarTomaMuestra:', error);
+            throw error;
+        }
+    }
+
+    // NUEVO: Iniciar análisis
+    async iniciarAnalisis(idExamen, idTecnico, datosAnalisis) {
+        try {
+            if (!datosAnalisis.fechaInicioAnalisis) {
+                throw new Error('La fecha de inicio de análisis es requerida.');
+            }
+
+            const examen = await laboratorioRepositorio.iniciarAnalisis(idExamen, idTecnico, datosAnalisis);
+            return this.formatearExamen(examen);
+        } catch (error) {
+            console.error('❌ Error en LaboratorioServicio.iniciarAnalisis:', error);
             throw error;
         }
     }
@@ -91,6 +151,15 @@ class LaboratorioServicio {
             estadoResultado: examenJSON.estado_resultado,
             fechaInicio: examenJSON.fecha_inicio,
             fechaRealizacion: examenJSON.fecha_realizacion,
+            // NUEVOS CAMPOS para toma de muestra y análisis
+            tipoMuestra: examenJSON.tipo_muestra,
+            codigoMuestra: examenJSON.codigo_muestra,
+            fechaTomaMuestra: examenJSON.fecha_toma_muestra,
+            condicionMuestra: examenJSON.condicion_muestra,
+            observacionesToma: examenJSON.observaciones_toma,
+            fechaInicioAnalisis: examenJSON.fecha_inicio_analisis,
+            metodoAnalisis: examenJSON.metodo_analisis,
+            notasInicioAnalisis: examenJSON.notas_inicio_analisis,
             // Datos de la autorización
             tipo: autorizacion.tipo,
             descripcion: autorizacion.descripcion,

@@ -3,7 +3,6 @@
 // ============================================
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../Config/database');
-// ❌ ELIMINADA: Ya no se requiere el modelo Usuario aquí.
 // const Usuario = require('./Usuarios');
 
 const Agenda = sequelize.define('Agenda', {

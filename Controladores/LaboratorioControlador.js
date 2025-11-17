@@ -1,4 +1,3 @@
-
 // ============================================
 // 📁 Controladores/LaboratorioControlador.js
 // ============================================
@@ -17,6 +16,45 @@ class LaboratorioControlador {
             });
         } catch (error) {
             console.error('❌ Error en LaboratorioControlador.obtenerExamenesPendientes:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // NUEVO: Obtener exámenes con muestra tomada
+    async obtenerExamenesConMuestra(req, res) {
+        try {
+            const examenes = await laboratorioServicio.obtenerExamenesConMuestra();
+
+            res.json({
+                exito: true,
+                total: examenes.length,
+                datos: examenes
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioControlador.obtenerExamenesConMuestra:', error);
+            res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // NUEVO: Obtener exámenes en análisis
+    async obtenerExamenesEnAnalisis(req, res) {
+        try {
+            const idTecnico = req.usuario.id;
+            const examenes = await laboratorioServicio.obtenerExamenesEnAnalisis(idTecnico);
+
+            res.json({
+                exito: true,
+                total: examenes.length,
+                datos: examenes
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioControlador.obtenerExamenesEnAnalisis:', error);
             res.status(500).json({
                 exito: false,
                 mensaje: error.message
@@ -63,6 +101,52 @@ class LaboratorioControlador {
         } catch (error) {
             console.error('❌ Error en LaboratorioControlador.obtenerHistorial:', error);
             res.status(500).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // NUEVO: Registrar toma de muestra
+    async registrarTomaMuestra(req, res) {
+        try {
+            const { idExamen } = req.params;
+            const idTecnico = req.usuario.id;
+            const datosMuestra = req.body;
+
+            const examen = await laboratorioServicio.registrarTomaMuestra(idExamen, idTecnico, datosMuestra);
+
+            res.json({
+                exito: true,
+                mensaje: 'Muestra registrada correctamente.',
+                datos: examen
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioControlador.registrarTomaMuestra:', error);
+            res.status(400).json({
+                exito: false,
+                mensaje: error.message
+            });
+        }
+    }
+
+    // NUEVO: Iniciar análisis
+    async iniciarAnalisis(req, res) {
+        try {
+            const { idExamen } = req.params;
+            const idTecnico = req.usuario.id;
+            const datosAnalisis = req.body;
+
+            const examen = await laboratorioServicio.iniciarAnalisis(idExamen, idTecnico, datosAnalisis);
+
+            res.json({
+                exito: true,
+                mensaje: 'Análisis iniciado correctamente.',
+                datos: examen
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioControlador.iniciarAnalisis:', error);
+            res.status(400).json({
                 exito: false,
                 mensaje: error.message
             });

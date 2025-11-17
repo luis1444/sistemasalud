@@ -1,4 +1,3 @@
-
 // ============================================
 // Repositorios/LaboratorioRepositorio.js
 // ============================================
@@ -61,6 +60,83 @@ class LaboratorioRepositorio {
         } catch (error) {
             console.error('❌ Error en LaboratorioRepositorio.obtenerExamenesPendientes:', error);
             throw new Error('Error al obtener exámenes pendientes.');
+        }
+    }
+
+    // NUEVO: Obtener exámenes con muestra tomada
+    async obtenerExamenesConMuestra() {
+        try {
+            return await ExamenLaboratorio.findAll({
+                where: { estado: 'muestra-tomada' },
+                include: [
+                    {
+                        model: Autorizacion,
+                        as: 'autorizacion',
+                        include: [
+                            {
+                                model: Usuario,
+                                as: 'medico',
+                                attributes: ['id', 'nombre', 'especialidad']
+                            },
+                            {
+                                model: Usuario,
+                                as: 'paciente',
+                                attributes: ['id', 'nombre', 'correo', 'telefono']
+                            },
+                            {
+                                model: Cita,
+                                as: 'cita',
+                                attributes: ['id', 'fecha']
+                            }
+                        ]
+                    }
+                ],
+                order: [['fecha_toma_muestra', 'ASC']]
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioRepositorio.obtenerExamenesConMuestra:', error);
+            throw new Error('Error al obtener exámenes con muestra tomada.');
+        }
+    }
+
+    // NUEVO: Obtener exámenes en análisis
+    async obtenerExamenesEnAnalisis(idTecnico = null) {
+        try {
+            const where = { estado: 'en-analisis' };
+            if (idTecnico) {
+                where.id_tecnico = idTecnico;
+            }
+
+            return await ExamenLaboratorio.findAll({
+                where,
+                include: [
+                    {
+                        model: Autorizacion,
+                        as: 'autorizacion',
+                        include: [
+                            {
+                                model: Usuario,
+                                as: 'medico',
+                                attributes: ['id', 'nombre', 'especialidad']
+                            },
+                            {
+                                model: Usuario,
+                                as: 'paciente',
+                                attributes: ['id', 'nombre', 'correo', 'telefono']
+                            }
+                        ]
+                    },
+                    {
+                        model: Usuario,
+                        as: 'tecnico',
+                        attributes: ['id', 'nombre']
+                    }
+                ],
+                order: [['fecha_inicio_analisis', 'ASC']]
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioRepositorio.obtenerExamenesEnAnalisis:', error);
+            throw new Error('Error al obtener exámenes en análisis.');
         }
     }
 
@@ -208,6 +284,60 @@ class LaboratorioRepositorio {
         }
     }
 
+    // NUEVO: Registrar toma de muestra
+    async registrarTomaMuestra(idExamen, idTecnico, datosMuestra) {
+        try {
+            const examen = await ExamenLaboratorio.findByPk(idExamen);
+
+            if (!examen) {
+                throw new Error('Examen no encontrado.');
+            }
+
+            if (examen.estado !== 'pendiente') {
+                throw new Error('El examen no está en estado pendiente.');
+            }
+
+            return await examen.update({
+                estado: 'muestra-tomada',
+                id_tecnico: idTecnico,
+                tipo_muestra: datosMuestra.tipoMuestra,
+                codigo_muestra: datosMuestra.codigoMuestra,
+                fecha_toma_muestra: datosMuestra.fechaTomaMuestra,
+                condicion_muestra: datosMuestra.condicionMuestra || 'optima',
+                observaciones_toma: datosMuestra.observacionesToma || null
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioRepositorio.registrarTomaMuestra:', error);
+            throw error;
+        }
+    }
+
+    // NUEVO: Iniciar análisis
+    async iniciarAnalisis(idExamen, idTecnico, datosAnalisis) {
+        try {
+            const examen = await ExamenLaboratorio.findByPk(idExamen);
+
+            if (!examen) {
+                throw new Error('Examen no encontrado.');
+            }
+
+            if (examen.estado !== 'muestra-tomada') {
+                throw new Error('El examen debe tener muestra tomada para iniciar análisis.');
+            }
+
+            return await examen.update({
+                estado: 'en-analisis',
+                id_tecnico: idTecnico,
+                fecha_inicio_analisis: datosAnalisis.fechaInicioAnalisis,
+                metodo_analisis: datosAnalisis.metodoAnalisis || 'automatizado',
+                notas_inicio_analisis: datosAnalisis.notasInicioAnalisis || null
+            });
+        } catch (error) {
+            console.error('❌ Error en LaboratorioRepositorio.iniciarAnalisis:', error);
+            throw error;
+        }
+    }
+
     async iniciarProcesamiento(idExamen, idTecnico) {
         try {
             const examen = await ExamenLaboratorio.findByPk(idExamen);
@@ -239,8 +369,9 @@ class LaboratorioRepositorio {
                 throw new Error('Examen no encontrado.');
             }
 
-            if (examen.estado !== 'en-proceso') {
-                throw new Error('El examen debe estar en estado "en-proceso" para completarse.');
+            // Permitir completar desde 'en-proceso' o 'en-analisis'
+            if (!['en-proceso', 'en-analisis'].includes(examen.estado)) {
+                throw new Error('El examen debe estar en proceso o análisis para completarse.');
             }
 
             return await examen.update({
@@ -270,7 +401,7 @@ class LaboratorioRepositorio {
                 ExamenLaboratorio.count({ where: { estado: 'pendiente' } }),
                 ExamenLaboratorio.count({
                     where: {
-                        estado: 'en-proceso',
+                        estado: { [Op.in]: ['en-proceso', 'en-analisis', 'muestra-tomada'] },
                         ...(idTecnico ? { id_tecnico: idTecnico } : {})
                     }
                 }),
