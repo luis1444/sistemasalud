@@ -2,12 +2,15 @@
   "name": "sistemasalud",
   "version": "1.0.0",
   "main": "index.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
     "db:create": "node scripts/createDatabase.js",
     "db:sync": "node scripts/syncDatabase.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "health",
@@ -31,6 +34,7 @@
     "sequelize": "^6.37.7"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "nodemon": "^3.0.1",
+    "jest": "^29.7.0"
   }
 }
