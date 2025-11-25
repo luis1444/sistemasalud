@@ -1,7 +1,7 @@
 // ============================================
 // 📄 servicios/CitaServicio.js (CORREGIDO - SOLUCIÓN COMPLETA)
 // ============================================
-const citaRepositorio = require('../repositorios/CitaRepositorio');
+const citaRepositorio = require('../Repositorios/CitaRepositorio');
 
 class CitaServicio {
 

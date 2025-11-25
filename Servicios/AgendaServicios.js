@@ -1,5 +1,5 @@
-const agendaRepositorio = require('../repositorios/AgendaRepositorio');
-const citaRepositorio = require('../repositorios/CitaRepositorio'); // Necesitarás este
+const agendaRepositorio = require('../Repositorios/AgendaRepositorio');
+const citaRepositorio = require('../Repositorios/CitaRepositorio'); // Necesitarás este
 
 class AgendaServicio {
 
