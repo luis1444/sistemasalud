@@ -1,13 +1,13 @@
 {
   "name": "sistemasalud",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "server.js",
   "engines": {
     "node": ">=18.0.0"
   },
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
     "db:create": "node scripts/createDatabase.js",
     "db:sync": "node scripts/syncDatabase.js",
     "test": "jest"
