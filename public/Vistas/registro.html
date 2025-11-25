@@ -799,7 +799,7 @@
         btnRegistrar.textContent = 'Registrando...';
 
         try {
-            const respuesta = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/registro', {
+            const respuesta = await fetch('/api/usuarios/registro', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

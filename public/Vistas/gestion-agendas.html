@@ -204,7 +204,7 @@
             const token = localStorage.getItem('token');
 
             // Usar la ruta que incluye la agenda del médico
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios?rol=doctor', {
+            const response = await fetch('/api/usuarios?rol=doctor', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -283,7 +283,7 @@
             if (result.isConfirmed) {
                 try {
                     const token = localStorage.getItem('token');
-                    const res = await fetch('http://https://vital-nafd.onrender.com/api/agendas/auto-organizar', {
+                    const res = await fetch('/api/agendas/auto-organizar', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,

@@ -568,7 +568,7 @@
         try {
             console.log('📋 Cargando historial del paciente...');
 
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/citas/mis-citas', {
+            const response = await fetch('/api/citas/mis-citas', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -620,7 +620,7 @@
         try {
             console.log('🔬 Cargando exámenes de laboratorio...');
 
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/citas/mis-examenes-laboratorio', {
+            const response = await fetch('/api/citas/mis-examenes-laboratorio', {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -657,7 +657,7 @@
 
             console.log('📄 Iniciando descarga de PDF...');
 
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/citas/historial/descargar-pdf', {
+            const response = await fetch('/api/citas/historial/descargar-pdf', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

@@ -427,7 +427,7 @@
 </footer>
 
 <script>
-    const API_URL = 'http://https://vital-nafd.onrender.com/api/agendas';
+    const API_URL = '/api/agendas';
     const params = new URLSearchParams(window.location.search);
     const idMedico = params.get('idMedico') || params.get('id');
     const token = localStorage.getItem('token');
@@ -506,7 +506,7 @@
                 }
             } else {
                 // Si no existe agenda, obtener info del médico
-                const resMedico = await fetch(`http://https://vital-nafd.onrender.com/api/usuarios/${idMedico}`, {
+                const resMedico = await fetch(`/api/usuarios/${idMedico}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataMedico = await resMedico.json();

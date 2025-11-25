@@ -314,7 +314,7 @@
             const usuario = JSON.parse(localStorage.getItem('usuario') || '{}');
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/doctor/${usuario.id}`, {
+            const response = await fetch(`/api/citas/doctor/${usuario.id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'

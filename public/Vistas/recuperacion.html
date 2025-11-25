@@ -353,7 +353,7 @@
 
         try {
             // Enviar solicitud al backend
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/recuperar-contrasena', {
+            const response = await fetch('/api/usuarios/recuperar-contrasena', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -416,7 +416,7 @@
 
         try {
             // Verificar código en el backend
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/verificar-codigo', {
+            const response = await fetch('/api/usuarios/verificar-codigo', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -500,7 +500,7 @@
 
         try {
             // Cambiar contraseña en el backend
-            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/cambiar-contrasena', {
+            const response = await fetch('/api/usuarios/cambiar-contrasena', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

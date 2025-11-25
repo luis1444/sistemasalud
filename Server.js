@@ -88,7 +88,7 @@ app.get('/Vistas/gestion-personal.html', (req, res) => {
 // 🚀 Iniciar servidor y sincronizar base de datos
 // ============================================
 app.listen(PORT, async () => {
-    console.log(`✅ Servidor VITAL+ corriendo en: http://localhost:${PORT}`);
+    console.log(`✅ Servidor VITAL+ corriendo en: localhost:${PORT}`);
     console.log(`📁 Sirviendo archivos estáticos desde: ${path.join(__dirname, 'public')}`);
 
     // 1️⃣ Verificar conexión
