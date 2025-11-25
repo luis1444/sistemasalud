@@ -1,7 +1,7 @@
 // Servicios/AdministradorServicios.js
 
 const Administrador = require("../entidades/Administrador");
-const adminRepo = require("../Repositorios/AdministradorRepositorio");
+const adminRepo = require("../repositorios/AdministradorRepositorio");
 
 class AdministradorServicios {
     registrarAdministrador(nombre, correo, password) {

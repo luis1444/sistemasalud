@@ -2,7 +2,7 @@
 
 const express = require("express");
 const router = express.Router();
-const adminService = require("../Servicios/AdministradorServicios");
+const adminService = require("../servicios/AdministradorServicios");
 
 router.post("/registrar", (req, res) => {
     try {

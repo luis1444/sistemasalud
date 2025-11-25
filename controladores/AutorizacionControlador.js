@@ -1,7 +1,7 @@
 // ============================================
 // 📄 Controladores/AutorizacionControlador.js
 // ============================================
-const autorizacionServicio = require('../Servicios/AutorizacionServicio');
+const autorizacionServicio = require('../servicios/AutorizacionServicio');
 
 class AutorizacionControlador {
 

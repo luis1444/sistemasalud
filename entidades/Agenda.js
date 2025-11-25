@@ -2,7 +2,7 @@
 // 📄 entidades/Agenda.js — Modelo Sequelize (CORREGIDO)
 // ============================================
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../Config/database');
+const { sequelize } = require('../config/database');
 // const Usuario = require('./Usuarios');
 
 const Agenda = sequelize.define('Agenda', {

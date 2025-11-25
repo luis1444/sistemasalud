@@ -1,7 +1,7 @@
 // ============================================
 // Servicios/LaboratorioServicio.js
 // ============================================
-const laboratorioRepositorio = require('../Repositorios/LaboratorioRepositorio');
+const laboratorioRepositorio = require('../repositorios/LaboratorioRepositorio');
 
 class LaboratorioServicio {
 

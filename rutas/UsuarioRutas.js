@@ -8,7 +8,7 @@ const router = express.Router();
 const Usuario = require('../entidades/Usuarios');
 
 // 💡 CONTROLADORES REQUERIDOS
-const usuarioControlador = require('../Controladores/UsuarioControlador');
+const usuarioControlador = require('../controladores/UsuarioControlador');
 
 // 🔒 MIDDLEWARE
 const authMiddleware = require('../middlewares/authMiddleware');

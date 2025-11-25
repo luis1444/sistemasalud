@@ -3,7 +3,7 @@
 // ============================================
 const { DataTypes, Model } = require('sequelize');
 const bcrypt = require('bcrypt');
-const { sequelize } = require('../Config/database');
+const { sequelize } = require('../config/database');
 
 class Usuario extends Model {
     async verificarContrasena(contrasena) {

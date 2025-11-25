@@ -2,7 +2,7 @@
 // 📄 entidades/Dispensacion.js
 // ============================================
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../Config/database'); // ✅ Config con C mayúscula
+const { sequelize } = require('../config/database'); // ✅ Config con C mayúscula
 
 const Dispensacion = sequelize.define('Dispensacion', {
     id: {

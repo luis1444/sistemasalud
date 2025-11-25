@@ -1,7 +1,7 @@
 // ============================================
 // 📁 Controladores/LaboratorioControlador.js
 // ============================================
-const laboratorioServicio = require('../Servicios/LaboratorioServicio');
+const laboratorioServicio = require('../servicios/LaboratorioServicio');
 
 class LaboratorioControlador {
 

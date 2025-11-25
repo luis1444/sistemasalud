@@ -3,7 +3,7 @@
 // ============================================
 const express = require('express');
 const router = express.Router();
-const agendaControlador = require('../Controladores/AgendaControlador');
+const agendaControlador = require('../controladores/AgendaControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
 
 // ============================================

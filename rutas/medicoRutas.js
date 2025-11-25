@@ -4,7 +4,7 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middlewares/authMiddleware');
-const MedicoExamenesControlador = require('../Controladores/MedicoExamenesControlador');
+const MedicoExamenesControlador = require('../controladores/MedicoExamenesControlador');
 
 // ============================================
 // 📋 RUTAS DE EXÁMENES PARA MÉDICOS

@@ -2,7 +2,7 @@
 // 📄 entidades/Cita.js — Modelo Sequelize
 // ============================================
 const { DataTypes } = require('sequelize');
-const { sequelize } = require('../Config/database');
+const { sequelize } = require('../config/database');
 
 const Cita = sequelize.define('Cita', {
     id: {

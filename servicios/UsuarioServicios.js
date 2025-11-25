@@ -1,7 +1,7 @@
 // ============================================
 // 📄 servicios/UsuarioServicios.js
 // ============================================
-const usuarioRepositorio = require('../Repositorios/UsuarioRepositorio');
+const usuarioRepositorio = require('../repositorios/UsuarioRepositorio');
 const jwt = require('jsonwebtoken');
 
 const { enviarCorreo, enviarCorreoCredenciales } = require('../public/js/email');

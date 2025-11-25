@@ -3,9 +3,9 @@
 // ============================================
 const express = require('express');
 const router = express.Router();
-const autorizacionControlador = require('../Controladores/AutorizacionControlador');
+const autorizacionControlador = require('../controladores/AutorizacionControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
-const usuarioControlador = require('../Controladores/UsuarioControlador'); // 🆕 AGREGAR ESTA LÍNEA
+const usuarioControlador = require('..controladores/UsuarioControlador'); // 🆕 AGREGAR ESTA LÍNEA
 
 
 // ============================================

@@ -3,9 +3,9 @@
 // ============================================
 const express = require('express');
 const router = express.Router();
-const laboratorioControlador = require('../Controladores/LaboratorioControlador');
+const laboratorioControlador = require('../controladores/LaboratorioControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
-const ResultadosExamenesPDFControlador = require('../Controladores/ResultadosExamenesPDFControlador');
+const ResultadosExamenesPDFControlador = require('../controladores/ResultadosExamenesPDFControlador');
 
 // Middleware para verificar rol de laboratorio
 const esLaboratorio = (req, res, next) => {

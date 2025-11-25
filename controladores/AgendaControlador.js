@@ -1,5 +1,5 @@
-const agendaServicio = require('../Servicios/AgendaServicios');
-const usuarioServicio = require('../Servicios/UsuarioServicios');
+const agendaServicio = require('../servicios/AgendaServicios');
+const usuarioServicio = require('../servicios/UsuarioServicios');
 
 class AgendaControlador {
 

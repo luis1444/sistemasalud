@@ -2,7 +2,7 @@
 // 📄 controladores/HistorialPDFControlador.js (CORREGIDO - V8: DATOS REALES)
 // ============================================
 const PDFDocument = require('pdfkit');
-const citaServicio = require('../Servicios/CitaServicio');
+const citaServicio = require('../servicios/CitaServicio');
 const path = require('path');
 const fs = require('fs');
 

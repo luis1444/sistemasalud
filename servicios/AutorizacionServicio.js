@@ -1,8 +1,8 @@
 // ============================================
 // Servicios/AutorizacionServicio.js
 // ============================================
-const autorizacionRepositorio = require('../Repositorios/AutorizacionRepositorio');
-const laboratorioRepositorio = require('../Repositorios/LaboratorioRepositorio');
+const autorizacionRepositorio = require('../repositorios/AutorizacionRepositorio');
+const laboratorioRepositorio = require('../repositorios/LaboratorioRepositorio');
 
 class AutorizacionServicio {
 
