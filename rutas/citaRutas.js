@@ -3,7 +3,7 @@
 // ============================================
 const express = require('express');
 const router = express.Router();
-const citaControlador = require('../controladores/CitaControlador');
+const citaControlador = require('../Controladores/CitaControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
 const citaServicio = require('../servicios/CitaServicio');
 
