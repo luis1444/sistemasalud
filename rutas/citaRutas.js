@@ -5,7 +5,7 @@ const express = require('express');
 const router = express.Router();
 const citaControlador = require('../Controladores/CitaControlador');
 const authMiddleware = require('../middlewares/authMiddleware');
-const citaServicio = require('../servicios/CitaServicio');
+const citaServicio = require('../Servicios/CitaServicio');
 
 // ============================================
 // 📋 RUTAS DE CITAS

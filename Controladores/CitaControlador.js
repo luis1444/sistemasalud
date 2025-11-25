@@ -1,7 +1,7 @@
 // ============================================
 // 📄 controladores/CitaControlador.js (CORREGIDO)
 // ============================================
-const citaServicio = require('../servicios/CitaServicio');
+const citaServicio = require('../Servicios/CitaServicio');
 
 class CitaControlador {
 

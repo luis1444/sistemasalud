@@ -1,7 +1,7 @@
 // ============================================
 // 📄 controladores/UsuarioControlador.js
 // ============================================
-const usuarioServicio = require('../servicios/UsuarioServicios');
+const usuarioServicio = require('../Servicios/UsuarioServicios');
 
 class UsuarioControlador {
 
