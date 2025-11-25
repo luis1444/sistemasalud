@@ -799,7 +799,7 @@
       });
 
       // Buscar paciente por documento
-      const response = await fetch(`http://localhost:3000/api/medico/paciente-examenes/${documento}`, {
+      const response = await fetch(`http://https://vital-nafd.onrender.com/api/medico/paciente-examenes/${documento}`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -1114,7 +1114,7 @@
         }
       });
 
-      const response = await fetch(`http://localhost:3000/api/medico/examenes/${idExamen}/descargar-pdf`, {
+      const response = await fetch(`http://https://vital-nafd.onrender.com/api/medico/examenes/${idExamen}/descargar-pdf`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`

@@ -675,7 +675,7 @@
         }
 
         try {
-            const response = await fetch('http://localhost:3000/api/usuarios/perfil', {
+            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/perfil', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -759,7 +759,7 @@
     async function cargarExamenesPendientes() {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/laboratorio/examenes-pendientes', {
+            const response = await fetch('http://https://vital-nafd.onrender.com/api/laboratorio/examenes-pendientes', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -778,7 +778,7 @@
     async function cargarExamenesEnProceso() {
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://localhost:3000/api/laboratorio/examenes-en-proceso', {
+            const response = await fetch('http://https://vital-nafd.onrender.com/api/laboratorio/examenes-en-proceso', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -799,7 +799,7 @@
             const token = localStorage.getItem('token');
             const filtro = document.getElementById('filtroFecha')?.value || 'mes';
 
-            const response = await fetch(`http://localhost:3000/api/laboratorio/historial?periodo=${filtro}`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/laboratorio/historial?periodo=${filtro}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -1046,7 +1046,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/laboratorio/examenes/${examenActual.id}/iniciar`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/laboratorio/examenes/${examenActual.id}/iniciar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1177,7 +1177,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/laboratorio/examenes/${examenActual.id}/completar`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/laboratorio/examenes/${examenActual.id}/completar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

@@ -340,7 +340,7 @@
         try {
             const token = localStorage.getItem('token');
 
-            const response = await fetch(`http://localhost:3000/api/citas/doctor/${idMedico}`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/doctor/${idMedico}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -364,7 +364,7 @@
                     citas[0].medico.especialidad || 'Médico General';
             } else {
                 // Cargar info del médico desde el endpoint de usuarios
-                const resMedico = await fetch(`http://localhost:3000/api/usuarios/${idMedico}`, {
+                const resMedico = await fetch(`http://https://vital-nafd.onrender.com/api/usuarios/${idMedico}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const dataMedico = await resMedico.json();

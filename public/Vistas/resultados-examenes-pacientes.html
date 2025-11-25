@@ -606,7 +606,7 @@
     try {
       console.log('🔬 Cargando exámenes de laboratorio...');
 
-      const response = await fetch('http://localhost:3000/api/citas/mis-examenes-laboratorio', {
+      const response = await fetch('http://https://vital-nafd.onrender.com/api/citas/mis-examenes-laboratorio', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -923,7 +923,7 @@
         }
       });
 
-      const response = await fetch(`http://localhost:3000/api/examenes/${idExamen}/descargar-pdf`, {
+      const response = await fetch(`http://https://vital-nafd.onrender.com/api/examenes/${idExamen}/descargar-pdf`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`

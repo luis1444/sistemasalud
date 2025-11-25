@@ -687,7 +687,7 @@
         const token = localStorage.getItem('token');
 
         try {
-            const response = await fetch(`http://localhost:3000/api/citas/medico/${doctorId}`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/medico/${doctorId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -877,7 +877,7 @@
             const token = localStorage.getItem('token');
             const pacienteId = citaActual.pacienteId;
 
-            const response = await fetch(`http://localhost:3000/api/citas/paciente/${pacienteId}`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/paciente/${pacienteId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -978,7 +978,7 @@
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/iniciar`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/${citaActual.id}/iniciar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,
@@ -1066,7 +1066,7 @@ OBSERVACIONES: ${observaciones}`;
 
         try {
             const token = localStorage.getItem('token');
-            const url = `http://localhost:3000/api/citas/${citaActual.id}/notas`;
+            const url = `http://https://vital-nafd.onrender.com/api/citas/${citaActual.id}/notas`;
 
             const response = await fetch(url, {
                 method: 'PUT',
@@ -1314,7 +1314,7 @@ OBSERVACIONES: ${observaciones}`;
 
             for (const med of medicamentos) {
                 try {
-                    const response = await fetch('http://localhost:3000/api/autorizaciones', {
+                    const response = await fetch('http://https://vital-nafd.onrender.com/api/autorizaciones', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -1388,7 +1388,7 @@ OBSERVACIONES: ${observaciones}`;
                     // 🔍 DEBUG: Ver qué se está enviando
                     console.log('📤 Enviando examen:', bodyExamen);
 
-                    const response = await fetch('http://localhost:3000/api/autorizaciones', {
+                    const response = await fetch('http://https://vital-nafd.onrender.com/api/autorizaciones', {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${token}`,
@@ -1414,7 +1414,7 @@ OBSERVACIONES: ${observaciones}`;
             }
             // PASO 4: Finalizar la cita
             console.log('🔄 PASO 4: Finalizando cita...');
-            const response = await fetch(`http://localhost:3000/api/citas/${citaActual.id}/completar`, {
+            const response = await fetch(`http://https://vital-nafd.onrender.com/api/citas/${citaActual.id}/completar`, {
                 method: 'PUT',
                 headers: {
                     'Authorization': `Bearer ${token}`,

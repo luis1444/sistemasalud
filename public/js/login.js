@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             // Realizar petición al backend
-            const response = await fetch('http://localhost:3000/api/usuarios/login', {
+            const response = await fetch('http://https://vital-nafd.onrender.com/api/usuarios/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

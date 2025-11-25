@@ -519,7 +519,7 @@
         try {
             const token = localStorage.getItem('token');
 
-            const responsePaciente = await fetch(`http://localhost:3000/api/usuarios/buscar-identificacion/${identificacion}`, {
+            const responsePaciente = await fetch(`http://https://vital-nafd.onrender.com/api/usuarios/buscar-identificacion/${identificacion}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
@@ -534,7 +534,7 @@
             const dataPaciente = await responsePaciente.json();
             pacienteActual = dataPaciente.exito ? dataPaciente : dataPaciente;
 
-            const responseCitas = await fetch(`http://localhost:3000/api/citas/paciente/${pacienteActual.id}`, {
+            const responseCitas = await fetch(`http://https://vital-nafd.onrender.com/api/citas/paciente/${pacienteActual.id}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
